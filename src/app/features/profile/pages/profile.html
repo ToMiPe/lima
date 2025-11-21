@@ -1,0 +1,87 @@
+<div class="flex flex-col flex-auto">
+  <div class="rounded-t-3xl bg-surface-0 dark:bg-surface-900 flex-auto py-6 lg:py-8 px-8 lg:px-20">
+    <!-- Header -->
+    <div class="flex flex-col w-full pb-6 gap-2">
+      <h2 class="mt-0 text-surface-900 dark:text-surface-0 font-semibold text-3xl leading-tight">
+        Mi Perfil
+      </h2>
+      <p class="mt-0 text-surface-500 dark:text-surface-300 text-base leading-relaxed">
+        Gestiona tu información personal y configuración de seguridad
+      </p>
+    </div>
+
+    <!-- Card de Roles y Verificación -->
+    <div class="pb-6">
+      <p-card class="shadow-sm border border-surface-200 dark:border-surface-700">
+        <div class="flex flex-wrap gap-6">
+          <!-- Roles -->
+          <div class="flex flex-column gap-2 flex-1">
+            <span class="text-surface-900 dark:text-surface-0 font-semibold text-sm">
+              Rol del Sistema
+            </span>
+            <div class="flex flex-wrap gap-2">
+              @for (role of user()?.roles; track role) {
+                <p-tag
+                  [value]="getRoleLabel(role)"
+                  [severity]="getRoleSeverity(role) || 'secondary'"
+                />
+              }
+            </div>
+          </div>
+
+          <!-- Estado de Verificación -->
+          <div class="flex flex-column gap-2 flex-1">
+            <span class="text-surface-900 dark:text-surface-0 font-semibold text-sm">
+              Estado de Verificación
+            </span>
+            @if (user()?.emailVerified) {
+              <p-tag
+                value="Email Verificado"
+                severity="success"
+                icon="pi pi-check-circle"
+                class="w-fit"
+              />
+            } @else {
+              <p-tag
+                value="Email No Verificado"
+                severity="warn"
+                icon="pi pi-exclamation-triangle"
+                class="w-fit"
+              />
+            }
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Tabs -->
+    <p-tabs value="0">
+      <p-tablist>
+        <p-tab value="0">
+          <i class="pi pi-user mr-2"></i>
+          Información Personal
+        </p-tab>
+        <p-tab value="1">
+          <i class="pi pi-lock mr-2"></i>
+          Seguridad
+        </p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <!-- Tab: Información Personal -->
+        <p-tabpanel value="0">
+          <div class="pt-4">
+            <app-personal-info />
+          </div>
+        </p-tabpanel>
+
+        <!-- Tab: Seguridad -->
+        <p-tabpanel value="1">
+          <div class="pt-4">
+            <app-security />
+          </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+</div>

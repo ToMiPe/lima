@@ -1,0 +1,95 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <header class="dashboard-header bg-gradient-adra">
+    <div class="header-content">
+      <div class="header-brand">
+        <div class="brand-logo">🌿</div>
+        <div>
+          <h1 class="brand-title">MIRAR - ADRA</h1>
+          <p class="brand-subtitle">Sistema de Análisis Geográfico</p>
+        </div>
+      </div>
+
+      <div class="header-info">
+        <div class="data-status">
+          <div
+            class="status-indicator"
+            [class.loading]="dashboardService.isLoading()"
+            [class.success]="!dashboardService.isLoading() && dashboardService.totalRecords() > 0"
+            [class.error]="!dashboardService.isLoading() && dashboardService.totalRecords() === 0"
+          ></div>
+          <div class="status-text">
+            <p class="status-label">{{ dashboardService.getDataStatus() }}</p>
+            @if (dashboardService.lastUpdate()) {
+              <p class="status-time">
+                Actualizado: {{ dashboardService.lastUpdate() | date: 'short' }}
+              </p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="dashboard-main">
+    <!-- Hero Section: Mapa + KPIs -->
+    <section class="hero-section animate-fade-in-up">
+      <app-peru-map-svg
+        [departmentData]="dashboardService.departmentStats()"
+        (onMapClick)="onDepartmentClick($event)"
+      />
+
+      <!-- KPIs Overlay -->
+      <div class="kpis-grid">
+        @for (kpi of dashboardService.kpis(); track kpi.id) {
+          <app-kpi-card [kpi]="kpi" />
+        }
+      </div>
+    </section>
+
+    <!-- Reportes Section -->
+    <section class="reports-section">
+      <div class="section-header">
+        <h2 class="section-title">Explorar por Dimensión</h2>
+        <p class="section-subtitle">Selecciona el tipo de análisis que deseas realizar</p>
+      </div>
+
+      <div class="reports-grid">
+        @for (report of dashboardService.availableReports(); track report.id) {
+          <app-report-card [report]="report" (selectReport)="onReportSelect($event)" />
+        }
+      </div>
+    </section>
+
+    <!-- Análisis de Concentración Section -->
+    <section class="analysis-section">
+      <div class="section-header">
+        <h2 class="section-title">Análisis de Concentración</h2>
+        <p class="section-subtitle">Monitoreo de riesgo usando el Índice HHI</p>
+      </div>
+    </section>
+
+    <app-hhi-widget />
+
+    <!-- Loading State -->
+    @if (dashboardService.isLoading()) {
+      <div class="loading-overlay">
+        <div class="loading-content">
+          <div class="loading-logo">🌿</div>
+          <div class="loading-spinner"></div>
+          <h3 class="loading-title">MIRAR - ADRA</h3>
+          <p class="loading-text">Cargando datos...</p>
+        </div>
+      </div>
+    }
+  </main>
+
+  <!-- Footer -->
+  <footer class="dashboard-footer">
+    <div class="footer-content">
+      <p>© 2025 ADRA - Sistema MIRAR v1.0</p>
+      <p>Última actualización: {{ getCurrentDate() }}</p>
+    </div>
+  </footer>
+</div>

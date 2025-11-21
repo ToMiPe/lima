@@ -1,0 +1,17 @@
+@use './variables/common' as *;
+@use './variables/light' as *;
+@use './variables/dark' as *;
+// Estilos base del layout de la aplicación
+// Define la estructura visual principal
+
+@use './mirar';
+@use './mixins' as *;
+@use './preloading';
+@use './core';
+@use './main';
+@use './topbar';
+@use './menu';
+@use './footer';
+@use './responsive';
+@use './utils';
+@use './typography';

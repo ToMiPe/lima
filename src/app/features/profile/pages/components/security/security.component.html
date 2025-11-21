@@ -1,0 +1,108 @@
+<!-- Info Banner -->
+<div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded-r">
+  <div class="flex items-start gap-3">
+    <i class="pi pi-info-circle text-blue-500 text-xl"></i>
+    <div>
+      <p class="text-sm text-blue-600 dark:text-blue-400">
+        Para cambiar su contraseña, debe ingresar tu contraseña actual y luego la nueva contraseña.
+        La nueva contraseña debe tener al menos 6 caracteres.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Password Change Form -->
+<form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="space-y-6">
+  <!-- Current Password -->
+  <div class="flex flex-col gap-2">
+    <label for="currentPassword" class="font-semibold text-surface-900 dark:text-surface-0">
+      Contraseña Actual
+    </label>
+    <p-password
+      id="currentPassword"
+      formControlName="currentPassword"
+      placeholder="Ingresa tu contraseña actual"
+      [toggleMask]="true"
+      [feedback]="false"
+      [style]="{ width: '100%' }"
+      [inputStyle]="{ width: '100%' }"
+      class="w-full"
+    />
+    @if (
+      passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched
+    ) {
+      <small class="text-red-600 dark:text-red-400"> La contraseña actual es requerida </small>
+    }
+  </div>
+
+  <!-- New Password -->
+  <div class="flex flex-col gap-2">
+    <label for="newPassword" class="font-semibold text-surface-900 dark:text-surface-0">
+      Nueva Contraseña
+    </label>
+    <p-password
+      id="newPassword"
+      formControlName="newPassword"
+      placeholder="Ingresa tu nueva contraseña"
+      [toggleMask]="true"
+      [style]="{ width: '100%' }"
+      [inputStyle]="{ width: '100%' }"
+      class="w-full"
+    />
+    @if (passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched) {
+      <small class="text-red-600 dark:text-red-400">
+        @if (passwordForm.get('newPassword')?.hasError('required')) {
+          La nueva contraseña es requerida
+        } @else if (passwordForm.get('newPassword')?.hasError('minlength')) {
+          La contraseña debe tener al menos 8 caracteres
+        }
+      </small>
+    }
+  </div>
+
+  <!-- Confirm New Password -->
+  <div class="flex flex-col gap-2">
+    <label for="confirmNewPassword" class="font-semibold text-surface-900 dark:text-surface-0">
+      Confirmar Nueva Contraseña
+    </label>
+    <p-password
+      id="confirmNewPassword"
+      formControlName="confirmNewPassword"
+      placeholder="Confirma tu nueva contraseña"
+      [toggleMask]="true"
+      [feedback]="false"
+      [style]="{ width: '100%' }"
+      [inputStyle]="{ width: '100%' }"
+      class="w-full"
+    />
+    @if (
+      passwordForm.get('confirmNewPassword')?.invalid &&
+      passwordForm.get('confirmNewPassword')?.touched
+    ) {
+      <small class="text-red-600 dark:text-red-400"> Confirma tu nueva contraseña </small>
+    }
+    @if (
+      passwordForm.errors?.['passwordMismatch'] && passwordForm.get('confirmNewPassword')?.touched
+    ) {
+      <small class="text-red-600 dark:text-red-400"> Las contraseñas no coinciden </small>
+    }
+  </div>
+
+  <!-- Form Actions -->
+  <div class="flex gap-3 pt-4">
+    <p-button
+      type="button"
+      label="Cancelar"
+      class="p-button-outlined flex-1"
+      (click)="resetPasswordForm()"
+      [disabled]="isChangingPassword"
+    />
+    <p-button
+      type="submit"
+      label="Cambiar Contraseña"
+      class="flex-1"
+      [disabled]="passwordForm.invalid || isChangingPassword"
+      [loading]="isChangingPassword"
+    />
+  </div>
+</form>

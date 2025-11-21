@@ -1,0 +1,482 @@
+<div class="cumplimiento-map-container">
+  <!-- Header -->
+  <div class="map-header">
+    <div class="header-left">
+      <button
+        pButton
+        icon="pi pi-arrow-left"
+        class="p-button-text p-button-rounded"
+        (click)="volver()"
+        pTooltip="Volver al dashboard"
+        tooltipPosition="bottom"
+      ></button>
+      <h2>
+        Reporte de Cumplimiento
+        @if (departamento()) {
+          <span class="department">- {{ departamento() }}</span>
+        }
+      </h2>
+    </div>
+
+    <div class="header-actions">
+      <!-- Contador de puntos -->
+      <div class="puntos-counter">
+        <span class="count">{{ filteredCount() }}</span>
+        <span class="label">/ {{ totalPuntos() }} créditos</span>
+      </div>
+
+      <!-- Toggle clustering -->
+      <button
+        pButton
+        [icon]="clusteringEnabled() ? 'pi pi-th-large' : 'pi pi-map-marker'"
+        class="p-button-text"
+        (click)="toggleClustering()"
+        [pTooltip]="clusteringEnabled() ? 'Desactivar clustering' : 'Activar clustering'"
+        tooltipPosition="bottom"
+      ></button>
+
+      <!-- Botón filtros -->
+      <button
+        pButton
+        icon="pi pi-filter"
+        [label]="hasActiveFilters() ? 'Filtros (' + coloresSeleccionados.length + ')' : 'Filtros'"
+        class="p-button-outlined"
+        [class.has-filters]="hasActiveFilters()"
+        (click)="showFilters.set(!showFilters())"
+        pTooltip="Mostrar filtros"
+        tooltipPosition="bottom"
+      ></button>
+
+      <!-- Botón resumen -->
+      <button
+        pButton
+        icon="pi pi-chart-bar"
+        label="Resumen"
+        class="p-button-outlined"
+        (click)="showSummary.set(!showSummary())"
+        pTooltip="Ver estadísticas"
+        tooltipPosition="bottom"
+      ></button>
+
+      <!-- Botón exportar -->
+      <button
+        pButton
+        icon="pi pi-download"
+        class="p-button-outlined"
+        (click)="exportarDatos()"
+        pTooltip="Exportar datos"
+        tooltipPosition="bottom"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  @if (isLoading()) {
+    <div class="loading-overlay">
+      <p-progressSpinner styleClass="custom-spinner" strokeWidth="3" animationDuration="1s" />
+      <p class="loading-text">Cargando datos de cumplimiento...</p>
+    </div>
+  }
+
+  <!-- Panel de Filtros -->
+  @if (showFilters()) {
+    <div class="filters-panel">
+      <div class="filters-header">
+        <h3>
+          <i class="pi pi-filter"></i>
+          Filtros
+        </h3>
+        <button
+          pButton
+          icon="pi pi-times"
+          class="p-button-text p-button-sm"
+          (click)="showFilters.set(false)"
+        ></button>
+      </div>
+
+      <div class="filters-body">
+        <!-- Búsqueda de texto -->
+        <div class="filter-group">
+          <label>Búsqueda</label>
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="searchText"
+              (ngModelChange)="aplicarFiltros()"
+              placeholder="Cliente, crédito, agencia..."
+              class="w-full"
+            />
+          </span>
+        </div>
+
+        <!-- Filtro por clasificación (colores) -->
+        <div class="filter-group">
+          <label>Clasificación de Riesgo</label>
+          <div class="color-filters">
+            <div class="color-option">
+              <p-checkbox
+                [(ngModel)]="coloresSeleccionados"
+                value="verde"
+                (onChange)="aplicarFiltros()"
+                inputId="color-verde"
+              />
+              <label for="color-verde" class="color-label">
+                <span class="color-dot verde"></span>
+                Bajo Riesgo ({{ puntosVerdes() }})
+              </label>
+            </div>
+
+            <div class="color-option">
+              <p-checkbox
+                [(ngModel)]="coloresSeleccionados"
+                value="naranja"
+                (onChange)="aplicarFiltros()"
+                inputId="color-naranja"
+              />
+              <label for="color-naranja" class="color-label">
+                <span class="color-dot naranja"></span>
+                Riesgo Medio ({{ puntosNaranjas() }})
+              </label>
+            </div>
+
+            <div class="color-option">
+              <p-checkbox
+                [(ngModel)]="coloresSeleccionados"
+                value="rojo"
+                (onChange)="aplicarFiltros()"
+                inputId="color-rojo"
+              />
+              <label for="color-rojo" class="color-label">
+                <span class="color-dot rojo"></span>
+                Alto Riesgo ({{ puntosRojos() }})
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <p-divider />
+
+        <!-- Filtro por agencias -->
+        <div class="filter-group">
+          <label>Agencias</label>
+          <p-multiSelect
+            [(ngModel)]="filtros.agencias"
+            [options]="opcionesFiltros().agencias"
+            (onChange)="aplicarFiltros()"
+            placeholder="Todas las agencias"
+            display="chip"
+            [showClear]="true"
+            styleClass="w-full"
+          />
+        </div>
+
+        <!-- Filtro por tipos de crédito -->
+        <div class="filter-group">
+          <label>Tipos de Crédito</label>
+          <p-multiSelect
+            [(ngModel)]="filtros.tiposCredito"
+            [options]="opcionesFiltros().tiposCredito"
+            (onChange)="aplicarFiltros()"
+            placeholder="Todos los tipos"
+            display="chip"
+            [showClear]="true"
+            styleClass="w-full"
+          />
+        </div>
+
+        <!-- Filtro por situaciones -->
+        <div class="filter-group">
+          <label>Situación</label>
+          <p-multiSelect
+            [(ngModel)]="filtros.situaciones"
+            [options]="opcionesFiltros().situaciones"
+            (onChange)="aplicarFiltros()"
+            placeholder="Todas las situaciones"
+            display="chip"
+            [showClear]="true"
+            styleClass="w-full"
+          />
+        </div>
+
+        <p-divider />
+
+        <!-- Botones de acción -->
+        <div class="filter-actions">
+          <button
+            pButton
+            label="Limpiar Filtros"
+            icon="pi pi-times"
+            class="p-button-outlined p-button-sm w-full"
+            (click)="limpiarFiltros()"
+            [disabled]="!hasActiveFilters()"
+          ></button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Panel de Resumen Estadístico -->
+  @if (showSummary() && summary()) {
+    <div class="summary-panel">
+      <div class="summary-header">
+        <h3>
+          <i class="pi pi-chart-bar"></i>
+          Estadísticas del Reporte
+        </h3>
+        <button
+          pButton
+          icon="pi pi-times"
+          class="p-button-text p-button-sm"
+          (click)="showSummary.set(false)"
+        ></button>
+      </div>
+
+      <div class="summary-body">
+        <!-- Totales -->
+        <div class="stat-group">
+          <h4>Registros</h4>
+          <div class="stat-item">
+            <span class="stat-label">Total Procesados</span>
+            <span class="stat-value">{{ summary()!.totalRegistrosProcesados | number }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Excluidos</span>
+            <span class="stat-value text-warning">{{
+              summary()!.totalRegistrosExcluidos | number
+            }}</span>
+          </div>
+        </div>
+
+        <p-divider />
+
+        <!-- Distribución por clasificación -->
+        <div class="stat-group">
+          <h4>Distribución por Riesgo</h4>
+          <div class="stat-item verde">
+            <span class="stat-label">
+              <span class="color-dot verde"></span>
+              Bajo Riesgo
+            </span>
+            <span class="stat-value">{{ summary()!.distribucion.verde | number }}</span>
+          </div>
+          <div class="stat-item naranja">
+            <span class="stat-label">
+              <span class="color-dot naranja"></span>
+              Riesgo Medio
+            </span>
+            <span class="stat-value">{{ summary()!.distribucion.naranja | number }}</span>
+          </div>
+          <div class="stat-item rojo">
+            <span class="stat-label">
+              <span class="color-dot rojo"></span>
+              Alto Riesgo
+            </span>
+            <span class="stat-value">{{ summary()!.distribucion.rojo | number }}</span>
+          </div>
+        </div>
+
+        <p-divider />
+
+        <!-- Porcentajes -->
+        <div class="stat-group">
+          <h4>Porcentajes de Cumplimiento</h4>
+          <div class="stat-item">
+            <span class="stat-label">Promedio</span>
+            <span class="stat-value">{{ summary()!.porcentajes.promedio | number: '1.2-2' }}%</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Mínimo</span>
+            <span class="stat-value">{{ summary()!.porcentajes.min | number: '1.2-2' }}%</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Máximo</span>
+            <span class="stat-value">{{ summary()!.porcentajes.max | number: '1.2-2' }}%</span>
+          </div>
+        </div>
+
+        <p-divider />
+
+        <!-- Montos -->
+        <div class="stat-group">
+          <h4>Montos</h4>
+          <div class="stat-item">
+            <span class="stat-label">Total Colocado</span>
+            <span class="stat-value"
+              >S/ {{ summary()!.montos.totalColocado | number: '1.0-0' }}</span
+            >
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Total Saldo</span>
+            <span class="stat-value"
+              >S/ {{ summary()!.montos.totalSaldoCapital | number: '1.0-0' }}</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Mapa -->
+  <div class="map-wrapper">
+    <div #mapContainer class="map-container"></div>
+
+    <!-- Leyenda -->
+    <div class="map-legend">
+      <h4>Leyenda</h4>
+      <div class="legend-item">
+        <span class="legend-dot verde"></span>
+        <span class="legend-label">Bajo Riesgo (≤49%)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot naranja"></span>
+        <span class="legend-label">Riesgo Medio (50-75%)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot rojo"></span>
+        <span class="legend-label">Alto Riesgo (≥76%)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drawer de detalle de punto -->
+  <p-drawer
+    [(visible)]="showPuntoDrawer"
+    position="right"
+    [style]="{ width: '400px' }"
+    header="Detalle del Crédito"
+  >
+    @if (selectedPunto()) {
+      <div class="punto-detail">
+        <!-- Header con clasificación -->
+        <div class="detail-header" [class]="selectedPunto()!.color">
+          <div class="classification-badge" [class]="selectedPunto()!.color">
+            <span class="badge-icon">
+              @if (selectedPunto()!.color === 'verde') {
+                ✓
+              }
+              @if (selectedPunto()!.color === 'naranja') {
+                ⚠
+              }
+              @if (selectedPunto()!.color === 'rojo') {
+                ✕
+              }
+            </span>
+            <span class="badge-text">{{ selectedPunto()!.clasificacion }}</span>
+          </div>
+          <div class="percentage">
+            {{ selectedPunto()!.porcentajeCumplimiento | number: '1.2-2' }}%
+          </div>
+        </div>
+
+        <!-- Cliente -->
+        <div class="detail-section">
+          <h4><i class="pi pi-user"></i> Cliente</h4>
+          <p class="detail-name">{{ selectedPunto()!.nombreCliente }}</p>
+          <div class="detail-row">
+            <span class="label">Código:</span>
+            <span class="value">{{ selectedPunto()!.codCliente }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Género:</span>
+            <span class="value">{{
+              selectedPunto()!.genero === 'M' ? 'Masculino' : 'Femenino'
+            }}</span>
+          </div>
+          @if (selectedPunto()!.edad) {
+            <div class="detail-row">
+              <span class="label">Edad:</span>
+              <span class="value">{{ selectedPunto()!.edad }} años</span>
+            </div>
+          }
+        </div>
+
+        <p-divider />
+
+        <!-- Crédito -->
+        <div class="detail-section">
+          <h4><i class="pi pi-money-bill"></i> Crédito</h4>
+          <div class="detail-row">
+            <span class="label">Código:</span>
+            <span class="value">{{ selectedPunto()!.codCredito }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Tipo:</span>
+            <span class="value">{{ selectedPunto()!.tipoCredito }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Situación:</span>
+            <p-tag
+              [value]="selectedPunto()!.situacion"
+              [severity]="selectedPunto()!.situacion === 'VIGENTE' ? 'success' : 'danger'"
+            />
+          </div>
+          @if (selectedPunto()!.diasAtraso > 0) {
+            <div class="detail-row alert">
+              <span class="label">Días de atraso:</span>
+              <span class="value">{{ selectedPunto()!.diasAtraso }}</span>
+            </div>
+          }
+        </div>
+
+        <p-divider />
+
+        <!-- Montos -->
+        <div class="detail-section">
+          <h4><i class="pi pi-wallet"></i> Montos</h4>
+          <div class="detail-row">
+            <span class="label">Monto Colocado:</span>
+            <span class="value">S/ {{ selectedPunto()!.montoColocado | number: '1.2-2' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Saldo Capital:</span>
+            <span class="value">S/ {{ selectedPunto()!.saldoCapital | number: '1.2-2' }}</span>
+          </div>
+        </div>
+
+        <p-divider />
+
+        <!-- Agencia -->
+        <div class="detail-section">
+          <h4><i class="pi pi-building"></i> Agencia</h4>
+          <p class="detail-name">{{ selectedPunto()!.nombreAgencia }}</p>
+          <div class="detail-row">
+            <span class="label">Código:</span>
+            <span class="value">{{ selectedPunto()!.codAgencia }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Asesor:</span>
+            <span class="value">{{ selectedPunto()!.asesor }}</span>
+          </div>
+        </div>
+
+        <p-divider />
+
+        <!-- Ubicación -->
+        <div class="detail-section">
+          <h4><i class="pi pi-map-marker"></i> Ubicación</h4>
+          <div class="detail-row">
+            <span class="label">Departamento:</span>
+            <span class="value">{{ selectedPunto()!.departamento }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Provincia:</span>
+            <span class="value">{{ selectedPunto()!.provincia }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Distrito:</span>
+            <span class="value">{{ selectedPunto()!.distrito }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Coordenadas:</span>
+            <span class="value"
+              >{{ selectedPunto()!.latitud | number: '1.6-6' }},
+              {{ selectedPunto()!.longitud | number: '1.6-6' }}</span
+            >
+          </div>
+        </div>
+      </div>
+    }
+  </p-drawer>
+</div>

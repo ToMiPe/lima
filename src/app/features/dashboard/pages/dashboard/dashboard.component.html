@@ -1,0 +1,347 @@
+<div class="dashboard-container p-4">
+  <!-- Header con bienvenida -->
+  <div class="mb-5">
+    <h1 class="text-4xl font-bold mb-2">Bienvenido, {{ userName() }}</h1>
+    <p class="text-xl text-600">
+      <i class="pi pi-user mr-2"></i>
+      {{ mainRole() }}
+    </p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SECCIÓN ADMIN - Solo visible para admin -->
+  <!-- ============================================ -->
+  <div *hasRole="'admin'" class="mb-5">
+    <h2 class="text-2xl font-semibold mb-3 text-primary">
+      <i class="pi pi-shield mr-2"></i>
+      Panel de Administración Global
+    </h2>
+
+    <div class="grid">
+      <!-- Card: Gestión de Usuarios -->
+      <div class="col-12 md:col-6 lg:col-3">
+        <p-card>
+          <div class="flex flex-column align-items-center text-center">
+            <i class="pi pi-users text-5xl text-blue-500 mb-3"></i>
+            <h3 class="text-xl font-semibold mb-2">Usuarios</h3>
+            <p class="text-600 mb-3">Gestionar usuarios y roles</p>
+            <p-button
+              label="Gestionar"
+              icon="pi pi-arrow-right"
+              [routerLink]="['/admin/users']"
+              styleClass="w-full"
+            />
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Card: Gestión de EPSAs -->
+      <div class="col-12 md:col-6 lg:col-3">
+        <p-card>
+          <div class="flex flex-column align-items-center text-center">
+            <i class="pi pi-building text-5xl text-green-500 mb-3"></i>
+            <h3 class="text-xl font-semibold mb-2">EPSAs</h3>
+            <p class="text-600 mb-3">{{ stats().totalEpsas }} EPSAs en el sistema</p>
+            <p-button
+              label="Gestionar"
+              icon="pi pi-arrow-right"
+              [routerLink]="['/admin/epsas']"
+              styleClass="w-full"
+            />
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Card: Configuración -->
+      <div class="col-12 md:col-6 lg:col-3">
+        <p-card>
+          <div class="flex flex-column align-items-center text-center">
+            <i class="pi pi-cog text-5xl text-orange-500 mb-3"></i>
+            <h3 class="text-xl font-semibold mb-2">Configuración</h3>
+            <p class="text-600 mb-3">Configurar el sistema</p>
+            <p-button
+              label="Configurar"
+              icon="pi pi-arrow-right"
+              [routerLink]="['/admin/config']"
+              styleClass="w-full"
+            />
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Card: Reportes Globales -->
+      <div class="col-12 md:col-6 lg:col-3">
+        <p-card>
+          <div class="flex flex-column align-items-center text-center">
+            <i class="pi pi-chart-bar text-5xl text-purple-500 mb-3"></i>
+            <h3 class="text-xl font-semibold mb-2">Reportes</h3>
+            <p class="text-600 mb-3">Reportes del sistema</p>
+            <p-button
+              label="Ver Reportes"
+              icon="pi pi-arrow-right"
+              [routerLink]="['/reports']"
+              styleClass="w-full"
+            />
+          </div>
+        </p-card>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SECCIÓN JEFE DE ÁREA - Admin y Jefe -->
+  <!-- ============================================ -->
+  <div *hasRole="['admin', 'jefe']" class="mb-5">
+    <h2 class="text-2xl font-semibold mb-3 text-primary">
+      <i class="pi pi-chart-line mr-2"></i>
+      Estadísticas Generales
+    </h2>
+
+    <div class="grid">
+      <!-- Card: Total EPSAs -->
+      <div class="col-12 md:col-6 lg:col-3">
+        <p-card>
+          <div class="text-center">
+            <div class="text-4xl font-bold text-blue-500 mb-2">
+              {{ stats().totalEpsas }}
+            </div>
+            <div class="text-600">EPSAs en el Sistema</div>
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Card: Reportes Pendientes -->
+      <div class="col-12 md:col-6 lg:col-3">
+        <p-card>
+          <div class="text-center">
+            <div class="text-4xl font-bold text-orange-500 mb-2">
+              {{ stats().pendingReports }}
+            </div>
+            <div class="text-600">Reportes Pendientes</div>
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Card: Reportes Aprobados -->
+      <div class="col-12 md:col-6 lg:col-3">
+        <p-card>
+          <div class="text-center">
+            <div class="text-4xl font-bold text-green-500 mb-2">
+              {{ stats().approvedReports }}
+            </div>
+            <div class="text-600">Reportes Aprobados</div>
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Card: Ver Todos -->
+      <div class="col-12 md:col-6 lg:col-3">
+        <p-card>
+          <div
+            class="flex flex-column align-items-center justify-content-center"
+            style="height: 100%"
+          >
+            <p-button
+              label="Ver Reportes Globales"
+              icon="pi pi-external-link"
+              [routerLink]="['/reports/global']"
+              styleClass="w-full"
+            />
+          </div>
+        </p-card>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SECCIÓN TÉCNICOS Y USUARIOS EPSA -->
+  <!-- Todos menos admin ven sus EPSAs asignadas -->
+  <!-- ============================================ -->
+  <div *hasRole="['tecnico', 'epsa']" class="mb-5">
+    <h2 class="text-2xl font-semibold mb-3 text-primary">
+      <i class="pi pi-briefcase mr-2"></i>
+      Mis EPSAs Asignadas
+    </h2>
+
+    <div class="grid">
+      <!-- Card: Mis EPSAs -->
+      <div class="col-12 md:col-6 lg:col-4">
+        <p-card>
+          <div class="text-center">
+            <i class="pi pi-building text-5xl text-cyan-500 mb-3"></i>
+            <div class="text-3xl font-bold text-cyan-500 mb-2">
+              {{ stats().myEpsas }}
+            </div>
+            <div class="text-600 mb-3">EPSAs Asignadas</div>
+            <p-button
+              label="Ver Mis EPSAs"
+              icon="pi pi-arrow-right"
+              [routerLink]="['/my-epsas']"
+              styleClass="w-full"
+            />
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Card: Mis Reportes Pendientes -->
+      <div class="col-12 md:col-6 lg:col-4">
+        <p-card>
+          <div class="text-center">
+            <i class="pi pi-clock text-5xl text-orange-500 mb-3"></i>
+            <div class="text-3xl font-bold text-orange-500 mb-2">
+              {{ stats().pendingReports }}
+            </div>
+            <div class="text-600 mb-3">Reportes Pendientes</div>
+            <p-button
+              label="Ver Pendientes"
+              icon="pi pi-arrow-right"
+              [routerLink]="['/my-reports/pending']"
+              styleClass="w-full"
+              severity="warn"
+            />
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Card: Mis Tareas -->
+      <div class="col-12 md:col-6 lg:col-4">
+        <p-card>
+          <div class="text-center">
+            <i class="pi pi-list-check text-5xl text-green-500 mb-3"></i>
+            <div class="text-3xl font-bold text-green-500 mb-2">8</div>
+            <div class="text-600 mb-3">Tareas Completadas</div>
+            <p-button
+              label="Ver Tareas"
+              icon="pi pi-arrow-right"
+              [routerLink]="['/my-tasks']"
+              styleClass="w-full"
+              severity="success"
+            />
+          </div>
+        </p-card>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SECCIÓN COMÚN - Todos los usuarios -->
+  <!-- ============================================ -->
+  <div class="mb-5">
+    <h2 class="text-2xl font-semibold mb-3">
+      <i class="pi pi-box mr-2"></i>
+      Módulos del Sistema
+    </h2>
+
+    <div class="grid">
+      <!-- Card: LYR -->
+      <div class="col-12 md:col-6 lg:col-4">
+        <p-card>
+          <div class="flex flex-column align-items-center text-center">
+            <i class="pi pi-map text-5xl text-blue-500 mb-3"></i>
+            <h3 class="text-xl font-semibold mb-2">LYR</h3>
+            <p class="text-600 mb-3">Límites y Registros</p>
+            <p-button
+              label="Acceder"
+              icon="pi pi-arrow-right"
+              [routerLink]="['/lyr']"
+              styleClass="w-full"
+            />
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Card: DRARH (Futuro) -->
+      <div class="col-12 md:col-6 lg:col-4">
+        <p-card>
+          <div class="flex flex-column align-items-center text-center">
+            <i class="pi pi-database text-5xl text-gray-400 mb-3"></i>
+            <h3 class="text-xl font-semibold mb-2 text-gray-400">DRARH</h3>
+            <p class="text-600 mb-3">Próximamente</p>
+            <p-button
+              label="Próximamente"
+              icon="pi pi-lock"
+              styleClass="w-full"
+              [disabled]="true"
+            />
+          </div>
+        </p-card>
+      </div>
+
+      <!-- Card: DER (Futuro) -->
+      <div class="col-12 md:col-6 lg:col-4">
+        <p-card>
+          <div class="flex flex-column align-items-center text-center">
+            <i class="pi pi-file-edit text-5xl text-gray-400 mb-3"></i>
+            <h3 class="text-xl font-semibold mb-2 text-gray-400">DER</h3>
+            <p class="text-600 mb-3">Próximamente</p>
+            <p-button
+              label="Próximamente"
+              icon="pi pi-lock"
+              styleClass="w-full"
+              [disabled]="true"
+            />
+          </div>
+        </p-card>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MANTENIMIENTO DE DATOS - Todos los usuarios -->
+  <!-- ============================================ -->
+  <div class="mb-5">
+    <h3 class="text-xl font-semibold mb-3 text-orange-600">
+      <i class="pi pi-refresh mr-2"></i>
+      Mantenimiento de Datos
+    </h3>
+    <p-card>
+      <div class="flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="flex-1" style="min-width: 300px">
+          <h4 class="text-lg font-semibold mb-2">Recargar Datos del Navegador</h4>
+          <p class="text-600 mb-0">
+            Limpia los datos almacenados en tu navegador y los recarga desde el servidor.
+            <br />
+            <small class="text-500">
+              <i class="pi pi-info-circle mr-1"></i>
+              Úsalo cuando haya actualizaciones de datos o problemas de visualización en los mapas.
+            </small>
+          </p>
+        </div>
+        <div>
+          <p-button
+            label="Recargar Datos"
+            icon="pi pi-refresh"
+            severity="warn"
+            [outlined]="true"
+            [loading]="isClearing()"
+            [disabled]="isClearing()"
+            (onClick)="clearDatabase()"
+          />
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Toast para notificaciones -->
+  <p-toast />
+
+  <!-- Diálogo de confirmación -->
+  <p-confirmDialog />
+
+  <!-- ============================================ -->
+  <!-- DEBUG INFO - Solo en desarrollo -->
+  <!-- ============================================ -->
+  @if (isAdmin()) {
+    <div class="mt-5 p-3 border-round surface-100">
+      <h3 class="text-lg font-semibold mb-2">
+        <i class="pi pi-info-circle mr-2"></i>
+        Debug Info (Solo Admin)
+      </h3>
+      <div class="text-sm">
+        <p><strong>Usuario:</strong> {{ userName() }}</p>
+        <p><strong>Roles:</strong> {{ userRoles().join(', ') }}</p>
+        <p><strong>Es Admin:</strong> {{ isAdmin() }}</p>
+      </div>
+    </div>
+  }
+</div>

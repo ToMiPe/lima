@@ -1,0 +1,103 @@
+/**
+ * Tema visual ADRA para Sistema MIRAR
+ * Colores basados en la identidad de https://adra.org/
+ */
+
+:root {
+  /* Colores primarios ADRA */
+  --adra-green-primary: #00843d;
+  --adra-green-light: #4caf50;
+  --adra-green-dark: #005a29;
+  --adra-green-lightest: #e8f5e9;
+
+  --adra-blue-primary: #005eb8;
+  --adra-blue-light: #2196f3;
+  --adra-blue-dark: #003d82;
+
+  --adra-yellow-accent: #fdb913;
+  --adra-yellow-light: #fdd835;
+
+  /* Gradientes */
+  --gradient-header: linear-gradient(135deg, #00843d 0%, #4caf50 70%, #005eb8 100%);
+  --gradient-card: linear-gradient(to bottom right, #00843d, #4caf50);
+  --gradient-overlay: linear-gradient(to bottom, rgb(0 132 61 / 10%), rgb(0 132 61 / 5%));
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 5%);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 10%), 0 2px 4px -1px rgb(0 0 0 / 6%);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 10%), 0 4px 6px -2px rgb(0 0 0 / 5%);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 10%), 0 10px 10px -5px rgb(0 0 0 / 4%);
+
+  /* Transiciones */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 300ms ease-in-out;
+  --transition-slow: 500ms ease-in-out;
+}
+
+/* Clases utilitarias ADRA */
+.bg-adra-green {
+  background-color: var(--adra-green-primary);
+}
+
+.bg-adra-green-light {
+  background-color: var(--adra-green-light);
+}
+
+.bg-adra-blue {
+  background-color: var(--adra-blue-primary);
+}
+
+.bg-gradient-adra {
+  background: var(--gradient-header);
+}
+
+.text-adra-green {
+  color: var(--adra-green-primary);
+}
+
+.text-adra-blue {
+  color: var(--adra-blue-primary);
+}
+
+.border-adra-green {
+  border-color: var(--adra-green-primary);
+}
+
+/* Animaciones ADRA */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-adra {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(0 132 61 / 40%);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgb(0 132 61 / 0%);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp var(--transition-normal);
+}
+
+.hover-lift {
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+}

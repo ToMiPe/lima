@@ -1,0 +1,395 @@
+// ===========================
+// Variables SCSS
+// ===========================
+$primary-blue: #0057b8;
+$primary-dark: #003d82;
+$primary-light: #0069d9;
+$white: #ffffff;
+$text-white: rgba(255, 255, 255, 0.95);
+$text-light: rgba(255, 255, 255, 0.9);
+$text-dark: #1f2937;
+$border-light: #e5e7eb;
+$placeholder-color: #9ca3af;
+
+// ===========================
+// Layout principal
+// ===========================
+:host {
+  display: contents;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  background: linear-gradient(135deg, $primary-dark 0%, $primary-blue 40%, $primary-light 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+// ===========================
+// Panel derecho - Formulario
+// ===========================
+.form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 550px;
+  padding: 2.5rem;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 61, 130, 0.25);
+  backdrop-filter: blur(10px);
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 160px;
+  background: $white;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 61, 130, 0.15);
+
+  .institution-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .pi {
+    font-size: 2rem;
+    color: $primary-blue;
+  }
+}
+
+.welcome-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: $primary-blue;
+  margin: 0 0 0.5rem 0;
+}
+
+.welcome-subtitle {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+// ===========================
+// Formulario
+// ===========================
+.auth-form {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-field {
+  display: grid;
+  gap: 0.5rem;
+
+  label {
+    font-weight: 600;
+    color: $text-dark;
+    font-size: 0.9rem;
+  }
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  input[pInputText],
+  ::ng-deep .p-password {
+    flex: 1;
+  }
+
+  input[pInputText] {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 2px solid $border-light;
+    border-radius: 10px;
+    font-size: 1rem;
+    background: $white;
+    color: $text-dark;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: $primary-blue;
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(0, 87, 184, 0.1);
+    }
+
+    &::placeholder {
+      color: $placeholder-color;
+    }
+  }
+
+  ::ng-deep .p-password {
+    width: 100%;
+
+    input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 2px solid $border-light;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: $white;
+      color: $text-dark;
+      transition: all 0.2s ease;
+
+      &:focus {
+        border-color: $primary-blue;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(0, 87, 184, 0.1);
+      }
+
+      &::placeholder {
+        color: $placeholder-color;
+      }
+    }
+
+    .p-password-toggle-icon {
+      color: #6b7280;
+    }
+  }
+}
+
+.help-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: $primary-blue;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 87, 184, 0.1);
+    color: $primary-dark;
+  }
+
+  .pi {
+    font-size: 1.25rem;
+  }
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 0.85rem;
+  margin-top: -0.25rem;
+}
+
+// ===========================
+// Checkbox
+// ===========================
+.field-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+
+  ::ng-deep .p-checkbox {
+    margin-top: 0.15rem;
+  }
+
+  label {
+    font-size: 0.9rem;
+    color: #4b5563;
+    line-height: 1.5;
+  }
+
+  .link-inline {
+    color: $primary-blue;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $primary-dark;
+      text-decoration: underline;
+    }
+  }
+}
+
+// ===========================
+// Botón de envío
+// ===========================
+.submit-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.95rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(
+    135deg,
+    $primary-dark 0%,
+    $primary-blue 40%,
+    $primary-light 100%
+  ) !important;
+  color: $white !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 87, 184, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 87, 184, 0.4);
+    background: linear-gradient(
+      135deg,
+      $primary-dark 0%,
+      $primary-blue 40%,
+      $primary-light 100%
+    ) !important;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// ===========================
+// Mensaje Informativo
+// ===========================
+.info-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba($primary-blue, 0.05);
+  border: 1px solid rgba($primary-blue, 0.2);
+  border-radius: 8px;
+  margin-top: 0.5rem;
+
+  .pi {
+    color: $primary-blue;
+    font-size: 1.2rem;
+    margin-top: 0.15rem;
+    flex-shrink: 0;
+  }
+
+  span {
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+}
+
+// ===========================
+// Enlaces del formulario
+// ===========================
+.form-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid $border-light;
+
+  .link {
+    color: $primary-blue;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    .pi {
+      font-size: 0.85rem;
+      transition: transform 0.2s ease;
+    }
+
+    &:hover {
+      color: $primary-dark;
+
+      .pi {
+        transform: translateX(-3px);
+      }
+    }
+  }
+}
+
+// ===========================
+// Responsive
+// ===========================
+@media (max-width: 768px) {
+  .form-panel {
+    padding: 2rem 1rem;
+  }
+
+  .auth-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-badge {
+    width: 120px;
+    height: 120px;
+  }
+
+  .auth-card {
+    padding: 1.5rem 1rem;
+  }
+}

@@ -1,0 +1,493 @@
+<div class="detail-map-container">
+  <!-- Header con breadcrumb -->
+  <div class="detail-header">
+    <button
+      pButton
+      icon="pi pi-arrow-left"
+      class="p-button-text p-button-rounded"
+      (click)="goBack()"
+      pTooltip="Volver al Dashboard"
+    ></button>
+    <div class="breadcrumb">
+      <span class="breadcrumb-item" (click)="goBack()">Dashboard</span>
+      <i class="pi pi-angle-right"></i>
+      <span class="breadcrumb-current">{{ departmentName() }}</span>
+    </div>
+    <div class="header-stats">
+      <div class="stat-chip">
+        <i class="pi pi-users"></i>
+        <span>{{ formatInteger(totalClients()) }} clientes</span>
+      </div>
+      <div class="stat-chip">
+        <i class="pi pi-wallet"></i>
+        <span>{{ formatCurrency(totalAmount()) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map container -->
+  <div class="map-wrapper">
+    <div #mapContainer class="map-container" id="detail-map"></div>
+
+    <!-- Loading overlay -->
+    @if (isLoading()) {
+      <div class="map-loading-overlay">
+        <p-progressSpinner
+          styleClass="w-16 h-16"
+          strokeWidth="4"
+          fill="transparent"
+          animationDuration=".8s"
+        />
+        <p class="loading-text">Cargando datos de {{ departmentName() }}...</p>
+      </div>
+    }
+
+    <!-- Chips de filtros activos -->
+    @if (hasActiveFilters()) {
+      <div class="active-filters-bar">
+        <div class="filters-label">
+          <i class="pi pi-filter"></i>
+          <span>Filtros activos:</span>
+        </div>
+        <div class="filters-chips">
+          @if (activeFilters.agencia) {
+            <div class="filter-chip">
+              <span class="chip-label">Agencia:</span>
+              <span class="chip-value">{{ activeFilters.agencia }}</span>
+              <i class="pi pi-times" (click)="removeFilter('agencia')"></i>
+            </div>
+          }
+          @if (activeFilters.asesor) {
+            <div class="filter-chip">
+              <span class="chip-label">Asesor:</span>
+              <span class="chip-value">{{ activeFilters.asesor }}</span>
+              <i class="pi pi-times" (click)="removeFilter('asesor')"></i>
+            </div>
+          }
+          @if (activeFilters.estado) {
+            <div class="filter-chip">
+              <span class="chip-label">Estado:</span>
+              <span class="chip-value">{{ activeFilters.estado }}</span>
+              <i class="pi pi-times" (click)="removeFilter('estado')"></i>
+            </div>
+          }
+          @if (activeFilters.tipoCredito) {
+            <div class="filter-chip">
+              <span class="chip-label">Tipo:</span>
+              <span class="chip-value">{{ activeFilters.tipoCredito }}</span>
+              <i class="pi pi-times" (click)="removeFilter('tipoCredito')"></i>
+            </div>
+          }
+          @if (
+            activeFilters.montoRange &&
+            (activeFilters.montoRange[0] > filterOptions().montoMin ||
+              activeFilters.montoRange[1] < filterOptions().montoMax)
+          ) {
+            <div class="filter-chip">
+              <span class="chip-label">Monto:</span>
+              <span class="chip-value"
+                >{{ formatCurrency(activeFilters.montoRange[0]) }} -
+                {{ formatCurrency(activeFilters.montoRange[1]) }}</span
+              >
+              <i class="pi pi-times" (click)="removeFilter('montoRange')"></i>
+            </div>
+          }
+          <button
+            pButton
+            label="Limpiar todo"
+            icon="pi pi-times-circle"
+            class="p-button-text p-button-sm"
+            (click)="clearFilters()"
+          ></button>
+        </div>
+      </div>
+    }
+
+    <!-- Toolbar -->
+    <div class="map-toolbar">
+      <button
+        pButton
+        icon="pi pi-filter"
+        class="p-button-rounded p-button-text toolbar-btn"
+        (click)="toggleFilters()"
+        [class.active]="showFilters()"
+        pTooltip="Filtros"
+      ></button>
+      <button
+        pButton
+        icon="pi pi-list"
+        class="p-button-rounded p-button-text toolbar-btn"
+        (click)="toggleClientList()"
+        [class.active]="showClientList()"
+        pTooltip="Lista de Clientes"
+      ></button>
+      <button
+        pButton
+        icon="pi pi-search"
+        class="p-button-rounded p-button-text toolbar-btn"
+        (click)="toggleSearch()"
+        [class.active]="showSearch()"
+        pTooltip="Buscar cliente"
+      ></button>
+      <button
+        pButton
+        icon="pi pi-file-excel"
+        class="p-button-rounded p-button-text toolbar-btn"
+        (click)="exportToExcel()"
+        pTooltip="Exportar a Excel"
+      ></button>
+      <button
+        pButton
+        icon="pi pi-refresh"
+        class="p-button-rounded p-button-text toolbar-btn"
+        (click)="resetView()"
+        pTooltip="Resetear vista"
+      ></button>
+    </div>
+
+    <!-- Panel de búsqueda -->
+    @if (showSearch()) {
+      <div class="search-panel">
+        <div class="search-input-wrapper">
+          <i class="pi pi-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Buscar por nombre de cliente..."
+            [(ngModel)]="searchText"
+            (input)="onSearchChange($event)"
+          />
+        </div>
+        @if (searchResults().length > 0) {
+          <div class="search-results">
+            @for (
+              result of searchResults();
+              track (result.cod_cliente || '') + (result['tipo_credito'] || '')
+            ) {
+              <div class="search-result-item" (click)="focusOnClient(result)">
+                <div class="result-header">
+                  <div class="result-name">{{ result.cliente }}</div>
+                  <span [class]="'result-situacion ' + getSituacionClass(result.situacion)">
+                    {{ result.situacion || 'DESCONOCIDO' }}
+                  </span>
+                </div>
+                <div class="result-credit-info">
+                  <span class="result-credit-type">
+                    <i class="pi pi-tag"></i>
+                    {{ result.tipo_credito || 'Sin tipo' }}
+                  </span>
+                  @if (result.num_credito) {
+                    <span class="result-credit-code">#{{ result.num_credito }}</span>
+                  }
+                </div>
+                <div class="result-meta">{{ result.distrito }}, {{ result.provincia }}</div>
+                <div class="result-amount">
+                  {{ formatCurrency(result.monto_colocado || 0) }}
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Panel de filtros lateral -->
+    @if (showFilters()) {
+      <div class="filters-panel">
+        <div class="panel-header">
+          <h3>Filtros</h3>
+          <button
+            pButton
+            icon="pi pi-times"
+            class="p-button-text p-button-rounded p-button-sm"
+            (click)="toggleFilters()"
+          ></button>
+        </div>
+
+        <div class="panel-content">
+          <!-- Filtro por estado -->
+          <div class="filter-group">
+            <label>Estado de Cartera</label>
+            <select
+              class="filter-select"
+              [(ngModel)]="activeFilters.estado"
+              (change)="applyFilters()"
+            >
+              <option [ngValue]="undefined">Todos</option>
+              @for (estado of filterOptions().estados; track estado) {
+                <option [value]="estado">{{ estado }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Filtro por agencia -->
+          <div class="filter-group">
+            <label>Agencia</label>
+            <select
+              class="filter-select"
+              [(ngModel)]="activeFilters.agencia"
+              (change)="applyFilters()"
+            >
+              <option [ngValue]="undefined">Todas</option>
+              @for (agencia of filterOptions().agencias; track agencia) {
+                <option [value]="agencia">{{ agencia }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Filtro por asesor -->
+          <div class="filter-group">
+            <label>Asesor</label>
+            <select
+              class="filter-select"
+              [(ngModel)]="activeFilters.asesor"
+              (change)="applyFilters()"
+            >
+              <option [ngValue]="undefined">Todos</option>
+              @for (asesor of filterOptions().asesores; track asesor) {
+                <option [value]="asesor">{{ asesor }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Filtro por tipo de crédito -->
+          <div class="filter-group">
+            <label>Tipo de Crédito</label>
+            <select
+              class="filter-select"
+              [(ngModel)]="activeFilters.tipoCredito"
+              (change)="applyFilters()"
+            >
+              <option [ngValue]="undefined">Todos</option>
+              @for (tipo of filterOptions().tiposCredito; track tipo) {
+                <option [value]="tipo">{{ tipo }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Rango de monto -->
+          <div class="filter-group">
+            <label>Rango de Monto</label>
+            <div class="range-inputs">
+              <input
+                type="number"
+                class="filter-input"
+                placeholder="Mín"
+                [(ngModel)]="activeFilters.montoRange[0]"
+                (input)="applyFilters()"
+              />
+              <span>-</span>
+              <input
+                type="number"
+                class="filter-input"
+                placeholder="Máx"
+                [(ngModel)]="activeFilters.montoRange[1]"
+                (input)="applyFilters()"
+              />
+            </div>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="filter-actions">
+            <button
+              pButton
+              label="Limpiar"
+              class="p-button-outlined w-full"
+              (click)="clearFilters()"
+            ></button>
+          </div>
+
+          <!-- Resumen de filtros activos -->
+          @if (hasActiveFilters()) {
+            <div class="filter-summary">
+              <small
+                >{{ formatInteger(filteredCount()) }} de
+                {{ formatInteger(totalClients()) }} clientes visibles</small
+              >
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Panel de lista de clientes -->
+    @if (showClientList()) {
+      <div class="client-list-panel">
+        <div class="panel-header">
+          <h3>Clientes ({{ formatInteger(filteredCount()) }})</h3>
+          <button
+            pButton
+            icon="pi pi-times"
+            class="p-button-text p-button-rounded p-button-sm"
+            (click)="toggleClientList()"
+          ></button>
+        </div>
+
+        <div class="panel-content">
+          <div class="client-list">
+            @for (cliente of filteredClients(); track cliente.cod_cliente) {
+              <div class="client-list-item" (click)="focusOnClientAgrupado(cliente)">
+                <div class="client-item-header">
+                  <span class="client-name">{{ cliente.cliente }}</span>
+                  <span class="client-credits-badge"
+                    >{{ cliente.totalCreditos }} crédito{{
+                      cliente.totalCreditos > 1 ? 's' : ''
+                    }}</span
+                  >
+                </div>
+                <div class="client-item-meta">
+                  <span class="client-code">{{ cliente.cod_cliente }}</span>
+                  @if (cliente.agencias.length > 0) {
+                    <span class="client-agency">{{ cliente.agencias[0] }}</span>
+                  }
+                </div>
+                <div class="client-item-amount">
+                  {{ formatCurrency(cliente.montoTotal) }}
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Drawer para detalles del cliente -->
+  <p-drawer [(visible)]="showClientDrawer" position="right" [style]="{ width: '450px' }">
+    <ng-template pTemplate="header">
+      <div class="drawer-header">
+        <div>
+          <h3 class="drawer-title">{{ selectedCliente()?.cliente }}</h3>
+          <p class="drawer-subtitle">{{ selectedCliente()?.cod_cliente }}</p>
+        </div>
+      </div>
+    </ng-template>
+
+    @if (selectedCliente()) {
+      <div class="drawer-content">
+        <!-- Resumen del cliente -->
+        <div class="client-summary">
+          <div class="summary-card">
+            <i class="pi pi-credit-card summary-icon"></i>
+            <div>
+              <div class="summary-label">Total Créditos</div>
+              <div class="summary-value">{{ selectedCliente()!.totalCreditos }}</div>
+            </div>
+          </div>
+          <div class="summary-card">
+            <i class="pi pi-wallet summary-icon"></i>
+            <div>
+              <div class="summary-label">Monto Total</div>
+              <div class="summary-value">
+                {{ formatCurrency(selectedCliente()!.montoTotal) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información general -->
+        @if (selectedCliente()!.agencias.length > 0 || selectedCliente()!.asesores.length > 0) {
+          <div class="info-section">
+            <h4 class="section-title">Información General</h4>
+            @if (selectedCliente()!.agencias.length > 0) {
+              <div class="info-item">
+                <i class="pi pi-building"></i>
+                <span class="info-label"
+                  >Agencia{{ selectedCliente()!.agencias.length > 1 ? 's' : '' }}:</span
+                >
+                <span class="info-value">{{ selectedCliente()!.agencias.join(', ') }}</span>
+              </div>
+            }
+            @if (selectedCliente()!.asesores.length > 0) {
+              <div class="info-item">
+                <i class="pi pi-user"></i>
+                <span class="info-label"
+                  >Asesor{{ selectedCliente()!.asesores.length > 1 ? 'es' : '' }}:</span
+                >
+                <span class="info-value">{{ selectedCliente()!.asesores.join(', ') }}</span>
+              </div>
+            }
+          </div>
+          <p-divider />
+        }
+
+        <!-- Lista de créditos -->
+        <div class="credits-section">
+          <h4 class="section-title">Detalle de Créditos</h4>
+          <div class="credits-list">
+            @for (credito of selectedCliente()!.creditos; track credito.num_credito || $index) {
+              <div class="credit-card">
+                <div class="credit-header">
+                  <div class="credit-number">
+                    <i class="pi pi-hashtag"></i>
+                    {{ credito.num_credito || 'Crédito ' + ($index + 1) }}
+                  </div>
+                  <p-tag
+                    [value]="credito.situacion || 'DESCONOCIDO'"
+                    [severity]="getSituacionSeverity(credito.situacion)"
+                  />
+                </div>
+
+                @if (credito.tipo_credito) {
+                  <div class="credit-type">
+                    <i class="pi pi-tag"></i>
+                    {{ credito.tipo_credito }}
+                  </div>
+                }
+
+                <div class="credit-details">
+                  @if (credito.agencia) {
+                    <div class="credit-detail-item">
+                      <i class="pi pi-building"></i>
+                      <span>{{ credito.agencia }}</span>
+                    </div>
+                  }
+                  @if (credito.asesor_servicios) {
+                    <div class="credit-detail-item">
+                      <i class="pi pi-user"></i>
+                      <span>{{ credito.asesor_servicios }}</span>
+                    </div>
+                  }
+                  @if (credito.distrito) {
+                    <div class="credit-detail-item">
+                      <i class="pi pi-map-marker"></i>
+                      <span>{{ credito.distrito }}, {{ credito.provincia }}</span>
+                    </div>
+                  }
+                  @if (credito.sector_economico) {
+                    <div class="credit-detail-item">
+                      <i class="pi pi-briefcase"></i>
+                      <span>{{ credito.sector_economico }}</span>
+                    </div>
+                  }
+                  @if (credito.actividad_economica) {
+                    <div class="credit-detail-item">
+                      <i class="pi pi-chart-line"></i>
+                      <span>{{ credito.actividad_economica }}</span>
+                    </div>
+                  }
+                </div>
+
+                <div class="credit-amount">
+                  {{ formatCurrency(credito.monto_colocado || 0) }}
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Botón centrar en mapa -->
+        <div class="drawer-actions">
+          <p-button
+            label="Centrar en Mapa"
+            icon="pi pi-map-marker"
+            [outlined]="true"
+            severity="secondary"
+            (onClick)="centerOnSelectedClient()"
+            styleClass="w-full"
+          />
+        </div>
+      </div>
+    }
+  </p-drawer>
+</div>

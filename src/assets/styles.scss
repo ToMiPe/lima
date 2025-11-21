@@ -1,0 +1,32 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Sass @use rules MUST be at the top before any @import */
+@use './layout/mirar';
+@use './layout/layout';
+@use './styles/_adra-theme.scss';
+
+/* Plain CSS imports should use url() to avoid Sass @import deprecation */
+@import url('./tailwind.css');
+
+/* PrimeIcons - Import directo sin url() para evitar problemas */
+@import 'primeicons/primeicons.css';
+
+/* MapLibre GL CSS - Required for map functionality */
+@import 'maplibre-gl/dist/maplibre-gl.css';
+
+/* Global switch to disable all CSS animations/transitions */
+.app-no-anim,
+.app-no-anim *,
+.app-no-anim *::before,
+.app-no-anim *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+.app-no-anim {
+  /* Also zero out theme transition durations used across layout */
+  --p-transition-duration: 0s;
+  --layout-section-transition-duration: 0s;
+  --element-transition-duration: 0s;
+  scroll-behavior: auto;
+}

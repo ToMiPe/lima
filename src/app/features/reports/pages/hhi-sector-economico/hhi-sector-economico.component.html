@@ -1,0 +1,309 @@
+<app-hhi-navigation activeReport="sector-economico" />
+
+<div class="dashboard-container">
+  <!-- Main Content -->
+  <main class="dashboard-main">
+    @if (reporte(); as datos) {
+      <!-- Hero Section: KPIs Principales -->
+      <section class="hero-section animate-fade-in-up">
+        <div class="hero-content">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- HHI Principal - Destacado -->
+            <div>
+              <div class="kpi-card kpi-primary">
+                <div class="kpi-icon">
+                  <i class="pi pi-chart-pie"></i>
+                </div>
+                <div class="kpi-content">
+                  <div class="kpi-header">
+                    <h3 class="kpi-label">Índice HHI</h3>
+                    <i
+                      class="pi pi-info-circle kpi-help"
+                      pTooltip="El Índice HHI mide el grado de concentración. Valores menores a 1500 indican baja concentración, entre 1500-2500 moderada, y mayores a 2500 alta concentración."
+                      tooltipPosition="top"
+                    ></i>
+                  </div>
+                  <div class="kpi-value">{{ datos.hhi | number: '1.0-0' : 'es-PE' }}</div>
+                  <div class="kpi-badge" [attr.data-level]="datos.nivelRiesgo">
+                    <span [class]="'badge badge-' + datos.nivelRiesgo">
+                      {{ datos.nivelRiesgo.toUpperCase() }}
+                    </span>
+                  </div>
+                  <p class="kpi-description">{{ datos.interpretacion }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Capital -->
+            <div>
+              <div class="kpi-card kpi-success">
+                <div class="kpi-icon">
+                  <i class="pi pi-dollar"></i>
+                </div>
+                <div class="kpi-content">
+                  <div class="kpi-header">
+                    <h3 class="kpi-label">Total Capital</h3>
+                    <i
+                      class="pi pi-info-circle kpi-help"
+                      pTooltip="Suma total del saldo de capital de todas las operaciones activas. Este es el monto total en riesgo que se está analizando."
+                      tooltipPosition="top"
+                    ></i>
+                  </div>
+                  <div class="kpi-value kpi-value-capital">
+                    {{ datos.totalCartera | currency: 'PEN' : 'S/. ' : '1.0-2' : 'es-PE' }}
+                  </div>
+                  <div class="kpi-badge">
+                    <span class="badge badge-success">ACTIVO</span>
+                  </div>
+                  <p class="kpi-description">Saldo de capital en cartera</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total sectores -->
+            <div class="md:col-span-2 lg:col-span-1">
+              <div class="kpi-card kpi-info">
+                <div class="kpi-icon">
+                  <i class="pi pi-building"></i>
+                </div>
+                <div class="kpi-content">
+                  <div class="kpi-header">
+                    <h3 class="kpi-label">sectores de Crédito</h3>
+                    <i
+                      class="pi pi-info-circle kpi-help"
+                      pTooltip="Número total de sectores de crédito con cartera activa. Más sectores puede indicar mejor diversificación del propósito de los créditos."
+                      tooltipPosition="top"
+                    ></i>
+                  </div>
+                  <div class="kpi-value">{{ datos.agencias.length }}</div>
+                  <div class="kpi-badge">
+                    <span class="badge badge-info">ACTIVOS</span>
+                  </div>
+                  <p class="kpi-description">sectores con cartera activa</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analytics Section -->
+      <section class="analytics-section">
+        <div class="analytics-card">
+          <div class="card-header">
+            <h2 class="section-title">
+              <i class="pi pi-chart-line mr-2"></i>
+              Análisis Visual de Concentración
+            </h2>
+            <p class="section-subtitle">
+              Distribución y ranking de participación por sector económico
+            </p>
+          </div>
+
+          <p-tabs value="0">
+            <p-tabpanel value="0">
+              <ng-template #header>
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-chart-pie"></i>
+                  <span>Distribución por Sector Económico</span>
+                </div>
+              </ng-template>
+              <div class="chart-container-tabs">
+                <div echarts [options]="pieChartOptions()" class="chart-content-tabs"></div>
+              </div>
+            </p-tabpanel>
+
+            <p-tabpanel value="1">
+              <ng-template #header>
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-chart-bar"></i>
+                  <span>Ranking de Participación</span>
+                </div>
+              </ng-template>
+              <div class="chart-container-tabs">
+                <div echarts [options]="barChartOptions()" class="chart-content-tabs"></div>
+              </div>
+            </p-tabpanel>
+          </p-tabs>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="analytics-card" style="margin-top: 2rem">
+          <div class="card-header">
+            <h2 class="section-title">
+              <i class="pi pi-table mr-2"></i>
+              Detalle por Sector Económico
+            </h2>
+            <p class="section-subtitle">
+              Información completa de concentración y participación ({{ datos.agencias.length }}
+              sectores)
+            </p>
+          </div>
+
+          <div class="table-container">
+            <p-table
+              [value]="datos.agencias"
+              [sortMode]="'multiple'"
+              styleClass="p-datatable-striped professional-table"
+              [scrollable]="true"
+              scrollHeight="600px"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th pSortableColumn="agencia">
+                    <div class="flex align-items-center">
+                      <span class="font-semibold">Sector Económico</span>
+                      <p-sortIcon field="agencia" />
+                    </div>
+                  </th>
+                  <th pSortableColumn="monto" class="text-right">
+                    <div class="flex align-items-center justify-content-end">
+                      <span class="font-semibold">Monto (S/.)</span>
+                      <p-sortIcon field="monto" />
+                    </div>
+                  </th>
+                  <th pSortableColumn="participacion" class="text-right">
+                    <div class="flex align-items-center justify-content-end">
+                      <span class="font-semibold">Participación (%)</span>
+                      <p-sortIcon field="participacion" />
+                    </div>
+                  </th>
+                  <th pSortableColumn="numeroOperaciones" class="text-right">
+                    <div class="flex align-items-center justify-content-end">
+                      <span class="font-semibold">Operaciones</span>
+                      <p-sortIcon field="numeroOperaciones" />
+                    </div>
+                  </th>
+                  <th class="text-center">
+                    <span class="font-semibold">Concentración</span>
+                  </th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-sector let-i="rowIndex">
+                <tr>
+                  <td>
+                    <div class="flex align-items-center gap-2">
+                      <div class="rank-indicator" [attr.data-rank]="i < 3 ? 'top' : 'normal'">
+                        {{ i + 1 }}
+                      </div>
+                      <span class="font-medium">{{ sector.agencia }}</span>
+                      @if (i < 3) {
+                        <span class="top-badge">TOP {{ i + 1 }}</span>
+                      }
+                    </div>
+                  </td>
+                  <td class="text-right">
+                    <span class="font-mono font-semibold amount-text">
+                      {{ sector.monto | currency: 'PEN' : 'S/. ' : '1.0-2' : 'es-PE' }}
+                    </span>
+                  </td>
+                  <td class="text-right">
+                    <div class="participation-cell">
+                      <div class="participation-bar">
+                        <div
+                          class="participation-fill"
+                          [style.width.%]="sector.participacion"
+                        ></div>
+                      </div>
+                      <span class="font-mono font-semibold">
+                        {{ sector.participacion | number: '1.2-2' : 'es-PE' }}%
+                      </span>
+                    </div>
+                  </td>
+                  <td class="text-right">
+                    <span class="font-mono">{{
+                      sector.numeroOperaciones | number: '1.0-0' : 'es-PE'
+                    }}</span>
+                  </td>
+                  <td class="text-center">
+                    <span
+                      class="concentration-badge"
+                      [attr.data-level]="
+                        sector.participacion >= 25
+                          ? 'high'
+                          : sector.participacion >= 15
+                            ? 'medium'
+                            : 'low'
+                      "
+                    >
+                      {{
+                        sector.participacion >= 25
+                          ? 'ALTA'
+                          : sector.participacion >= 15
+                            ? 'MEDIA'
+                            : 'BAJA'
+                      }}
+                    </span>
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="footer">
+                <tr class="totals-row">
+                  <td class="font-bold">TOTAL</td>
+                  <td class="text-right font-mono font-bold">
+                    {{ datos.totalCartera | currency: 'PEN' : 'S/. ' : '1.0-2' : 'es-PE' }}
+                  </td>
+                  <td class="text-right font-mono font-bold">100.00%</td>
+                  <td class="text-right font-mono font-bold">
+                    {{ getTotalOperaciones(datos.agencias) | number: '1.0-0' : 'es-PE' }}
+                  </td>
+                  <td class="text-center">
+                    <span class="hhi-total-badge">
+                      HHI: {{ datos.hhi | number: '1.0-0' : 'es-PE' }}
+                    </span>
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="5" class="text-center py-6">
+                    <div class="empty-state">
+                      <i class="pi pi-info-circle text-3xl text-gray-400 mb-3"></i>
+                      <p class="text-gray-500 mb-0">No hay datos disponibles</p>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </section>
+    } @else if (isLoading()) {
+      <!-- Professional Loading State -->
+      <section class="hero-section">
+        <div class="loading-state">
+          <div class="loading-content">
+            <p-progressSpinner ariaLabel="Cargando" styleClass="w-20 h-20" strokeWidth="3" />
+            <h3 class="loading-title">Cargando Análisis HHI</h3>
+            <p class="loading-text">Procesando datos de concentración por sector económico...</p>
+          </div>
+        </div>
+      </section>
+    } @else {
+      <!-- Error State -->
+      <section class="hero-section">
+        <div class="error-state">
+          <div class="error-content">
+            <i class="pi pi-exclamation-triangle error-icon"></i>
+            <h3 class="error-title">Error al cargar datos</h3>
+            <p class="error-text">
+              No se pudieron cargar los datos del análisis HHI. Por favor, intenta nuevamente.
+            </p>
+            <button
+              pButton
+              label="Reintentar"
+              icon="pi pi-refresh"
+              class="p-button-primary"
+              (click)="cargarDatos()"
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      </section>
+    }
+  </main>
+</div>

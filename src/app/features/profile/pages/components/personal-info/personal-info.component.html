@@ -1,0 +1,122 @@
+<div class="pt-4">
+  <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+    <div class="flex flex-col gap-6">
+      <div class="flex gap-8 flex-col-reverse md:flex-row">
+        <div class="flex-auto flex flex-col gap-5">
+          <!-- Primera Fila: Nombres y Apellidos -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-2">
+              <label for="firstName" class="text-surface-900 dark:text-surface-0 font-medium">
+                Nombres
+              </label>
+              <input
+                pInputText
+                id="firstName"
+                formControlName="firstName"
+                placeholder="Tus nombres"
+              />
+              @if (profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched) {
+                <small class="text-red-600 dark:text-red-400 font-medium">
+                  El nombre es requerido (mínimo 2 caracteres)
+                </small>
+              }
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="lastName" class="text-surface-900 dark:text-surface-0 font-medium">
+                Apellidos
+              </label>
+              <input
+                pInputText
+                id="lastName"
+                formControlName="lastName"
+                placeholder="Tus apellidos"
+              />
+              @if (profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched) {
+                <small class="text-red-600 dark:text-red-400 font-medium">
+                  El apellido es requerido (mínimo 2 caracteres)
+                </small>
+              }
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label for="email" class="text-surface-900 dark:text-surface-0 font-medium">
+              Correo Electrónico
+            </label>
+            <input
+              pInputText
+              id="email"
+              type="email"
+              formControlName="email"
+              [disabled]="true"
+              placeholder="tu@email.com"
+            />
+            <small class="text-surface-600 dark:text-surface-400">
+              El email no se puede modificar
+            </small>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label for="username" class="text-surface-900 dark:text-surface-0 font-medium">
+              Usuario
+            </label>
+            <input
+              pInputText
+              id="username"
+              formControlName="username"
+              [disabled]="true"
+              class="p-disabled"
+            />
+            <small class="text-surface-600 dark:text-surface-400">
+              El usuario no se puede modificar
+            </small>
+          </div>
+        </div>
+
+        <!-- Avatar Upload -->
+        <div class="flex flex-col gap-2">
+          <span class="text-surface-900 dark:text-surface-0 font-medium">Avatar</span>
+          <div class="flex flex-col lg:items-center gap-4">
+            <img
+              src="/assets/images/avatar-placeholder.png"
+              class="h-24 w-24 rounded-lg shadow-md"
+              alt="avatar"
+            />
+
+            <p-fileupload
+              mode="basic"
+              name="avatar"
+              url="./upload.php"
+              accept="image/*"
+              [customUpload]="true"
+              [auto]="true"
+              styleClass="flex! justify-start! lg:justify-center!"
+              [chooseButtonProps]="{ severity: 'secondary', outlined: true }"
+              [maxFileSize]="1000000"
+              chooseLabel="Upload"
+              chooseIcon="pi pi-upload"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="flex gap-3 pt-4 border-t border-surface-200 dark:border-surface-700">
+        <p-button
+          label="Cancelar"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="resetProfileForm()"
+        />
+        <p-button
+          label="Guardar Cambios"
+          icon="pi pi-save"
+          [loading]="isUpdatingProfile()"
+          [disabled]="profileForm.invalid || profileForm.pristine"
+          type="submit"
+        />
+      </div>
+    </div>
+  </form>
+</div>
