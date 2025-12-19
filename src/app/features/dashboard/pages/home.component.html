@@ -1,30 +1,41 @@
-<div class="dashboard-container">
+<div class="min-h-screen bg-gray-50 flex flex-col">
   <!-- Header -->
-  <header class="dashboard-header bg-gradient-adra">
-    <div class="header-content">
-      <div class="header-brand">
-        <div class="brand-logo">🌿</div>
-        <div>
-          <h1 class="brand-title">MIRAR - ADRA</h1>
-          <p class="brand-subtitle">Sistema de Análisis Geográfico</p>
-        </div>
-      </div>
-
-      <div class="header-info">
-        <div class="data-status">
+  <header class="bg-gradient-to-br from-[#00843D] via-[#00843D] to-[#005EB8] text-white shadow-lg">
+    <div class="max-w-[1400px] mx-auto px-6 py-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
           <div
-            class="status-indicator"
-            [class.loading]="dashboardService.isLoading()"
-            [class.success]="!dashboardService.isLoading() && dashboardService.totalRecords() > 0"
-            [class.error]="!dashboardService.isLoading() && dashboardService.totalRecords() === 0"
-          ></div>
-          <div class="status-text">
-            <p class="status-label">{{ dashboardService.getDataStatus() }}</p>
-            @if (dashboardService.lastUpdate()) {
-              <p class="status-time">
-                Actualizado: {{ dashboardService.lastUpdate() | date: 'short' }}
-              </p>
-            }
+            class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-3xl shadow-lg"
+          >
+            🌿
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold tracking-tight">MIRAR - ADRA</h1>
+            <p class="text-sm text-white/90 mt-0.5">Sistema de Análisis Geográfico y Financiero</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3 bg-white/15 backdrop-blur-sm px-5 py-3 rounded-xl">
+            <div
+              class="w-3 h-3 rounded-full transition-all duration-300"
+              [class]="{
+                'bg-yellow-400 shadow-[0_0_0_4px_rgba(251,191,36,0.3)] animate-pulse':
+                  dashboardService.isLoading(),
+                'bg-green-400 shadow-[0_0_0_4px_rgba(34,197,94,0.3)]':
+                  !dashboardService.isLoading() && dashboardService.totalRecords() > 0,
+                'bg-red-400 shadow-[0_0_0_4px_rgba(239,68,68,0.3)]':
+                  !dashboardService.isLoading() && dashboardService.totalRecords() === 0,
+              }"
+            ></div>
+            <div class="text-sm">
+              <p class="font-semibold">{{ dashboardService.getDataStatus() }}</p>
+              @if (dashboardService.lastUpdate()) {
+                <p class="text-xs text-white/80 mt-0.5">
+                  Actualizado: {{ dashboardService.lastUpdate() | date: 'short' }}
+                </p>
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -32,30 +43,49 @@
   </header>
 
   <!-- Main Content -->
-  <main class="dashboard-main">
+  <main class="flex-1">
     <!-- Hero Section: Mapa + KPIs -->
-    <section class="hero-section animate-fade-in-up">
-      <app-peru-map-svg
-        [departmentData]="dashboardService.departmentStats()"
-        (onMapClick)="onDepartmentClick($event)"
-      />
+    <section class="relative bg-white shadow-sm">
+      <div class="max-w-[1400px] mx-auto px-6 py-8">
+        <div class="grid lg:grid-cols-2 gap-8 items-start">
+          <!-- Mapa -->
+          <div
+            class="bg-gradient-to-br from-gray-50 to-white rounded-2xl shadow-md p-6 border border-gray-100"
+          >
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <span class="text-2xl">🗺️</span>
+              Mapa Interactivo del Perú
+            </h2>
+            <app-peru-map-svg
+              [departmentData]="dashboardService.departmentStats()"
+              (onMapClick)="onDepartmentClick($event)"
+            />
+          </div>
 
-      <!-- KPIs Overlay -->
-      <div class="kpis-grid">
-        @for (kpi of dashboardService.kpis(); track kpi.id) {
-          <app-kpi-card [kpi]="kpi" />
-        }
+          <!-- KPIs -->
+          <div class="space-y-4">
+            <div class="mb-6">
+              <h2 class="text-2xl font-bold text-gray-800 mb-2">Indicadores Clave</h2>
+              <p class="text-gray-600">Resumen general del análisis de cartera</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              @for (kpi of dashboardService.kpis(); track kpi.id) {
+                <app-kpi-card [kpi]="kpi" />
+              }
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- Reportes Section -->
-    <section class="reports-section">
-      <div class="section-header">
-        <h2 class="section-title">Explorar por Dimensión</h2>
-        <p class="section-subtitle">Selecciona el tipo de análisis que deseas realizar</p>
+    <section class="max-w-[1400px] mx-auto px-6 py-12">
+      <div class="mb-8 text-center">
+        <h2 class="text-3xl font-bold text-gray-800 mb-3">Explorar por Dimensión</h2>
+        <p class="text-lg text-gray-600">Selecciona el tipo de análisis que deseas realizar</p>
       </div>
 
-      <div class="reports-grid">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         @for (report of dashboardService.availableReports(); track report.id) {
           <app-report-card [report]="report" (selectReport)="onReportSelect($event)" />
         }
@@ -63,33 +93,100 @@
     </section>
 
     <!-- Análisis de Concentración Section -->
-    <section class="analysis-section">
-      <div class="section-header">
-        <h2 class="section-title">Análisis de Concentración</h2>
-        <p class="section-subtitle">Monitoreo de riesgo usando el Índice HHI</p>
+    <section class="bg-gradient-to-br from-gray-50 to-white">
+      <div class="max-w-[1400px] mx-auto px-6 py-12">
+        <div class="mb-8 text-center">
+          <h2 class="text-3xl font-bold text-gray-800 mb-3">Análisis de Concentración HHI</h2>
+          <p class="text-lg text-gray-600">
+            Monitoreo de riesgo usando el Índice Herfindahl-Hirschman
+          </p>
+        </div>
+        <app-hhi-widget />
       </div>
     </section>
 
-    <app-hhi-widget />
+    <!-- IPC Reports Section -->
+    <section class="max-w-[1400px] mx-auto px-6 py-12">
+      <div class="mb-8 text-center">
+        <h2 class="text-3xl font-bold text-gray-800 mb-3">
+          Indicadores de Control de Desempeño (IPC)
+        </h2>
+        <p class="text-lg text-gray-600">
+          Visualización geográfica de concentración por diferentes dimensiones
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        @for (ipc of ipcReports; track ipc.id) {
+          <div
+            class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-[#00843D] hover:-translate-y-1 group overflow-hidden"
+            [routerLink]="['/reports/ipc', ipc.numero]"
+          >
+            <div
+              class="h-2 transition-all duration-300"
+              [style.background]="
+                'linear-gradient(90deg, ' + ipc.color + ' 0%, ' + ipc.color + '80 100%)'
+              "
+            ></div>
+            <div class="p-6 text-center">
+              <div
+                class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-2xl transition-transform duration-300 group-hover:scale-110"
+                [style.background]="ipc.color + '15'"
+                [style.color]="ipc.color"
+              >
+                📍
+              </div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">{{ ipc.title }}</h3>
+              <p class="text-sm text-gray-600 mb-4">{{ ipc.description }}</p>
+              <div
+                class="inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all duration-300"
+                [style.color]="ipc.color"
+              >
+                Ver Mapa
+                <svg
+                  class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
 
     <!-- Loading State -->
     @if (dashboardService.isLoading()) {
-      <div class="loading-overlay">
-        <div class="loading-content">
-          <div class="loading-logo">🌿</div>
-          <div class="loading-spinner"></div>
-          <h3 class="loading-title">MIRAR - ADRA</h3>
-          <p class="loading-text">Cargando datos...</p>
+      <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white rounded-3xl shadow-2xl p-12 text-center animate-fade-in">
+          <div
+            class="w-20 h-20 bg-gradient-to-br from-[#00843D] to-[#005EB8] rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg"
+          >
+            🌿
+          </div>
+          <div
+            class="w-16 h-16 border-4 border-[#00843D]/30 border-t-[#00843D] rounded-full animate-spin mx-auto mb-4"
+          ></div>
+          <h3 class="text-2xl font-bold text-gray-800 mb-2">MIRAR - ADRA</h3>
+          <p class="text-gray-600">Cargando datos...</p>
         </div>
       </div>
     }
   </main>
 
   <!-- Footer -->
-  <footer class="dashboard-footer">
-    <div class="footer-content">
-      <p>© 2025 ADRA - Sistema MIRAR v1.0</p>
-      <p>Última actualización: {{ getCurrentDate() }}</p>
+  <footer class="bg-gray-800 text-white mt-auto">
+    <div class="max-w-[1400px] mx-auto px-6 py-6 text-center">
+      <p class="text-sm">© 2025 ADRA - Sistema MIRAR v1.8.4</p>
+      <p class="text-xs text-gray-400 mt-1">Última actualización: {{ getCurrentDate() }}</p>
     </div>
   </footer>
 </div>

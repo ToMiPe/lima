@@ -65,5 +65,11 @@ export const reportsRoutes: Routes = [
     title: 'Reporte de Cumplimiento',
     loadChildren: () => import('./cumplimiento/cumplimiento.routes'),
   },
+  {
+    path: 'ipc/:numero',
+    title: 'Índice de Concentración de Cartera',
+    loadComponent: () =>
+      import('./pages/ipc-map/ipc-map.component').then((m) => m.IPCMapComponent),
+  },
   // Futuras rutas para otros reportes HHI
 ];

@@ -98,4 +98,11 @@ export interface ReporteCartera {
   nro_alumno: string;
   latitud: number;
   longitud: number;
+
+  // Índices de Concentración de Cartera (IPC) - valores entre 0-100%
+  ipc1?: number; // Concentración por Agencias
+  ipc2?: number; // Concentración por Tipo de Crédito
+  ipc3?: number; // Concentración por Destino
+  ipc4?: number; // Concentración por Zona Geográfica
+  ipc5?: number; // Concentración por Sector Económico
 }

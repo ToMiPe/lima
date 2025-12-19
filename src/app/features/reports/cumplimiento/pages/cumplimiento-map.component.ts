@@ -21,7 +21,6 @@ import {
   ScaleControl,
   MapLayerMouseEvent,
 } from 'maplibre-gl';
-import { TeritorioCluster } from '@teritorio/maplibre-gl-teritorio-cluster';
 
 // PrimeNG
 import { ButtonModule } from 'primeng/button';

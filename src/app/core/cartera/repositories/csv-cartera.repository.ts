@@ -19,7 +19,7 @@ export class CarteraDatabase extends Dexie {
     super('CarteraDatabase');
     this.version(1).stores({
       cartera:
-        '++id, cod_agencia, agencia, departamento, provincia, distrito, genero, situacion, clasificacion, monto_colocado, latitud, longitud',
+        '++id, cod_agencia, agencia, departamento, provincia, distrito, genero, situacion, clasificacion, monto_colocado, latitud, longitud, ipc1, ipc2, ipc3, ipc4, ipc5',
     });
   }
 }
@@ -47,7 +47,14 @@ export class CsvCarteraRepository implements CarteraRepository {
     try {
       const count = await this.db.cartera.count();
 
-      if (count === 0) {
+      // TEMPORAL: Forzar recarga para incluir columnas IPC
+      const forceReload = true;
+
+      if (count === 0 || forceReload) {
+        if (forceReload && count > 0) {
+          console.log('🔄 Forzando recarga para incluir columnas IPC...');
+          await this.db.cartera.clear();
+        }
         console.log('📥 Cargando CSV desde assets...');
         await this.loadCsvToDatabase();
       } else {
@@ -86,6 +93,10 @@ export class CsvCarteraRepository implements CarteraRepository {
 
   async getByDepartamento(departamento: string): Promise<ReporteCartera[]> {
     return await this.db.cartera.where('departamento').equals(departamento).toArray();
+  }
+
+  async getAllRecords(): Promise<ReporteCartera[]> {
+    return await this.db.cartera.toArray();
   }
 
   async getHHIAgencias(): Promise<HHIAgenciasReporte> {
@@ -307,6 +318,12 @@ export class CsvCarteraRepository implements CarteraRepository {
           nro_alumno: values[92] || '',
           latitud: parseFloat(values[93]) || 0,
           longitud: parseFloat(values[94]) || 0,
+          // Índices de Concentración de Cartera (IPC)
+          ipc1: parseLatinNumber(values[95]),
+          ipc2: parseLatinNumber(values[96]),
+          ipc3: parseLatinNumber(values[97]),
+          ipc4: parseLatinNumber(values[98]),
+          ipc5: parseLatinNumber(values[99]),
         };
 
         records.push(record);
@@ -319,6 +336,22 @@ export class CsvCarteraRepository implements CarteraRepository {
 
     console.log(`✅ Parseados: ${registrosParseados} registros`);
     console.log(`⚠️ Agencias vacías detectadas: ${agenciasVacias}`);
+
+    // Debug: Verificar que las columnas IPC se cargaron correctamente
+    const registrosConIPC = records.filter(
+      (r) => r.ipc1 !== undefined || r.ipc2 !== undefined || r.ipc3 !== undefined,
+    );
+    const registrosConCoordenadas = records.filter((r) => r.latitud !== 0 && r.longitud !== 0);
+    console.log(`📊 Registros con valores IPC: ${registrosConIPC.length}`);
+    console.log(`📍 Registros con coordenadas: ${registrosConCoordenadas.length}`);
+
+    // Mostrar muestra de los primeros 3 registros con IPC
+    console.log('📋 Muestra de registros con IPC:');
+    registrosConIPC.slice(0, 3).forEach((r, i) => {
+      console.log(
+        `  ${i + 1}. Cliente: ${r.cliente}, IPC1: ${r.ipc1}, IPC2: ${r.ipc2}, Coords: [${r.latitud}, ${r.longitud}]`,
+      );
+    });
 
     return records;
   }

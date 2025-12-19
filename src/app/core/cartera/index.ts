@@ -18,6 +18,17 @@ export type {
   HHITipoCreditoReporte,
   HHIDepartamentoReporte,
 } from './models/hhi.interface';
+export type {
+  HHIConcentrationRange,
+} from './models/hhi-concentration-ranges';
+export {
+  HHI_CONCENTRATION_RANGES,
+  getHHIRange,
+  getHHIColor,
+  getHHIColorHex,
+  getHHILabel,
+  getHHIRiskLevel,
+} from './models/hhi-concentration-ranges';
 
 // Repositories
 export type {

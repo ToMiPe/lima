@@ -73,6 +73,18 @@ export class ApiCarteraRepository implements CarteraRepository {
       return response;
     } catch (error) {
       console.error(`❌ Error obteniendo datos del departamento ${departamento}:`, error);
+      return [];
+    }
+  }
+
+  async getAllRecords(): Promise<ReporteCartera[]> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<ReporteCartera[]>(`${this.API_BASE_URL}/cartera/all`),
+      );
+      return response;
+    } catch (error) {
+      console.error('❌ Error obteniendo todos los registros:', error);
       throw error;
     }
   }

@@ -21,6 +21,7 @@ export interface CarteraRepository {
   count(): Promise<number>;
   getEstadisticas(): Promise<EstadisticasCartera>;
   getByDepartamento(departamento: string): Promise<ReporteCartera[]>;
+  getAllRecords(): Promise<ReporteCartera[]>;
 
   // Análisis HHI
   getHHIAgencias(): Promise<HHIAgenciasReporte>;

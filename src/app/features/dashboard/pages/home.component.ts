@@ -1,12 +1,20 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { DashboardService } from '../services/dashboard.service';
 import { KpiCardComponent } from '../components/kpi-card.component';
 import { ReportCardComponent } from '../components/report-card.component';
 import { PeruMapSvgComponent } from '../components/peru-map-svg.component';
 import { HHIWidgetComponent } from '@features/reports';
 import { MapClickEvent, ReportType } from '../models';
+
+interface IPCReport {
+  id: string;
+  numero: number;
+  title: string;
+  description: string;
+  color: string;
+}
 
 /**
  * Componente principal del Dashboard
@@ -17,6 +25,7 @@ import { MapClickEvent, ReportType } from '../models';
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     KpiCardComponent,
     ReportCardComponent,
     PeruMapSvgComponent,
@@ -28,6 +37,44 @@ import { MapClickEvent, ReportType } from '../models';
 export class HomeComponent implements OnInit {
   protected readonly dashboardService = inject(DashboardService);
   private readonly router = inject(Router);
+
+  protected readonly ipcReports: IPCReport[] = [
+    {
+      id: 'ipc1',
+      numero: 1,
+      title: 'IPC1',
+      description: 'Concentración por Agencias',
+      color: '#00843D',
+    },
+    {
+      id: 'ipc2',
+      numero: 2,
+      title: 'IPC2',
+      description: 'Concentración por Tipo de Crédito',
+      color: '#005EB8',
+    },
+    {
+      id: 'ipc3',
+      numero: 3,
+      title: 'IPC3',
+      description: 'Concentración por Destino',
+      color: '#FDB913',
+    },
+    {
+      id: 'ipc4',
+      numero: 4,
+      title: 'IPC4',
+      description: 'Concentración por Zona',
+      color: '#E63946',
+    },
+    {
+      id: 'ipc5',
+      numero: 5,
+      title: 'IPC5',
+      description: 'Concentración por Sector',
+      color: '#9333EA',
+    },
+  ];
 
   ngOnInit(): void {
     this.dashboardService.initialize();

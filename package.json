@@ -60,6 +60,7 @@
     "@types/maplibre-gl": "^1.14.0",
     "angular-eslint": "20.6.0",
     "autoprefixer": "^10.4.21",
+    "baseline-browser-mapping": "^2.9.10",
     "eslint": "^9.37.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",

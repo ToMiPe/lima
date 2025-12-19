@@ -1,182 +1,82 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReportType } from '../models';
 
 /**
- * Componente para mostrar una card de reporte disponible
+ * Componente para mostrar una card de reporte disponible - Usa Tailwind CSS
  */
 @Component({
   selector: 'app-report-card',
-  standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="report-card" (click)="onSelect()">
-      <div class="card-header">
-        <div class="flex align-items-center gap-2 mb-3">
-          <div class="icon-wrapper" [style.background]="report.color + '20'">
-            <span class="report-icon" [style.color]="report.color">{{ report.icon }}</span>
-          </div>
-          <div class="flex-1">
-            <h4 class="card-title">{{ report.title }}</h4>
-            @if (report.recordCount) {
-              <span class="record-count">{{ report.recordCount | number: '1.0-0' : 'es-PE' }} registros</span>
-            }
-          </div>
-          <button class="nav-button" [style.color]="report.color">
-            <i class="pi pi-arrow-right"></i>
-          </button>
+    <div
+      class="bg-white rounded-xl p-5 cursor-pointer transition-all duration-300 border border-gray-200 hover:border-gray-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col group"
+      (click)="onSelect()"
+    >
+      <div class="flex items-start gap-3 pb-4 border-b border-gray-100 mb-4">
+        <div
+          class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
+          [style.background]="report().color + '20'"
+        >
+          <span class="text-2xl" [style.color]="report().color">{{ report().icon }}</span>
         </div>
+        <div class="flex-1 min-w-0">
+          <h4 class="text-sm font-semibold text-gray-700 mb-1 leading-tight">
+            {{ report().title }}
+          </h4>
+          @if (report().recordCount) {
+            <span class="text-xs text-gray-500 font-medium">
+              {{ report().recordCount | number: '1.0-0' : 'es-PE' }} registros
+            </span>
+          }
+        </div>
+        <button
+          class="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-2 rounded-lg hover:bg-gray-50"
+          [style.color]="report().color"
+        >
+          <svg
+            class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
       </div>
 
-      <div class="card-body">
-        <p class="card-description">{{ report.description }}</p>
-        @if (report.lastUpdate) {
-          <div class="card-meta">
-            <i class="pi pi-clock" style="font-size: 0.75rem"></i>
-            <span>Actualizado {{ getRelativeTime(report.lastUpdate) }}</span>
+      <div class="flex-1 flex flex-col gap-3">
+        <p class="text-sm text-gray-600 leading-relaxed flex-1">{{ report().description }}</p>
+        @if (report().lastUpdate) {
+          <div
+            class="flex items-center gap-2 text-xs text-gray-400 pt-3 border-t border-gray-50"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>Actualizado {{ getRelativeTime(report().lastUpdate!) }}</span>
           </div>
         }
       </div>
     </div>
   `,
-  styles: [
-    `
-      .report-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 1px solid #e9ecef;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-
-        &:hover {
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-          transform: translateY(-2px);
-        }
-      }
-
-      .card-header {
-        border-bottom: 1px solid #f1f3f5;
-        padding-bottom: 0.75rem;
-        margin-bottom: 0.75rem;
-      }
-
-      .icon-wrapper {
-        width: 48px;
-        height: 48px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-
-      .report-icon {
-        font-size: 1.5rem;
-      }
-
-      .card-title {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #495057;
-        margin: 0;
-        line-height: 1.3;
-      }
-
-      .record-count {
-        font-size: 0.75rem;
-        color: #6c757d;
-        font-weight: 500;
-      }
-
-      .nav-button {
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 50%;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        &:hover {
-          background: rgba(0, 0, 0, 0.05);
-        }
-      }
-
-      .card-body {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-
-      .card-description {
-        font-size: 0.875rem;
-        color: #6c757d;
-        line-height: 1.5;
-        margin: 0;
-        flex: 1;
-      }
-
-      .card-meta {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.75rem;
-        color: #adb5bd;
-        padding-top: 0.5rem;
-        border-top: 1px solid #f1f3f5;
-      }
-
-      .flex {
-        display: flex;
-      }
-
-      .align-items-center {
-        align-items: center;
-      }
-
-      .gap-2 {
-        gap: 0.5rem;
-      }
-
-      .mb-3 {
-        margin-bottom: 0.75rem;
-      }
-
-      .flex-1 {
-        flex: 1;
-        min-width: 0;
-      }
-
-      @media (max-width: 768px) {
-        .report-card {
-          padding: 1.25rem;
-        }
-
-        .icon-wrapper {
-          width: 40px;
-          height: 40px;
-        }
-
-        .report-icon {
-          font-size: 1.25rem;
-        }
-      }
-    `,
-  ],
 })
 export class ReportCardComponent {
-  @Input({ required: true }) report!: ReportType;
-  @Output() selectReport = new EventEmitter<ReportType>();
+  report = input.required<ReportType>();
+  selectReport = output<ReportType>();
 
   onSelect(): void {
-    this.selectReport.emit(this.report);
+    this.selectReport.emit(this.report());
   }
 
   getRelativeTime(date: Date): string {

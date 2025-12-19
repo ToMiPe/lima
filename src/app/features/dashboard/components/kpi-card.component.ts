@@ -1,154 +1,64 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { KPI } from '../models';
 
 /**
  * Componente para mostrar un indicador clave (KPI)
- * Reutilizable en múltiples vistas
+ * Reutilizable en múltiples vistas - Usa Tailwind CSS
  */
 @Component({
   selector: 'app-kpi-card',
-  standalone: true,
   imports: [CommonModule],
   template: `
     <div
-      class="kpi-card hover-lift"
-      [class.kpi-green]="kpi.color === 'green'"
-      [class.kpi-blue]="kpi.color === 'blue'"
-      [class.kpi-yellow]="kpi.color === 'yellow'"
-      [class.kpi-red]="kpi.color === 'red'"
+      class="relative bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer border border-gray-100 hover:border-gray-200"
     >
-      <div class="kpi-header">
-        <span class="kpi-icon">{{ kpi.icon }}</span>
-        @if (kpi.trend) {
+      <!-- Barra de color lateral -->
+      <div
+        class="absolute top-0 left-0 h-full w-1 transition-all duration-300 group-hover:w-2"
+        [class]="{
+          'bg-[#00843D]': kpi().color === 'green',
+          'bg-[#005EB8]': kpi().color === 'blue',
+          'bg-[#FDB913]': kpi().color === 'yellow',
+          'bg-red-500': kpi().color === 'red'
+        }"
+      ></div>
+
+      <div class="flex justify-between items-start mb-4 pl-2">
+        <span class="text-4xl">{{ kpi().icon }}</span>
+        @if (kpi().trend) {
           <span
-            class="kpi-trend"
-            [class.trend-up]="kpi.trend.direction === 'up'"
-            [class.trend-down]="kpi.trend.direction === 'down'"
+            class="text-sm font-semibold px-2.5 py-1 rounded-lg"
+            [class]="{
+              'bg-green-100 text-green-700': kpi().trend!.direction === 'up',
+              'bg-red-100 text-red-700': kpi().trend!.direction === 'down'
+            }"
           >
-            {{ kpi.trend.direction === 'up' ? '↑' : '↓' }}
-            {{ kpi.trend.value }}%
+            {{ kpi().trend!.direction === 'up' ? '↑' : '↓' }}
+            {{ kpi().trend!.value }}%
           </span>
         }
       </div>
 
-      <div class="kpi-body">
-        <div class="kpi-value">
-          @if (kpi.format === 'currency') {
-            {{ formatCurrency(kpi.value) }}
-          } @else if (kpi.format === 'percentage') {
-            {{ kpi.value }}%
+      <div class="pl-2">
+        <div class="text-3xl font-bold text-gray-800 mb-2">
+          @if (kpi().format === 'currency') {
+            {{ formatCurrency(kpi().value) }}
+          } @else if (kpi().format === 'percentage') {
+            {{ kpi().value }}%
           } @else {
-            {{ formatNumber(kpi.value) }}
+            {{ formatNumber(kpi().value) }}
           }
         </div>
-        <div class="kpi-title">{{ kpi.title }}</div>
+        <div class="text-sm text-gray-600 uppercase tracking-wide font-medium">
+          {{ kpi().title }}
+        </div>
       </div>
     </div>
   `,
-  styles: [
-    `
-      .kpi-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: var(--shadow-md);
-        transition: all var(--transition-normal);
-        position: relative;
-        overflow: hidden;
-      }
-
-      .kpi-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 4px;
-        height: 100%;
-        transition: width var(--transition-fast);
-      }
-
-      .kpi-card:hover::before {
-        width: 8px;
-      }
-
-      .kpi-green::before {
-        background: var(--adra-green-primary);
-      }
-      .kpi-blue::before {
-        background: var(--adra-blue-primary);
-      }
-      .kpi-yellow::before {
-        background: var(--adra-yellow-accent);
-      }
-      .kpi-red::before {
-        background: #ef4444;
-      }
-
-      .kpi-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-      }
-
-      .kpi-icon {
-        font-size: 2rem;
-      }
-
-      .kpi-trend {
-        font-size: 0.875rem;
-        font-weight: 600;
-        padding: 0.25rem 0.5rem;
-        border-radius: 6px;
-      }
-
-      .trend-up {
-        background: #dcfce7;
-        color: #166534;
-      }
-
-      .trend-down {
-        background: #fee2e2;
-        color: #991b1b;
-      }
-
-      .kpi-body {
-        text-align: left;
-      }
-
-      .kpi-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #111827;
-        margin-bottom: 0.5rem;
-      }
-
-      .kpi-title {
-        font-size: 0.875rem;
-        color: #6b7280;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-
-      @media (max-width: 768px) {
-        .kpi-card {
-          padding: 1rem;
-        }
-
-        .kpi-value {
-          font-size: 1.5rem;
-        }
-
-        .kpi-icon {
-          font-size: 1.5rem;
-        }
-      }
-    `,
-  ],
 })
 export class KpiCardComponent {
-  @Input({ required: true }) kpi!: KPI;
+  kpi = input.required<KPI>();
 
   formatNumber(num: number): string {
     return new Intl.NumberFormat('es-PE', {
