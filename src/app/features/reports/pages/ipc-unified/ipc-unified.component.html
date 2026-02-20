@@ -491,16 +491,28 @@
                     </div>
                   </div>
 
-                  <!-- Botón para ver distribución -->
-                  <button
-                    pButton
-                    type="button"
-                    label="Ver Distribución de Datos"
-                    icon="pi pi-chart-bar"
-                    class="w-full mt-3"
-                    (click)="mostrarDialogDistribucion.set(true)"
-                    severity="help"
-                  ></button>
+                  <!-- Botones de acciones -->
+                  <div class="grid grid-cols-2 gap-2 mt-3">
+                    <button
+                      pButton
+                      type="button"
+                      label="Ver Distribución"
+                      icon="pi pi-chart-bar"
+                      (click)="mostrarDialogDistribucion.set(true)"
+                      severity="help"
+                      size="small"
+                    ></button>
+
+                    <button
+                      pButton
+                      type="button"
+                      label="Descargar Datos"
+                      icon="pi pi-download"
+                      (click)="descargarDatosFiltrados()"
+                      severity="success"
+                      size="small"
+                    ></button>
+                  </div>
                 </div>
               }
 

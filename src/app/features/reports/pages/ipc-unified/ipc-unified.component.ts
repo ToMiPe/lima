@@ -1065,4 +1065,139 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
     const rango = this.rangosCapacidadPago().find((r) => r.value === rangoId);
     return rango?.label || rangoId;
   }
+
+  /**
+   * Descargar datos filtrados como CSV
+   */
+  async descargarDatosFiltrados(): Promise<void> {
+    try {
+      console.log('📥 Descargando datos filtrados...');
+      const datos = await this.dataService.getTodosDatosFiltrados();
+
+      if (datos.length === 0) {
+        alert('No hay datos para descargar con los filtros actuales.');
+        return;
+      }
+
+      // Convertir a CSV
+      const csv = this.convertirACSV(datos);
+
+      // Agregar BOM UTF-8 para que Excel reconozca el encoding
+      const BOM = '\uFEFF';
+      const csvConBOM = BOM + csv;
+
+      // Crear blob y descargar
+      const blob = new Blob([csvConBOM], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+
+      const fecha = new Date().toISOString().split('T')[0];
+      link.setAttribute('href', url);
+      link.setAttribute('download', `IPC_Datos_Filtrados_${fecha}.csv`);
+      link.style.visibility = 'hidden';
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      console.log(`✅ ${datos.length} registros descargados exitosamente`);
+    } catch (error) {
+      console.error('❌ Error al descargar datos:', error);
+      alert('Error al descargar los datos. Por favor intente nuevamente.');
+    }
+  }
+
+  /**
+   * Convertir array de ReporteCartera a CSV
+   */
+  private convertirACSV(datos: ReporteCartera[]): string {
+    if (datos.length === 0) return '';
+
+    // Encabezados
+    const encabezados = [
+      'Agencia',
+      'Código Agencia',
+      'Asesor Servicios',
+      'Cliente',
+      'Documento',
+      'Tipo Documento',
+      'Género',
+      'Edad',
+      'Departamento',
+      'Provincia',
+      'Distrito',
+      'Zona Geográfica',
+      'Tipo Crédito',
+      'Producto',
+      'Destino Crédito',
+      'Monto Colocado',
+      'Saldo Total',
+      'Plazo',
+      'TEA',
+      'Fecha Desembolso',
+      'Días Atraso',
+      'Clasificación',
+      'Calificación CR',
+      'Categoría',
+      'Capacidad Pago',
+      'Sector Económico',
+      'Actividad Económica',
+      'Situación',
+      'Latitud',
+      'Longitud',
+    ];
+
+    // Filas
+    const filas = datos.map((d) => [
+      this.escaparCSV(d.agencia),
+      this.escaparCSV(d.cod_agencia),
+      this.escaparCSV(d.asesor_servicios),
+      this.escaparCSV(d.cliente),
+      this.escaparCSV(d.documento),
+      this.escaparCSV(d.tipo_documento),
+      this.escaparCSV(d.genero),
+      d.edad || '',
+      this.escaparCSV(d.departamento),
+      this.escaparCSV(d.provincia),
+      this.escaparCSV(d.distrito),
+      this.escaparCSV(d.zona_geografica),
+      this.escaparCSV(d.tipo_credito),
+      this.escaparCSV(d.producto),
+      this.escaparCSV(d.destino_credito),
+      d.monto_colocado || '',
+      d.saldo_total || '',
+      d.plazo || '',
+      d.tea || '',
+      this.escaparCSV(d.fecha_desembolso),
+      d.dias_atraso || '',
+      this.escaparCSV(d.clasificacion),
+      this.escaparCSV(d.calificacion_cr),
+      this.escaparCSV(d.categoria),
+      d.capacidad_pago || '',
+      this.escaparCSV(d.sector_economico),
+      this.escaparCSV(d.actividad_economica),
+      this.escaparCSV(d.situacion),
+      d.latitud || '',
+      d.longitud || '',
+    ]);
+
+    // Combinar
+    const csvContent = [encabezados.join(','), ...filas.map((fila) => fila.join(','))].join('\n');
+
+    return csvContent;
+  }
+
+  /**
+   * Escapar valores para CSV
+   */
+  private escaparCSV(valor: string | undefined | null): string {
+    if (!valor) return '';
+
+    // Si contiene coma, comillas o salto de línea, envolver en comillas
+    if (valor.includes(',') || valor.includes('"') || valor.includes('\n')) {
+      return `"${valor.replace(/"/g, '""')}"`;
+    }
+
+    return valor;
+  }
 }

@@ -148,6 +148,12 @@ export class HHISectorEconomicoComponent implements OnInit {
       toolbox: {
         show: true,
         feature: {
+          dataView: {
+            show: true,
+            title: 'Ver datos',
+            readOnly: false,
+            lang: ['Vista de Datos', 'Cerrar', 'Actualizar'],
+          },
           saveAsImage: {
             show: true,
             title: 'Descargar imagen',
@@ -173,6 +179,14 @@ export class HHISectorEconomicoComponent implements OnInit {
             value: item.monto,
             name: item.agencia,
           })),
+          label: {
+            show: true,
+            formatter: '{b}: {d}%',
+            fontSize: 12,
+          },
+          labelLine: {
+            show: true,
+          },
           emphasis: {
             itemStyle: {
               shadowBlur: 10,
@@ -209,6 +223,12 @@ export class HHISectorEconomicoComponent implements OnInit {
       toolbox: {
         show: true,
         feature: {
+          dataView: {
+            show: true,
+            title: 'Ver datos',
+            readOnly: false,
+            lang: ['Vista de Datos', 'Cerrar', 'Actualizar'],
+          },
           saveAsImage: {
             show: true,
             title: 'Descargar imagen',
@@ -249,6 +269,13 @@ export class HHISectorEconomicoComponent implements OnInit {
           type: 'bar',
           barWidth: '60%',
           data: datosGraficos.map((a) => a.participacion),
+          label: {
+            show: true,
+            position: 'top',
+            formatter: '{c}%',
+            fontSize: 12,
+            fontWeight: 'bold',
+          },
           itemStyle: {
             color: function (params: { dataIndex: number }) {
               const colors = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de'];
