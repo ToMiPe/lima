@@ -28,7 +28,15 @@ import {
   tokenRefreshInterceptor,
 } from '@core/auth/interceptors';
 import { CARTERA_REPOSITORY_TOKEN, CsvCarteraRepository } from '@core/cartera';
+import { provideEchartsCore } from 'ngx-echarts';
+import * as echarts from 'echarts/core';
+import { PieChart } from 'echarts/charts';
+import { TooltipComponent, LegendComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
 // import { ApiCarteraRepository } from '@core/cartera';
+
+// Registrar componentes de ECharts necesarios
+echarts.use([PieChart, TooltipComponent, LegendComponent, CanvasRenderer]);
 
 // Registrar el locale español (Perú)
 registerLocaleData(localeEsPe);
@@ -61,6 +69,7 @@ export const appConfig: ApplicationConfig = {
     }),
     MessageService,
     { provide: LOCALE_ID, useValue: 'es-PE' },
+    provideEchartsCore({ echarts }),
 
     // 🎯 CONFIGURACIÓN DEL REPOSITORY PATTERN
     // Cambia fácilmente entre implementaciones:

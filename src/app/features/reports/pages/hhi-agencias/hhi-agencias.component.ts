@@ -18,6 +18,7 @@ import {
   TooltipComponent,
   LegendComponent,
   TitleComponent,
+  ToolboxComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 
@@ -38,6 +39,7 @@ echarts.use([
   TooltipComponent,
   LegendComponent,
   TitleComponent,
+  ToolboxComponent,
   CanvasRenderer,
 ]);
 
@@ -144,6 +146,19 @@ export class HHIAgenciasComponent implements OnInit {
         orient: 'vertical',
         left: 'left',
       },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Descargar imagen',
+            name: 'HHI_Agencias_Distribucion',
+            pixelRatio: 2,
+          },
+        },
+        right: 20,
+        top: 10,
+      },
       series: [
         {
           name: 'Distribución',
@@ -175,6 +190,19 @@ export class HHIAgenciasComponent implements OnInit {
           const data = params[0];
           return `${data.name}<br/>Participación: ${this.formatPeruvianNumber(data.value, 2)}%`;
         },
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Descargar imagen',
+            name: 'HHI_Agencias_Ranking',
+            pixelRatio: 2,
+          },
+        },
+        right: 20,
+        top: 10,
       },
       grid: {
         left: '3%',

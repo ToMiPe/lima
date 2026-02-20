@@ -108,58 +108,48 @@
     <!-- IPC Reports Section -->
     <section class="max-w-[1400px] mx-auto px-6 py-12">
       <div class="mb-8 text-center">
-        <h2 class="text-3xl font-bold text-gray-800 mb-3">
-          Indicadores de Control de Desempeño (IPC)
-        </h2>
+        <h2 class="text-3xl font-bold text-gray-800 mb-3">Indicadores de Control Interno (IPC)</h2>
         <p class="text-lg text-gray-600">
-          Visualización geográfica de concentración por diferentes dimensiones
+          Sistema integrado de 18 indicadores organizados por dimensión de riesgo
         </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        @for (ipc of ipcReports; track ipc.id) {
-          <div
-            class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-[#00843D] hover:-translate-y-1 group overflow-hidden"
-            [routerLink]="['/reports/ipc', ipc.numero]"
-          >
+      <div class="flex justify-center">
+        <div
+          class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 cursor-pointer border-4 border-transparent hover:border-blue-300 hover:-translate-y-2 group overflow-hidden max-w-2xl"
+          routerLink="/reports/ipc"
+        >
+          <div class="p-8 text-center text-white">
             <div
-              class="h-2 transition-all duration-300"
-              [style.background]="
-                'linear-gradient(90deg, ' + ipc.color + ' 0%, ' + ipc.color + '80 100%)'
-              "
-            ></div>
-            <div class="p-6 text-center">
-              <div
-                class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-2xl transition-transform duration-300 group-hover:scale-110"
-                [style.background]="ipc.color + '15'"
-                [style.color]="ipc.color"
+              class="w-20 h-20 mx-auto mb-6 rounded-full bg-white bg-opacity-20 flex items-center justify-center text-4xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"
+            >
+              📊
+            </div>
+            <h3 class="text-3xl font-bold mb-3">Indicadores de Control Interno</h3>
+            <p class="text-lg text-blue-100 mb-6">
+              Explore 18 indicadores agrupados en 3 dimensiones: Ingreso, Voluntad y Garantía
+              Psicológica
+            </p>
+            <div
+              class="inline-flex items-center gap-3 text-lg font-semibold bg-white text-blue-600 px-6 py-3 rounded-full group-hover:gap-4 transition-all duration-300 group-hover:shadow-xl"
+            >
+              Abrir Sistema IPC
+              <svg
+                class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                📍
-              </div>
-              <h3 class="text-xl font-bold text-gray-800 mb-2">{{ ipc.title }}</h3>
-              <p class="text-sm text-gray-600 mb-4">{{ ipc.description }}</p>
-              <div
-                class="inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all duration-300"
-                [style.color]="ipc.color"
-              >
-                Ver Mapa
-                <svg
-                  class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </div>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                ></path>
+              </svg>
             </div>
           </div>
-        }
+        </div>
       </div>
     </section>
 

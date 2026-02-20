@@ -18,6 +18,7 @@ import {
   TooltipComponent,
   LegendComponent,
   TitleComponent,
+  ToolboxComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 
@@ -38,6 +39,7 @@ echarts.use([
   TooltipComponent,
   LegendComponent,
   TitleComponent,
+  ToolboxComponent,
   CanvasRenderer,
 ]);
 
@@ -1069,6 +1071,19 @@ export class HHITipoCreditoComponent implements OnInit {
           return `${params.name}<br/>Participación: ${params.percent}%<br/>Monto: S/. ${params.value.toLocaleString('es-PE')}`;
         },
       },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Descargar imagen',
+            name: 'HHI_TipoCredito_Distribucion',
+            pixelRatio: 2,
+          },
+        },
+        right: 20,
+        top: 10,
+      },
       legend: {
         orient: 'vertical',
         left: 'left',
@@ -1116,6 +1131,19 @@ export class HHITipoCreditoComponent implements OnInit {
           const tipo = datosGraficos.find((a) => a.agencia === item.name);
           return `${item.name}<br/>Participación: ${item.value}%<br/>Monto: S/. ${tipo?.monto.toLocaleString('es-PE')}<br/>Operaciones: ${tipo?.numeroOperaciones.toLocaleString('es-PE')}`;
         },
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Descargar imagen',
+            name: 'HHI_TipoCredito_Ranking',
+            pixelRatio: 2,
+          },
+        },
+        right: 20,
+        top: 10,
       },
       grid: {
         left: '3%',

@@ -1,0 +1,383 @@
+
+
+INDICADORES DE CONTROL INTENO (IPC)
+DEFINICIÓN Y JUSTIFICACIÓN
+
+ELABORADO POR: Gerardo Julio Mendieta Peñaranda, PhD
+CONSULTORÍA: Fortalecimiento del área de riesgos ADRA-PERU
+
+
+1.	INTRODUCCIÓN
+La gestión del riesgo crediticio en instituciones de microfinanzas y crédito social exige herramientas de análisis que vayan más allá de los indicadores financieros tradicionales.
+En este contexto, los indicadores desarrollados para ADRA responden a la necesidad de contar con un modelo integral, dinámico y contextualizado, capaz de reflejar de manera más precisa la realidad económica, conductual y social de sus clientes.
+A diferencia de los modelos convencionales —centrados principalmente en variables contables estáticas como ingresos declarados, ratios financieros simples o historial de mora básico—, los indicadores de ADRA han sido construidos con un enfoque multidimensional, considerando no solo la capacidad de pago, sino también la voluntad de pago, la estabilidad económica del cliente y su compromiso con la institución.
+1.1.	IMPORTANCIA
+Estos indicadores son importantes porque permiten:
+•	Anticipar el riesgo antes de que se materialice en mora, mediante señales tempranas de deterioro económico, patrimonial y conductual.
+•	Diferenciar entre incapacidad de pago y falta de voluntad, algo crítico en el contexto de microcrédito.
+•	Evaluar sostenibilidad del crédito, no solo en el corto plazo, sino a lo largo del ciclo de vida del cliente.
+•	Reducir pérdidas esperadas, al mejorar decisiones de aprobación, seguimiento y recuperación.
+•	Fortalecer la gestión institucional del riesgo, alineando la originación, el monitoreo y la cobranza bajo una misma lógica analítica.
+Estos indicadores permiten a ADRA proteger su cartera sin perder su enfoque social, equilibrando inclusión financiera con sostenibilidad.
+1.2.	DIFERENCIA CON LOS INDICADORES TRADICIONALES
+Los indicadores tradicionales suelen presentar limitaciones importantes en el contexto de ADRA:
+Indicadores Tradicionales	Indicadores ADRA
+Enfoque exclusivamente financiero	Enfoque financiero + conductual + operativo
+Medición estática (foto del momento)	Medición dinámica (tendencias y evolución)
+Alta dependencia de información declarada	Uso de información observada y comportamiento real
+Poco sensibles a microcrédito	Diseñados para pagos frecuentes y flujos variables
+No distinguen voluntad vs capacidad	Separan claramente capacidad, conducta y compromiso
+Aplicables de forma genérica	Construidos específicamente para el modelo ADRA
+Mientras los indicadores tradicionales responden a modelos bancarios formales, los indicadores ADRA responden a la realidad del microemprendedor, donde los ingresos son variables, la informalidad es frecuente y el comportamiento es tan relevante como la capacidad económica.
+1.3.	CONSTRUCCIÓN
+Los indicadores fueron diseñados específicamente considerando:
+•	El modelo de atención de ADRA, basado en cercanía al cliente, seguimiento continuo y conocimiento profundo de su realidad.
+•	La frecuencia de pago típica del microcrédito (semanal, quincenal), que requiere indicadores más sensibles como tickets impagos y mora proporcional.
+•	La diversidad de fuentes de ingreso del cliente ADRA, incorporando jerarquías de origen del pago.
+•	El rol de los ahorros individuales como mecanismo de compromiso y mitigación del riesgo.
+•	La necesidad de evaluar no solo el crédito, sino también la relación del cliente con la institución (retención, ciclos, rechazos).
+•	La importancia de la estabilidad económica y psicológica del cliente como factor clave de sostenibilidad.
+En este sentido, los indicadores ADRA no solo miden riesgo, sino que interpretan la historia del cliente, su comportamiento, su esfuerzo, su estabilidad y su compromiso.
+1.4.	ENFOQUE INTEGRAL
+Los indicadores se agrupan conceptualmente en tres grandes dimensiones:
+1.	Ingreso del cliente
+Evalúan capacidad económica, liquidez, respaldo patrimonial y sostenibilidad del pago.
+2.	Voluntad de pago del cliente
+Analizan conducta financiera, disciplina, historial de cumplimiento y riesgo moral.
+3.	Garantía psicológica del cliente
+Miden estabilidad, experiencia, compromiso institucional y madurez financiera.
+Este enfoque tridimensional permite a ADRA tomar decisiones más justas, más precisas y más alineadas con su misión social, evitando exclusión financiera innecesaria, pero protegiendo la calidad del portafolio.
+IPC1 y 2 – Mora
+Justificación Técnica
+La medición de la mora es esencial porque constituye la primera señal objetiva de que el cliente ha perdido temporal o permanentemente la capacidad o voluntad de cumplir con su obligación financiera.
+Técnicamente, la mora es el observable más correlacionado con la probabilidad de incumplimiento (PD) y con la transición del crédito hacia estados de deterioro significativo o default.
+La mora permite identificar:
+1.	Deterioro en la salud financiera del cliente
+o	Inestabilidad de ingresos
+o	Problemas de liquidez
+o	Riesgo de sobreendeudamiento
+o	Desorganización financiera
+2.	Conductas asociadas al riesgo moral
+o	Falta de disciplina de pago
+o	Uso inadecuado del crédito
+o	Prioridad de pago hacia otras entidades
+3.	Impacto en provisiones y solvencia institucional
+o	Incremento de provisiones regulatorias
+o	Aumento de pérdidas esperadas (EL: Expected Loss)
+o	Elevación de la severidad de pérdida (LGD)
+4.	Probabilidad de recuperación espontánea vs. judicial
+A mayor tramo de mora, menor es la probabilidad de recuperación voluntaria del cliente.
+IPC3 – Días en mora / días totales del crédito (Mora proporcional)
+Justificación Técnica
+Este indicador mide la intensidad relativa de la mora, ajustando el atraso en días respecto a la duración total del crédito.
+A diferencia de la mora absoluta, esta razón permite evaluar el deterioro proporcional:
+•	En créditos de corto plazo, pocos días de mora son críticos.
+•	En créditos largos, se puede tolerar un atraso mayor antes de considerarlo severo.
+Desde la perspectiva de riesgo:
+•	Mejora la precisión de la probabilidad de incumplimiento (PD).
+•	Permite comparar créditos de diferentes plazos.
+•	Es muy útil para modelos de scoring y segmentación.
+Una mora proporcional alta indica deterioro temprano de la obligación y se asocia con clientes que presentan liquidez insuficiente, desorden financiero o intencionalidad de pago dudosa.
+IPC4 – Capital en mora / Tickets (Número de pagos vencidos)
+Justificación Técnica
+Este indicador transforma la mora en cantidad de pagos incumplidos, lo cual:
+•	Detecta falta de disciplina financiera.
+•	Identifica rupturas en el flujo de caja del cliente.
+•	Permite observar deterioro antes de que aparezcan "días de mora elevados".
+Desde un enfoque microfinanciero, el incumplimiento de varios tickets consecutivos es uno de los mejores predictores de deterioro y alto riesgo operativo.
+Se utiliza para:
+•	Anticipar default.
+•	Priorizar la cobranza.
+•	Determinar urgencia de intervención de campo.
+Es un indicador directo de comportamiento y disciplina del cliente.
+IPC5 – Total deuda / Total garantía (incluye ahorros y efectivo)
+Justificación Técnica
+Evalúa la cobertura del crédito mediante garantías, siendo un insumo fundamental en la estimación de la pérdida dada incumplimiento (LGD).
+Una mayor relación deuda/garantía implica:
+•	Menor capacidad de recuperación.
+•	Mayor pérdida esperada.
+•	Más exposición patrimonial para la institución.
+Este indicador permite clasificar créditos:
+•	Con garantías suficientes.
+•	Subgarantizados.
+•	Altamente expuestos.
+Es esencial para gestionar el riesgo de pérdida en clientes con comportamiento dudoso.
+IPC6 – Días de mora acumulados / días promedio entre pago y pago (Recurrencia histórica)
+Justificación Técnica
+Este indicador mide el patrón histórico de morosidad del cliente.
+No solo importa la mora actual, sino si el cliente ha sido reiterativo en caer en mora.
+Es uno de los predictores más potentes de PD porque:
+•	La recurrencia de mora indica fragilidad estructural del flujo de caja.
+•	Clientes reincidentes suelen presentar sobreendeudamiento o descalce de ingresos.
+•	La probabilidad de deterioro futuro aumenta significativamente.
+Las entidades utilizan este indicador para:
+•	Scoring de riesgo.
+•	Renovaciones y ampliaciones.
+•	Alertas tempranas.
+IPC7 – Ingreso primario / Tickets (Capacidad de pago directa)
+Justificación Técnica
+Este indicador mide la solvencia directa del cliente para cubrir su obligación usando solo su ingreso principal.
+Es fundamental porque:
+•	Determina si el cliente depende de fuentes alternativas para pagar.
+•	Identifica posibles escenarios de sobreendeudamiento.
+•	Permite medir la sostenibilidad del crédito.
+Un valor bajo indica:
+•	Riesgo de liquidez.
+•	Dependencia de ingresos secundarios o terceros.
+•	Probabilidad de deterioro financiero ante cualquier shock.
+Se utiliza para evaluar la verdadera capacidad de pago.
+IPC8 – Fuente del pago (Primario / Secundario / Otros / Garantía)
+Justificación Técnica
+Este indicador clasifica el origen del pago, estableciendo un ranking de estabilidad:
+1.	Ingreso primario: estable y predecible.
+2.	Ingreso secundario: menos estable, mayor volatilidad.
+3.	Otros ingresos: informales o variables.
+4.	Garantías u otros activos: señales de posible incapacidad de pago.
+Este indicador evalúa riesgo moral y riesgo operativo, ya que clientes que pagan con fuentes externas suelen:
+•	No tener ingresos suficientes del negocio.
+•	Depender de terceros.
+•	Tener actividad económica débil o inestable.
+Es clave para sostenibilidad del crédito.
+IPC9 – Deuda con ADRA / Pasivo total del cliente (Concentración de exposición)
+Justificación Técnica
+Evalúa qué proporción del endeudamiento del cliente corresponde a la entidad.
+Un porcentaje bajo indica:
+•	Exposición significativa del cliente con terceros.
+•	Riesgo de contagio financiero.
+•	Menor control de la entidad sobre la estructura financiera del cliente.
+Un porcentaje alto indica:
+•	Alto riesgo institucional si el cliente cae en mora.
+•	Necesidad de monitoreo adicional.
+•	Posible sobredependencia del cliente hacia ADRA.
+Este indicador es clave para medir riesgo de mercado y sistémico.
+IPC10 – Créditos sin ADRA / Créditos totales (Nivel de contagio)
+Justificación Técnica
+Mide cuántas entidades financieras comparten al cliente.
+Un cliente con múltiples créditos externos presenta:
+•	Mayor probabilidad de sobreendeudamiento.
+•	Menor liquidez disponible.
+•	Mayor vulnerabilidad ante shocks económicos.
+Un alto nivel de contagio indica:
+•	Baja fidelidad financiera.
+•	Posible abuso del crédito.
+•	Riesgo de impago por competencia de pagos mensuales.
+Es clave para decisiones de aprobación y renovación.
+IPC11 – (Ciclos anteriores / total ciclos) (Nivel de retención)
+Justificación Técnica
+Este indicador mide la permanencia del cliente en la institución.
+Un cliente con alto nivel de retención:
+•	Posee historial verificable.
+•	Permite evaluar comportamiento longitudinal.
+•	Presenta menor riesgo moral.
+Un cliente con baja retención:
+•	Aumenta la incertidumbre del modelo.
+•	Reduce predictibilidad del comportamiento.
+•	Impide determinar patrones de pago confiables.
+Es un indicador crítico de riesgo operativo y de mercado.
+IPC12 – Operaciones rechazadas / operaciones totales (Riesgo documental y moral)
+Justificación Técnica
+Mide la cantidad de veces que el cliente ha sido rechazado en solicitudes crediticias.
+Es útil para detectar:
+•	Inconsistencias documentarias.
+•	Riesgo moral potencial.
+•	Cambios frecuentes de información.
+•	Intentos de fraude o sobreendeudamiento.
+Altas tasas de rechazo indican comportamiento no confiable y riesgo elevado.
+IPC13 – (Efectivo + ahorros) / activo total (Liquidez del cliente)
+Justificación Técnica
+Evalúa la capacidad de liquidez inmediata, fundamental para enfrentar contingencias.
+Un cliente con baja liquidez presenta:
+•	Vulnerabilidad ante shocks.
+•	Riesgo de incumplimiento por falta de colchón financiero.
+•	Mayor exposición a pérdida en caso de caída del negocio.
+Un cliente con liquidez alta puede absorber fluctuaciones en ingresos y gastos.
+IPC14 – Ingreso t-1 / Ingreso t  (Variación del ingreso)
+Justificación Técnica
+Este indicador mide la evolución del ingreso del cliente en el tiempo, comparando el ingreso del período anterior (t-1) con el ingreso del período actual (t).
+Permite identificar si la capacidad generadora de ingresos del cliente se encuentra en crecimiento, estancamiento o deterioro, lo cual es un factor determinante para la sostenibilidad del pago de sus obligaciones financieras.
+Un ratio menor a 1 indica:
+•	Crecimiento del ingreso del cliente.
+•	Mayor capacidad de pago futura.
+•	Mejora en la estabilidad económica.
+•	Mayor resiliencia frente a shocks externos.
+Un ratio igual a 1 indica:
+•	Estancamiento del ingreso.
+•	Capacidad de pago estable pero sin holgura.
+•	Vulnerabilidad ante incrementos de gasto o contingencias.
+Un ratio mayor a 1 indica:
+•	Disminución del ingreso.
+•	Deterioro de la capacidad de pago.
+•	Mayor probabilidad de estrés financiero.
+•	Riesgo creciente de incumplimiento.
+Este indicador está asociado a:
+•	Riesgo crediticio (variación en la capacidad de pago).
+•	Riesgo operativo (desempeño del negocio o actividad económica).
+•	Riesgo de liquidez (menor flujo disponible para cubrir obligaciones).
+•	Riesgo de mercado (impacto de condiciones económicas externas).
+Es esencial para evaluar la tendencia económica del cliente, anticipar deterioros antes de que se refl	ejen en la mora y fortalecer los sistemas de alerta temprana dentro de la gestión integral del riesgo.
+IPC15 – Años desde el primer crédito / años de experiencia en la actividad
+Justificación Técnica
+Evalúa si el cliente se inició en el uso del crédito antes o después de consolidar su experiencia económica.
+Un valor elevado indica:
+•	Profesionalización financiera.
+•	Mejor entendimiento del crédito como herramienta.
+•	Menor riesgo técnico-operativo.
+Un valor bajo puede indicar que el cliente aún no domina la dinámica comercial de su sector.
+IPC16 – Activo t-1 / Activo t (Variación del activo)
+Justificación Técnica
+Mide el crecimiento o deterioro del patrimonio del cliente en el tiempo.
+Un ratio menor a 1 indica:
+•	Disminución patrimonial.
+•	Menor capacidad de absorber shocks.
+•	Riesgo de iliquidez futura.
+Este indicador está asociado a:
+•	Riesgo operativo (pérdida del negocio).
+•	Riesgo crediticio (caída de solvencia).
+•	Riesgo de mercado (variaciones en valor de activos).
+Es esencial para evaluar estabilidad económico–productiva del cliente.
+IPC17 – Provisión de cartera / Saldo de cartera en mora
+Justificación Técnica
+Este indicador mide el nivel de cobertura del riesgo crediticio materializado, evaluando qué proporción de la cartera en mora se encuentra respaldada por provisiones contables.
+Permite analizar si la institución ha reconocido adecuadamente el deterioro de su cartera y si cuenta con un colchón suficiente para absorber pérdidas esperadas.
+Un ratio bajo indica:
+•	Subprovisión frente al riesgo real.
+•	Vulnerabilidad patrimonial de la institución.
+•	Mayor impacto negativo en resultados futuros.
+•	Riesgo de insuficiencia de capital ante deterioros adicionales.
+Un ratio adecuado o alto indica:
+•	Reconocimiento oportuno del deterioro crediticio.
+•	Gestión prudente del riesgo.
+•	Capacidad de absorber pérdidas sin comprometer solvencia.
+Este indicador está asociado a:
+•	Riesgo crediticio (insuficiente cobertura de incumplimientos).
+•	Riesgo patrimonial (impacto directo en capital).
+•	Riesgo regulatorio (cumplimiento de normas prudenciales).
+•	Riesgo financiero (volatilidad de resultados).
+Es esencial para evaluar la solidez financiera de la institución, la calidad de la gestión del riesgo crediticio y la sostenibilidad del portafolio en escenarios adversos.
+IPC18 – Ahorros individuales / Saldo de cartera
+Justificación Técnica
+Este indicador mide el nivel de respaldo interno del portafolio crediticio mediante los ahorros de los propios clientes, reflejando la capacidad de la institución para mitigar el riesgo crediticio a través de recursos captados de manera estable y recurrente.
+Un mayor nivel de ahorros en relación con la cartera indica:
+•	Mayor base de fondeo propio.
+•	Menor dependencia de fuentes externas.
+•	Mayor alineación de incentivos entre cliente e institución.
+•	Mayor compromiso financiero del cliente (garantía psicológica).
+Un ratio bajo indica:
+•	Menor respaldo del portafolio.
+•	Mayor exposición a shocks de liquidez.
+•	Dependencia de fondeo externo.
+•	Menor capacidad de mitigación del riesgo crediticio.
+Este indicador está asociado a:
+•	Riesgo de liquidez (capacidad de fondeo).
+•	Riesgo crediticio (mitigación de pérdidas).
+•	Riesgo operativo (estabilidad de recursos).
+•	Garantía psicológica del cliente (mayor compromiso cuando el cliente mantiene ahorros).
+Es esencial para evaluar la estabilidad financiera del modelo institucional, la fortaleza del fondeo interno y la resiliencia del portafolio frente a escenarios de estrés.
+2.	LAS 3 DIMENSIONES DE CLASIFICACIÓN EN IMF
+1. Ingreso del cliente
+Indicadores que evalúan capacidad económica, flujo de caja, solvencia, liquidez y estructura financiera del cliente.
+2. Voluntad de pago del cliente
+Indicadores que miden conducta, disciplina, historial de pago, riesgo moral y compromiso de cumplimiento.
+3. Garantía psicológica del cliente
+Indicadores que observan estabilidad personal/profesional, madurez financiera, continuidad en el tiempo Y consistencia del comportamiento para inferir confiabilidad no económica.
+A continuación clasifico cada indicador y luego presento las conclusiones por cada dimensión.
+3.	CLASIFICACIÓN INDICADORES IPC1 – IPC18
+3.1.	INDICADORES RELACIONADOS AL INGRESO DEL CLIENTE
+Evalúan capacidad económica, liquidez, solvencia, respaldo financiero, ingreso real y estructura patrimonial.
+CÓDIGO	INDICADOR	MOTIVO
+IPC1	Mora	Relaciona capacidad de pago con Mora económico perdido.
+IPC2	Mora por tramos 	Relaciona capacidad de pago con el tramos de la mora.
+IPC4	Capital en mora / Tickets	Relaciona capacidad de pago con flujo económico perdido.
+IPC5	Total deuda / total garantía	Evalúa solvencia y cobertura financiera.
+IPC7	Ingreso primario / Tickets	Mide directamente capacidad de pago.
+IPC8	Jerarquía del origen de pago	Clasifica estabilidad de ingresos.
+IPC9	Deuda ADRA / Pasivo total	Mide concentración del endeudamiento.
+IPC13	Liquidez (efectivo + ahorros / activo total)	Mide colchón financiero.
+IPC16	Activo t-1 / Activo t	Evalúa el crecimiento o caída patrimonial.
+Razón técnica:
+Estos indicadores cuantifican la capacidad real del cliente para enfrentar sus obligaciones futuras, determinando la probabilidad económica de cumplimiento (solvencia).
+3.2.	INDICADORES DE VOLUNTAD DE PAGO DEL CLIENTE
+Evalúan comportamiento, disciplina, recurrencia, compromiso y riesgo moral.
+CÓDIGO	INDICADOR	MOTIVO
+IPC3	Días en mora / días del crédito	Mide intensidad del incumplimiento.
+IPC4	Capital en mora / Tickets	Mide persistencia del incumplimiento.
+IPC6	Recurrencia de mora	Refleja hábito histórico negativo.
+IPC10	Créditos sin ADRA / Totales	Mide dependencia de terceros y riesgo moral.
+IPC12	Rechazos / total de operaciones	Indica inconsistencias, engaño o debilidad documental.
+Razón técnica:
+Estos indicadores revelan la conducta del cliente, mostrando si actúa con responsabilidad y si cumple sus compromisos incluso cuando tiene capacidad económica.
+→ Relacionado a la voluntad de pago, más que a la capacidad.
+3.3.	INDICADORES DE GARANTÍA PSICOLÓGICA DEL CLIENTE
+Se refieren a estabilidad profesional, madurez financiera, continuidad del negocio y comportamiento predecible.
+CÓDIGO	INDICADOR	MOTIVO
+IPC5	Deuda vs garantía	Confirma respaldo y compromiso serio.
+IPC11	Ciclos anteriores / total ciclos	Mide permanencia y relación de largo plazo.
+IPC14	Ingreso t-1 / Ingreso t	Mide madurez financiera.
+IPC15	Años desde primer crédito / experiencia en actividad	Indica solidez personal y compromiso.
+IPC17	Provisión de cartera / Saldo de cartera en mora	Análisis de la solvencia
+IPC18	Ahorros individuales / saldo de cartera	Análisis de la solvencia en base a su ahorro
+IPC16	Estabilidad del activo	Refleja estabilidad patrimonial psicológica.
+Razón técnica:
+Estos indicadores no solo miden dinero, sino estabilidad, constancia y madurez, que se traducen en confiabilidad emocional y psicológica:
+👉 si el cliente cuida su negocio, cuida su relación con la institución.
+👉 si crece patrimonialmente, demuestra responsabilidad.
+👉 si permanece varios ciclos, está comprometido.
+4.	CONCLUSIÓN DE LA ESTRUCTURA DE LOS INDICADORES POR ÁREA
+I. CONCLUSIÓN – ÁREA: INGRESO DEL CLIENTE (Capacidad de pago)
+Los indicadores clasificados en esta área permiten determinar si el cliente tiene los recursos financieros suficientes y sostenibles para cumplir sus obligaciones.
+A través de medidas como:
+•	la capacidad de cubrir el ticket,
+•	la disponibilidad de liquidez,
+•	la relación entre deuda y garantía,
+•	la evolución de su activo,
+•	la estructura de ingresos,
+se obtiene una visión clara de la solvencia real del cliente.
+Conclusión técnica:
+El análisis conjunto indica que la capacidad económica del cliente es un factor determinante para la probabilidad de incumplimiento (PD).
+Un cliente sin ingresos suficientes, sin liquidez y con estructura de deuda inestable presenta alto riesgo independientemente de su buena conducta pasada.
+Por ello, estos indicadores permiten proyectar si el cliente podrá sostener el crédito en el futuro.
+II. CONCLUSIÓN – ÁREA: VOLUNTAD DE PAGO DEL CLIENTE (Conducta financiera)
+Los indicadores clasificados en esta área detectan cómo se comporta el cliente frente a sus obligaciones, más allá de su capacidad económica.
+Incluyen:
+•	su historial de morosidad proporcional,
+•	el número de tickets impagos,
+•	su recurrencia de atrasos,
+•	el patrón de búsqueda de crédito externo,
+•	y la cantidad de solicitudes rechazadas.
+Conclusión técnica:
+El cliente puede tener ingresos suficientes, pero si su conducta es inestable, su riesgo de incumplimiento sigue siendo alto.
+La voluntad de pago se relaciona con:
+•	disciplina financiera,
+•	nivel de responsabilidad,
+•	organización personal,
+•	compromiso con la institución.
+Un mal comportamiento financiero compromete seriamente la sostenibilidad del crédito, incluso en clientes aparentemente solventes.
+III. CONCLUSIÓN – ÁREA: GARANTÍA PSICOLÓGICA DEL CLIENTE (Estabilidad y confianza)
+Estos indicadores revelan aspectos profundos del cliente:
+•	estabilidad emocional y profesional,
+•	madurez empresarial,
+•	permanencia en la institución,
+•	compromiso histórico,
+•	evolución patrimonial,
+•	trayectoria en la actividad económica.
+Conclusión técnica:
+La garantía psicológica permite evaluar la probabilidad de que el cliente mantenga su compromiso a lo largo del tiempo, incluso frente a dificultades económicas.
+Un cliente con:
+•	experiencia sólida,
+•	incrementos patrimoniales,
+•	baja rotación de actividad,
+•	múltiples ciclos con la institución,
+tiende a ser más confiable y estable, incluso si sus ingresos fluctúan.
+CONCLUSIÓN GLOBAL
+Los 18 indicadores, al clasificarse en estas tres áreas, ofrecen una visión integral del riesgo del cliente:
+✔ El área de INGRESO mide lo que el cliente puede pagar.
+✔ El área de VOLUNTAD mide lo que el cliente quiere pagar.
+✔ El área de GARANTÍA PSICOLÓGICA mide si el cliente sabe cómo y está comprometido a pagar.
+Cuando las tres dimensiones son analizadas en conjunto, permiten a la institución:
+•	Evaluar riesgo financiero y comportamiento humano.
+•	Determinar sostenibilidad económica y emocional.
+•	Anticipar deterioros futuros.
+•	Segmentar portafolio de forma estratégica.
+•	Prevenir sobreendeudamiento y pérdida.
+Este enfoque tridimensional fortalece la gestión integral del riesgo y mejora la calidad de la cartera.
+

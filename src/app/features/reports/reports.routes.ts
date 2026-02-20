@@ -66,10 +66,10 @@ export const reportsRoutes: Routes = [
     loadChildren: () => import('./cumplimiento/cumplimiento.routes'),
   },
   {
-    path: 'ipc/:numero',
-    title: 'Índice de Concentración de Cartera',
+    path: 'ipc',
+    title: 'Indicadores de Control Interno (IPC)',
     loadComponent: () =>
-      import('./pages/ipc-map/ipc-map.component').then((m) => m.IPCMapComponent),
+      import('./pages/ipc-unified/ipc-unified.component').then((m) => m.IPCUnifiedComponent),
   },
   // Futuras rutas para otros reportes HHI
 ];

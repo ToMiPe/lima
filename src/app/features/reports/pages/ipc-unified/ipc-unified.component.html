@@ -1,0 +1,1063 @@
+<div class="ipc-unified-container flex flex-col h-full">
+  <!-- Header: Navegación por dimensiones -->
+  <div class="ipc-header bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Indicadores de Control Interno (IPC)</h1>
+        <p class="text-sm text-gray-600 mt-1">
+          Sistema de monitoreo de 18 indicadores organizados por dimensión
+        </p>
+      </div>
+    </div>
+
+    <!-- Tabs de dimensiones -->
+    <p-tabs [(value)]="dimensionActiva">
+      <p-tablist>
+        @for (dim of dimensionesMenu(); track dim.id) {
+          <p-tab [value]="dim.id" (click)="cambiarDimension(dim.id)">
+            <i [class]="dim.icon + ' mr-2'"></i>
+            {{ dim.label }}
+          </p-tab>
+        }
+      </p-tablist>
+    </p-tabs>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="ipc-content flex flex-1 overflow-hidden">
+    <!-- Panel lateral: Controles y estadísticas -->
+    <div class="ipc-sidebar w-80 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
+      <!-- Información de dimensión activa -->
+      @if (dimensionInfo(); as dimInfo) {
+        <div
+          class="dimension-info bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-200"
+        >
+          <div class="flex items-center gap-2">
+            <i
+              [class]="dimInfo.icono + ' text-2xl cursor-help'"
+              [style.color]="dimInfo.color"
+              pTooltip="{{ dimInfo.descripcion }}"
+              tooltipPosition="right"
+            ></i>
+            <h3 class="font-bold text-base text-gray-900">{{ dimInfo.nombre }}</h3>
+          </div>
+        </div>
+      }
+
+      <!-- Selector de indicador -->
+      <div class="indicator-selector p-4 border-b border-gray-200">
+        <label for="ipc-select" class="block text-sm font-semibold text-gray-700 mb-2">
+          Seleccionar Indicador
+        </label>
+        <p-select
+          inputId="ipc-select"
+          [options]="indicadoresDisponibles()"
+          [(ngModel)]="indicadorSeleccionado"
+          (onChange)="onIndicadorChange($event)"
+          optionLabel="titulo"
+          placeholder="Seleccione un IPC"
+          styleClass="w-full"
+          appendTo="body"
+        >
+          <ng-template let-ipc pTemplate="item">
+            <div class="flex flex-col">
+              <span class="font-semibold">{{ ipc.codigo }} - {{ ipc.titulo }}</span>
+              <span class="text-xs text-gray-500">{{ ipc.unidad }}</span>
+            </div>
+          </ng-template>
+        </p-select>
+
+        <!-- Descripción del indicador -->
+        @if (indicadorSeleccionado(); as config) {
+          <div class="mt-3 p-3 bg-gray-50 rounded-lg">
+            <p class="text-xs text-gray-700">{{ config.descripcion }}</p>
+          </div>
+        }
+      </div>
+
+      <!-- Filtros de Base de Datos - Resumen y Botón -->
+      <div class="data-filters-panel border-b border-gray-200 p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-filter text-purple-600"></i>
+            <h4 class="font-semibold text-xs text-gray-700 uppercase tracking-wide">
+              🔍 Filtros Aplicados
+            </h4>
+            @if (filtrosBaseDatosActivos() > 0) {
+              <span class="px-2 py-0.5 text-xs font-bold bg-purple-600 text-white rounded-full">
+                {{ filtrosBaseDatosActivos() }}
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Mini-card de estadísticas de filtrado -->
+        @if (impactoFiltros(); as impacto) {
+          <div
+            class="mb-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200"
+          >
+            <div class="space-y-2">
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-600">📊 Total original:</span>
+                <span class="font-bold text-gray-900">{{
+                  formatearNumero(impacto.totalOriginal, 0)
+                }}</span>
+              </div>
+              @if (filtrosBaseDatosActivos() > 0) {
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-gray-600">🔍 Con filtros BD:</span>
+                  <span class="font-bold text-purple-700">
+                    {{ formatearNumero(impacto.conFiltrosBD, 0) }}
+                    <span class="text-xs"
+                      >({{ formatearNumero(impacto.porcentajeFiltrosBD, 1) }}%)</span
+                    >
+                  </span>
+                </div>
+              }
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-600">👁️ Visible en mapa:</span>
+                <span class="font-bold text-blue-700">
+                  {{ formatearNumero(impacto.visibleEnMapa, 0) }}
+                  <span class="text-xs"
+                    >({{ formatearNumero(impacto.porcentajeVisible, 1) }}%)</span
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Botón para abrir modal -->
+        <button
+          (click)="mostrarDialogFiltros.set(true)"
+          class="w-full text-xs px-3 py-2 bg-purple-600 text-white hover:bg-purple-700 rounded font-semibold transition-colors flex items-center justify-center gap-2"
+        >
+          <i class="pi pi-filter-fill"></i>
+          Configurar Filtros
+        </button>
+
+        <!-- Badges de filtros activos -->
+        @if (filtrosBaseDatosActivos() > 0) {
+          <div class="mt-3 space-y-2">
+            <!-- Sedes -->
+            @if (sedesSeleccionadas().length > 0) {
+              <div class="flex items-start gap-2">
+                <span class="text-xs font-semibold text-gray-600 mt-0.5">Sedes:</span>
+                <div class="flex flex-wrap gap-1">
+                  @for (sede of sedesSeleccionadas(); track sede) {
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-purple-100 text-purple-800"
+                    >
+                      {{ sede }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Géneros -->
+            @if (generosSeleccionados().length > 0) {
+              <div class="flex items-start gap-2">
+                <span class="text-xs font-semibold text-gray-600 mt-0.5">Sexo:</span>
+                <div class="flex flex-wrap gap-1">
+                  @for (genero of generosSeleccionados(); track genero) {
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800"
+                    >
+                      {{ genero }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Rangos de Monto -->
+            @if (rangosMontosSeleccionados().length > 0) {
+              <div class="flex items-start gap-2">
+                <span class="text-xs font-semibold text-gray-600 mt-0.5">Montos:</span>
+                <div class="flex flex-wrap gap-1">
+                  @for (rangoId of rangosMontosSeleccionados(); track rangoId) {
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-green-100 text-green-800"
+                    >
+                      {{ obtenerLabelRangoMonto(rangoId) }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Productos -->
+            @if (productosSeleccionados().length > 0) {
+              <div class="flex items-start gap-2">
+                <span class="text-xs font-semibold text-gray-600 mt-0.5">Productos:</span>
+                <div class="flex flex-wrap gap-1">
+                  @for (producto of productosSeleccionados(); track producto) {
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-orange-100 text-orange-800"
+                    >
+                      {{ producto }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Zonas -->
+            @if (zonasSeleccionadas().length > 0) {
+              <div class="flex items-start gap-2">
+                <span class="text-xs font-semibold text-gray-600 mt-0.5">Zonas:</span>
+                <div class="flex flex-wrap gap-1">
+                  @for (zona of zonasSeleccionadas(); track zona) {
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-cyan-100 text-cyan-800"
+                    >
+                      {{ zona }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Categorías -->
+            @if (categoriasSeleccionadas().length > 0) {
+              <div class="flex items-start gap-2">
+                <span class="text-xs font-semibold text-gray-600 mt-0.5">Categorías:</span>
+                <div class="flex flex-wrap gap-1">
+                  @for (categoria of categoriasSeleccionadas(); track categoria) {
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-pink-100 text-pink-800"
+                    >
+                      {{ categoria }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Calificaciones CR -->
+            @if (calificacionesCRSeleccionadas().length > 0) {
+              <div class="flex items-start gap-2">
+                <span class="text-xs font-semibold text-gray-600 mt-0.5">Calificación CR:</span>
+                <div class="flex flex-wrap gap-1">
+                  @for (calificacion of calificacionesCRSeleccionadas(); track calificacion) {
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-800"
+                    >
+                      {{ calificacion }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Rangos de Capacidad de Pago -->
+            @if (rangosCapacidadPagoSeleccionados().length > 0) {
+              <div class="flex items-start gap-2">
+                <span class="text-xs font-semibold text-gray-600 mt-0.5">Capacidad Pago:</span>
+                <div class="flex flex-wrap gap-1">
+                  @for (rangoId of rangosCapacidadPagoSeleccionados(); track rangoId) {
+                    <span
+                      class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-teal-100 text-teal-800"
+                    >
+                      {{ obtenerLabelRangoCapacidad(rangoId) }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="text-xs text-gray-500 mt-3 text-center italic">Sin filtros aplicados</p>
+        }
+      </div>
+
+      <!-- Interpretación (Collapsible) -->
+      @if (indicadorSeleccionado(); as config) {
+        <div class="interpretation-panel border-b border-gray-200">
+          <!-- Header clickeable -->
+          <div
+            class="flex items-center justify-between px-4 py-2 bg-blue-50 hover:bg-blue-100 cursor-pointer transition-colors"
+            role="button"
+            tabindex="0"
+            (click)="mostrarInterpretacion.set(!mostrarInterpretacion())"
+            (keydown.enter)="mostrarInterpretacion.set(!mostrarInterpretacion())"
+            (keydown.space)="mostrarInterpretacion.set(!mostrarInterpretacion())"
+          >
+            <div class="flex items-center gap-2">
+              <i class="pi pi-info-circle text-blue-600"></i>
+              <h4 class="font-semibold text-xs text-gray-700 uppercase tracking-wide">
+                Interpretación
+              </h4>
+            </div>
+            <i
+              class="text-xs text-gray-500"
+              [ngClass]="mostrarInterpretacion() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+            ></i>
+          </div>
+
+          <!-- Contenido expandible -->
+          @if (mostrarInterpretacion()) {
+            <div class="px-4 py-3 bg-blue-50 space-y-2 text-xs">
+              <div class="flex gap-2">
+                <i class="pi pi-check-circle text-green-600 mt-0.5"></i>
+                <div>
+                  <span class="font-semibold">Bajo: </span>
+                  <span class="text-gray-700">{{ obtenerInterpretacion('bajo') }}</span>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <i class="pi pi-exclamation-triangle text-orange-500 mt-0.5"></i>
+                <div>
+                  <span class="font-semibold">Moderado: </span>
+                  <span class="text-gray-700">{{ obtenerInterpretacion('moderado') }}</span>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <i class="pi pi-times-circle text-red-600 mt-0.5"></i>
+                <div>
+                  <span class="font-semibold">Alto: </span>
+                  <span class="text-gray-700">{{ obtenerInterpretacion('alto') }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Visualización por Rangos -->
+      <div class="filters-panel flex-1 overflow-y-auto p-4">
+        <div class="mb-3">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="font-semibold text-sm text-gray-700 uppercase tracking-wide">
+              👁️ Visualización por Rangos
+            </h4>
+          </div>
+
+          <!-- Contador de registros -->
+          @if (registrosFiltrados(); as conteo) {
+            <div class="mb-2 px-2 py-1.5 bg-blue-50 rounded-lg">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-600">Mostrando:</span>
+                <span class="font-bold text-blue-700">
+                  {{ formatearNumero(conteo.filtrados, 0) }} de
+                  {{ formatearNumero(conteo.total, 0) }} registros
+                </span>
+              </div>
+            </div>
+          }
+
+          <!-- Botones de acción -->
+          <div class="flex gap-2">
+            <button
+              (click)="seleccionarTodosFiltros()"
+              class="flex-1 text-xs px-2 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded font-semibold transition-colors"
+              title="Seleccionar todos los rangos"
+            >
+              <i class="pi pi-check-square mr-1"></i>
+              Todos
+            </button>
+            <button
+              (click)="deseleccionarTodosFiltros()"
+              class="flex-1 text-xs px-2 py-1.5 bg-gray-50 text-gray-700 hover:bg-gray-100 rounded font-semibold transition-colors"
+              title="Deseleccionar todos los rangos"
+            >
+              <i class="pi pi-times mr-1"></i>
+              Ninguno
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          @for (rango of rangosDisponibles(); track rango.id) {
+            <div class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded">
+              <p-checkbox
+                [binary]="true"
+                [ngModel]="isFiltroActivo(rango.id)"
+                (ngModelChange)="toggleFiltro(rango.id)"
+              />
+
+              <div
+                class="flex items-center gap-2 flex-1 cursor-pointer"
+                role="button"
+                tabindex="0"
+                (click)="toggleFiltro(rango.id)"
+                (keydown.enter)="toggleFiltro(rango.id)"
+                (keydown.space)="toggleFiltro(rango.id)"
+              >
+                <div class="w-4 h-4 rounded" [style.background-color]="rango.colorHex"></div>
+                <span class="text-sm text-gray-700">{{ rango.label }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel central: Mapa -->
+    <div class="ipc-map-container flex-1 relative">
+      <!-- Loader del mapa -->
+      @if (isLoadingMap() || isLoadingData()) {
+        <div class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+          <div class="text-center">
+            <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" animationDuration="1s" />
+            <p class="mt-3 text-sm text-gray-600">Cargando datos...</p>
+          </div>
+        </div>
+      }
+
+      <!-- Mapa -->
+      <div id="ipc-map" class="w-full h-full"></div>
+    </div>
+
+    <!-- Panel derecho: Estadísticas y Gráficas -->
+    <div
+      class="ipc-right-panel w-80 bg-white border-l border-gray-200 flex flex-col overflow-hidden relative z-10"
+    >
+      <!-- Estadísticas (Collapsible) -->
+      @if (estadisticas(); as stats) {
+        <div class="stats-section border-b border-gray-200">
+          <!-- Header clickeable -->
+          <div
+            class="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 cursor-pointer transition-colors"
+            role="button"
+            tabindex="0"
+            (click)="mostrarEstadisticas.set(!mostrarEstadisticas())"
+            (keydown.enter)="mostrarEstadisticas.set(!mostrarEstadisticas())"
+            (keydown.space)="mostrarEstadisticas.set(!mostrarEstadisticas())"
+          >
+            <div class="flex items-center gap-2">
+              <i class="pi pi-chart-bar text-blue-600"></i>
+              <h4 class="font-semibold text-xs text-gray-700 uppercase tracking-wide">
+                Estadísticas
+              </h4>
+            </div>
+            <i
+              class="text-xs text-gray-500"
+              [ngClass]="mostrarEstadisticas() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+            ></i>
+          </div>
+
+          <!-- Contenido expandible -->
+          @if (mostrarEstadisticas()) {
+            <div class="px-4 py-3 space-y-2">
+              <!-- Impacto de Filtros -->
+              @if (impactoFiltros(); as impacto) {
+                <div class="mb-4 pb-4 border-b border-gray-200">
+                  <h5
+                    class="text-xs font-bold text-purple-700 uppercase mb-3 flex items-center gap-2"
+                  >
+                    <i class="pi pi-filter"></i>
+                    Impacto de Filtros
+                  </h5>
+
+                  <div class="space-y-2">
+                    <!-- Total original -->
+                    <div class="flex justify-between items-center">
+                      <span class="text-xs text-gray-600">Total sin filtrar:</span>
+                      <span class="font-bold text-gray-900">{{
+                        formatearNumero(impacto.totalOriginal, 0)
+                      }}</span>
+                    </div>
+
+                    <!-- Con filtros BD -->
+                    @if (filtrosBaseDatosActivos() > 0) {
+                      <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-600">Con filtros BD:</span>
+                        <div class="text-right">
+                          <span class="font-bold text-purple-700">{{
+                            formatearNumero(impacto.conFiltrosBD, 0)
+                          }}</span>
+                          <div class="text-xs text-gray-500">
+                            ↓ {{ formatearNumero(impacto.reduccionBD, 0) }} ({{
+                              formatearNumero(impacto.porcentajeFiltrosBD, 1)
+                            }}%)
+                          </div>
+                        </div>
+                      </div>
+                    }
+
+                    <!-- Visible en mapa -->
+                    <div class="flex justify-between items-center">
+                      <span class="text-xs text-gray-600">Visible en mapa:</span>
+                      <div class="text-right">
+                        <span class="font-bold text-blue-700">{{
+                          formatearNumero(impacto.visibleEnMapa, 0)
+                        }}</span>
+                        <div class="text-xs text-gray-500">
+                          ({{ formatearNumero(impacto.porcentajeVisible, 1) }}% del total)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Botón para ver distribución -->
+                  <button
+                    pButton
+                    type="button"
+                    label="Ver Distribución de Datos"
+                    icon="pi pi-chart-bar"
+                    class="w-full mt-3"
+                    (click)="mostrarDialogDistribucion.set(true)"
+                    severity="help"
+                  ></button>
+                </div>
+              }
+
+              <!-- Total de registros -->
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">Total:</span>
+                <span class="font-bold text-gray-900">{{ formatearNumero(stats.total, 0) }}</span>
+              </div>
+
+              @if (indicadorSeleccionado()?.tipo === 'numerico') {
+                <!-- Estadísticas numéricas -->
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Media:</span>
+                  <span class="font-semibold text-gray-900">{{
+                    formatearNumero(stats.media)
+                  }}</span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Mediana:</span>
+                  <span class="font-semibold text-gray-900">{{
+                    formatearNumero(stats.mediana)
+                  }}</span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Mínimo:</span>
+                  <span class="font-semibold text-green-600">{{
+                    formatearNumero(stats.minimo)
+                  }}</span>
+                </div>
+
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Máximo:</span>
+                  <span class="font-semibold text-red-600">{{
+                    formatearNumero(stats.maximo)
+                  }}</span>
+                </div>
+
+                <!-- Badge de nivel de riesgo promedio -->
+                <div class="mt-3 pt-3 border-t border-gray-200">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold text-gray-600 uppercase"
+                      >Nivel Promedio:</span
+                    >
+                    <span
+                      class="px-2 py-1 rounded text-xs font-bold text-white"
+                      [ngClass]="obtenerClaseRiesgo(stats)"
+                    >
+                      {{ formatearNumero(stats.media) }} {{ indicadorSeleccionado()?.unidad }}
+                    </span>
+                  </div>
+                </div>
+              }
+
+              <!-- Distribución Porcentual (Gráfica de Torta) -->
+              <div class="mt-4 pt-4 border-t border-gray-200">
+                <h5 class="text-xs font-semibold text-gray-600 uppercase mb-3">
+                  Distribución Porcentual
+                </h5>
+                <div echarts [options]="chartOptions()" class="h-48"></div>
+              </div>
+
+              <!-- Distribución por rangos -->
+              <div class="mt-4 pt-4 border-t border-gray-200">
+                <h5 class="text-xs font-semibold text-gray-600 uppercase mb-2">
+                  Distribución por Rango:
+                </h5>
+                <div class="space-y-1.5">
+                  @for (rango of rangosDisponibles(); track rango.id) {
+                    <div class="flex items-center justify-between text-xs">
+                      <div class="flex items-center gap-2">
+                        <div
+                          class="w-3 h-3 rounded"
+                          [style.background-color]="rango.colorHex"
+                        ></div>
+                        <span class="text-gray-700">{{ rango.label }}</span>
+                      </div>
+                      <span class="font-semibold text-gray-900">
+                        {{ formatearNumero(obtenerCantidadEnRango(rango.id), 0) }}
+                      </span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Gráficas -->
+      <div class="charts-section flex-1 overflow-y-auto p-4">
+        <div class="space-y-4">
+          <!-- Espacio para futuras gráficas -->
+          <div class="text-center py-8 text-gray-400">
+            <i class="pi pi-chart-line text-3xl mb-2"></i>
+            <p class="text-xs">Más gráficas disponibles próximamente</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Filtros -->
+  <p-dialog
+    [(visible)]="mostrarDialogFiltros"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '600px' }"
+    styleClass="p-fluid"
+  >
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-filter text-purple-600"></i>
+        <span class="font-bold text-lg">Configurar Filtros de Base de Datos</span>
+      </div>
+    </ng-template>
+
+    <div class="space-y-4 py-2">
+      <!-- Filtro por Sede -->
+      <div>
+        <label for="modal-filtro-sede" class="block text-sm font-semibold text-gray-700 mb-2">
+          Sede/Agencia
+        </label>
+        <p-multiselect
+          inputId="modal-filtro-sede"
+          [options]="sedesDisponibles()"
+          [(ngModel)]="sedesSeleccionadas"
+          placeholder="Todas las sedes"
+          [showClear]="true"
+          styleClass="w-full"
+          [filter]="true"
+          filterPlaceHolder="Buscar sede..."
+          appendTo="body"
+        />
+      </div>
+
+      <!-- Filtro por Género -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Sexo/Género</label>
+        <div class="flex gap-4">
+          @for (genero of generosDisponibles(); track genero) {
+            <div class="flex items-center gap-2">
+              <p-checkbox [binary]="false" [value]="genero" [(ngModel)]="generosSeleccionados" />
+              <label class="text-sm text-gray-700">{{ genero }}</label>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Filtro por Monto de Crédito -->
+      <div>
+        <label for="modal-filtro-monto" class="block text-sm font-semibold text-gray-700 mb-2">
+          Monto de Crédito
+        </label>
+        <p-multiselect
+          inputId="modal-filtro-monto"
+          [options]="rangosMonto()"
+          [(ngModel)]="rangosMontosSeleccionados"
+          placeholder="Todos los rangos"
+          [showClear]="true"
+          styleClass="w-full"
+          appendTo="body"
+        />
+      </div>
+
+      <!-- Filtro por Producto -->
+      <div>
+        <label for="modal-filtro-producto" class="block text-sm font-semibold text-gray-700 mb-2">
+          Tipo de Producto
+        </label>
+        <p-multiselect
+          inputId="modal-filtro-producto"
+          [options]="productosDisponibles()"
+          [(ngModel)]="productosSeleccionados"
+          placeholder="Todos los productos"
+          [showClear]="true"
+          styleClass="w-full"
+          [filter]="true"
+          filterPlaceHolder="Buscar producto..."
+          appendTo="body"
+        />
+      </div>
+
+      <!-- Filtro por Zona Geográfica -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Zona Geográfica</label>
+        <div class="flex gap-4">
+          @for (zona of zonasDisponibles(); track zona) {
+            <div class="flex items-center gap-2">
+              <p-checkbox [binary]="false" [value]="zona" [(ngModel)]="zonasSeleccionadas" />
+              <label class="text-sm text-gray-700">{{ zona }}</label>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Filtro por Categoría -->
+      <div>
+        <label for="modal-filtro-categoria" class="block text-sm font-semibold text-gray-700 mb-2">
+          Categoría
+        </label>
+        <p-multiselect
+          inputId="modal-filtro-categoria"
+          [options]="categoriasDisponibles()"
+          [(ngModel)]="categoriasSeleccionadas"
+          placeholder="Todas las categorías"
+          [showClear]="true"
+          styleClass="w-full"
+          [filter]="true"
+          filterPlaceHolder="Buscar categoría..."
+          appendTo="body"
+        />
+      </div>
+
+      <!-- Filtro por Calificación CR -->
+      <div>
+        <label
+          for="modal-filtro-calificacion-cr"
+          class="block text-sm font-semibold text-gray-700 mb-2"
+        >
+          Calificación Central de Riesgos
+        </label>
+        <p-multiselect
+          inputId="modal-filtro-calificacion-cr"
+          [options]="calificacionesCRDisponibles()"
+          [(ngModel)]="calificacionesCRSeleccionadas"
+          placeholder="Todas las calificaciones"
+          [showClear]="true"
+          styleClass="w-full"
+          [filter]="true"
+          filterPlaceHolder="Buscar calificación..."
+          appendTo="body"
+        />
+      </div>
+
+      <!-- Filtro por Capacidad de Pago -->
+      <div>
+        <label
+          for="modal-filtro-capacidad-pago"
+          class="block text-sm font-semibold text-gray-700 mb-2"
+        >
+          Capacidad de Pago
+        </label>
+        <p-multiselect
+          inputId="modal-filtro-capacidad-pago"
+          [options]="rangosCapacidadPago()"
+          [(ngModel)]="rangosCapacidadPagoSeleccionados"
+          placeholder="Todos los rangos"
+          [showClear]="true"
+          styleClass="w-full"
+          appendTo="body"
+        />
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex gap-2">
+        <p-button
+          label="Limpiar"
+          icon="pi pi-times"
+          (onClick)="limpiarFiltrosBaseDatos()"
+          severity="secondary"
+          [outlined]="true"
+        />
+        <p-button
+          label="Aplicar Filtros"
+          icon="pi pi-check"
+          (onClick)="aplicarFiltrosBaseDatos(); mostrarDialogFiltros.set(false)"
+          severity="success"
+        />
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Modal de Distribución de Datos -->
+  <p-dialog
+    [(visible)]="mostrarDialogDistribucion"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '90vw', maxWidth: '1200px' }"
+    styleClass="dialog-distribucion"
+  >
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-chart-bar text-purple-600"></i>
+        <span class="font-bold">Distribución de Datos</span>
+      </div>
+    </ng-template>
+
+    <div class="p-4">
+      <!-- Indicador de carga -->
+      @if (cargandoDistribucion()) {
+        <div class="flex items-center justify-center p-8">
+          <p-progressSpinner [style]="{ width: '50px', height: '50px' }" strokeWidth="4" />
+          <span class="ml-3 text-gray-600">Cargando datos...</span>
+        </div>
+      }
+
+      <!-- Mensaje si no hay datos -->
+      @else if (_datosParaDistribucion().length === 0) {
+        <div class="flex flex-col items-center justify-center p-8 text-gray-500">
+          <i class="pi pi-inbox text-4xl mb-3"></i>
+          <p class="text-lg font-semibold">No hay datos para mostrar</p>
+          <p class="text-sm">Aplica algunos filtros para ver la distribución</p>
+        </div>
+      }
+
+      <!-- Tabs con datos -->
+      @else {
+        <p-tabs [value]="tabDistribucionActiva" (valueChange)="tabDistribucionActiva = $event">
+          <!-- Tab: Género -->
+          <p-tabpanel value="genero">
+            <ng-template pTemplate="header">
+              <i class="pi pi-users mr-2"></i>
+              <span>Género</span>
+            </ng-template>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <!-- Tabla -->
+              <div>
+                <h5 class="text-sm font-bold text-gray-700 mb-3">Resumen por Género</h5>
+                @if (distribucionGeneros().length === 0) {
+                  <div class="text-center p-4 text-gray-500">
+                    <i class="pi pi-info-circle text-2xl mb-2"></i>
+                    <p>No hay datos de género disponibles</p>
+                  </div>
+                } @else {
+                  <table class="w-full text-sm">
+                    <thead>
+                      <tr class="bg-gray-100">
+                        <th class="text-left p-2 border">Género</th>
+                        <th class="text-right p-2 border">Cantidad</th>
+                        <th class="text-right p-2 border">%</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (item of distribucionGeneros(); track item.categoria) {
+                        <tr class="hover:bg-gray-50">
+                          <td class="p-2 border">{{ item.categoria }}</td>
+                          <td class="text-right p-2 border">
+                            {{ formatearNumero(item.cantidad, 0) }}
+                          </td>
+                          <td class="text-right p-2 border">
+                            {{ formatearNumero(item.porcentaje, 1) }}%
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+              </div>
+
+              <!-- Gráfico -->
+              <div>
+                <h5 class="text-sm font-bold text-gray-700 mb-3">Visualización</h5>
+                @if (distribucionGeneros().length === 0) {
+                  <div class="flex items-center justify-center h-[300px] text-gray-400">
+                    <i class="pi pi-chart-bar text-4xl"></i>
+                  </div>
+                } @else {
+                  <div echarts [options]="chartOptionsGeneros()" class="h-[300px]"></div>
+                }
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab: Sedes -->
+          <p-tabpanel value="sedes">
+            <ng-template pTemplate="header">
+              <i class="pi pi-building mr-2"></i>
+              <span>Sedes (Top 15)</span>
+            </ng-template>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <!-- Tabla -->
+              <div>
+                <h5 class="text-sm font-bold text-gray-700 mb-3">Top 15 Sedes</h5>
+                <div class="overflow-y-auto max-h-[400px]">
+                  <table class="w-full text-sm">
+                    <thead class="sticky top-0 bg-white">
+                      <tr class="bg-gray-100">
+                        <th class="text-left p-2 border">Sede</th>
+                        <th class="text-right p-2 border">Cantidad</th>
+                        <th class="text-right p-2 border">%</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (item of distribucionSedes(); track item.categoria) {
+                        <tr class="hover:bg-gray-50">
+                          <td class="p-2 border text-xs">{{ item.categoria }}</td>
+                          <td class="text-right p-2 border">
+                            {{ formatearNumero(item.cantidad, 0) }}
+                          </td>
+                          <td class="text-right p-2 border">
+                            {{ formatearNumero(item.porcentaje, 1) }}%
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Gráfico -->
+              <div>
+                <h5 class="text-sm font-bold text-gray-700 mb-3">Visualización</h5>
+                <div echarts [options]="chartOptionsSedes()" class="h-[400px]"></div>
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab: Productos -->
+          <p-tabpanel value="productos">
+            <ng-template pTemplate="header">
+              <i class="pi pi-shopping-cart mr-2"></i>
+              <span>Productos</span>
+            </ng-template>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <!-- Tabla -->
+              <div>
+                <h5 class="text-sm font-bold text-gray-700 mb-3">Resumen por Producto</h5>
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="bg-gray-100">
+                      <th class="text-left p-2 border">Producto</th>
+                      <th class="text-right p-2 border">Cantidad</th>
+                      <th class="text-right p-2 border">%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of distribucionProductos(); track item.categoria) {
+                      <tr class="hover:bg-gray-50">
+                        <td class="p-2 border">{{ item.categoria }}</td>
+                        <td class="text-right p-2 border">
+                          {{ formatearNumero(item.cantidad, 0) }}
+                        </td>
+                        <td class="text-right p-2 border">
+                          {{ formatearNumero(item.porcentaje, 1) }}%
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Gráfico -->
+              <div>
+                <h5 class="text-sm font-bold text-gray-700 mb-3">Visualización</h5>
+                <div echarts [options]="chartOptionsProductos()" class="h-[300px]"></div>
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab: Zonas -->
+          <p-tabpanel value="zonas">
+            <ng-template pTemplate="header">
+              <i class="pi pi-map-marker mr-2"></i>
+              <span>Zonas</span>
+            </ng-template>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <!-- Tabla -->
+              <div>
+                <h5 class="text-sm font-bold text-gray-700 mb-3">Resumen por Zona</h5>
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="bg-gray-100">
+                      <th class="text-left p-2 border">Zona</th>
+                      <th class="text-right p-2 border">Cantidad</th>
+                      <th class="text-right p-2 border">%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of distribucionZonas(); track item.categoria) {
+                      <tr class="hover:bg-gray-50">
+                        <td class="p-2 border">{{ item.categoria }}</td>
+                        <td class="text-right p-2 border">
+                          {{ formatearNumero(item.cantidad, 0) }}
+                        </td>
+                        <td class="text-right p-2 border">
+                          {{ formatearNumero(item.porcentaje, 1) }}%
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Gráfico -->
+              <div>
+                <h5 class="text-sm font-bold text-gray-700 mb-3">Visualización</h5>
+                <div echarts [options]="chartOptionsZonas()" class="h-[300px]"></div>
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- Tab: Montos -->
+          <p-tabpanel value="montos">
+            <ng-template pTemplate="header">
+              <i class="pi pi-dollar mr-2"></i>
+              <span>Montos</span>
+            </ng-template>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <!-- Tabla -->
+              <div>
+                <h5 class="text-sm font-bold text-gray-700 mb-3">
+                  Distribución por Rangos de Monto
+                </h5>
+                <div class="overflow-y-auto max-h-[400px]">
+                  <table class="w-full text-sm">
+                    <thead class="sticky top-0 bg-white">
+                      <tr class="bg-gray-100">
+                        <th class="text-left p-2 border">Rango</th>
+                        <th class="text-right p-2 border">Cantidad</th>
+                        <th class="text-right p-2 border">%</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (item of distribucionMontos(); track item.categoria) {
+                        <tr class="hover:bg-gray-50">
+                          <td class="p-2 border text-xs">{{ item.categoria }}</td>
+                          <td class="text-right p-2 border">
+                            {{ formatearNumero(item.cantidad, 0) }}
+                          </td>
+                          <td class="text-right p-2 border">
+                            {{ formatearNumero(item.porcentaje, 1) }}%
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Gráfico -->
+              <div>
+                <h5 class="text-sm font-bold text-gray-700 mb-3">Visualización</h5>
+                <div echarts [options]="chartOptionsMontos()" class="h-[400px]"></div>
+              </div>
+            </div>
+          </p-tabpanel>
+        </p-tabs>
+      }
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Cerrar"
+        icon="pi pi-times"
+        (onClick)="mostrarDialogDistribucion.set(false)"
+        severity="secondary"
+      />
+    </ng-template>
+  </p-dialog>
+</div>

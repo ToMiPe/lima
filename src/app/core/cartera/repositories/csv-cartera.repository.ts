@@ -17,9 +17,9 @@ export class CarteraDatabase extends Dexie {
 
   constructor() {
     super('CarteraDatabase');
-    this.version(1).stores({
+    this.version(2).stores({
       cartera:
-        '++id, cod_agencia, agencia, departamento, provincia, distrito, genero, situacion, clasificacion, monto_colocado, latitud, longitud, ipc1, ipc2, ipc3, ipc4, ipc5',
+        '++id, cod_agencia, agencia, departamento, provincia, distrito, genero, situacion, clasificacion, monto_colocado, latitud, longitud, ipc1, ipc2, ipc3, ipc4, ipc5, ipc6, ipc7, ipc8, ipc9, ipc10, ipc11, ipc12, ipc13, ipc14, ipc15, ipc16, ipc17, ipc18',
     });
   }
 }
@@ -318,12 +318,33 @@ export class CsvCarteraRepository implements CarteraRepository {
           nro_alumno: values[92] || '',
           latitud: parseFloat(values[93]) || 0,
           longitud: parseFloat(values[94]) || 0,
-          // Índices de Concentración de Cartera (IPC)
-          ipc1: parseLatinNumber(values[95]),
-          ipc2: parseLatinNumber(values[96]),
-          ipc3: parseLatinNumber(values[97]),
-          ipc4: parseLatinNumber(values[98]),
-          ipc5: parseLatinNumber(values[99]),
+
+          // Indicadores de Control Interno (IPC) - 18 indicadores
+          // DIMENSIÓN INGRESO
+          ipc1: parseLatinNumber(values[95]),   // Mora (días)
+          ipc2: values[96] || '',                // Mora por tramos (categórico)
+          ipc3: parseLatinNumber(values[97]),    // Mora proporcional (%)
+          ipc4: parseLatinNumber(values[98]),    // Tickets vencidos
+          ipc7: parseLatinNumber(values[101]),   // Capacidad de pago
+          ipc8: values[102] || '',               // Jerarquía de pago (categórico)
+          ipc9: parseLatinNumber(values[103]),   // Concentración ADRA (%)
+          ipc13: parseLatinNumber(values[107]),  // Liquidez (%)
+
+          // DIMENSIÓN VOLUNTAD
+          ipc3_voluntad: parseLatinNumber(values[97]), // Mora proporcional - compartido
+          ipc4_voluntad: parseLatinNumber(values[98]), // Tickets vencidos - compartido
+          ipc6: parseLatinNumber(values[100]),   // Recurrencia de mora
+          ipc10: parseLatinNumber(values[104]),  // Nivel de contagio (%)
+          ipc12: parseLatinNumber(values[106]),  // Rechazos (%)
+
+          // DIMENSIÓN GARANTÍA PSICOLÓGICA
+          ipc5: parseLatinNumber(values[99]),    // Deuda vs Garantía
+          ipc11: parseLatinNumber(values[105]),  // Nivel de retención (%)
+          ipc14: parseLatinNumber(values[108]),  // Variación de ingreso
+          ipc15: parseLatinNumber(values[109]),  // Experiencia crediticia
+          ipc16: parseLatinNumber(values[110]),  // Variación de activo
+          ipc17: parseLatinNumber(values[111]),  // Cobertura de provisión (%)
+          ipc18: parseLatinNumber(values[112]),  // Respaldo de ahorros (%)
         };
 
         records.push(record);

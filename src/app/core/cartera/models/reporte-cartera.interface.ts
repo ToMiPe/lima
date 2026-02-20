@@ -99,10 +99,30 @@ export interface ReporteCartera {
   latitud: number;
   longitud: number;
 
-  // Índices de Concentración de Cartera (IPC) - valores entre 0-100%
-  ipc1?: number; // Concentración por Agencias
-  ipc2?: number; // Concentración por Tipo de Crédito
-  ipc3?: number; // Concentración por Destino
-  ipc4?: number; // Concentración por Zona Geográfica
-  ipc5?: number; // Concentración por Sector Económico
+  // Indicadores de Control Interno (IPC) - 18 indicadores según documento oficial
+  // Dimensión INGRESO (9 IPCs)
+  ipc1?: number;  // Mora (días promedio)
+  ipc2?: string;  // Mora por tramos (categórico: "0-30", "31-60", "61-90", "91-180", ">180")
+  ipc3?: number;  // Mora proporcional (%)
+  ipc4?: number;  // Tickets vencidos (número de pagos)
+  ipc7?: number;  // Capacidad de pago (ratio)
+  ipc8?: string;  // Jerarquía de pago (categórico: "Primario", "Secundario", "Otros", "Garantía")
+  ipc9?: number;  // Concentración ADRA (%)
+  ipc13?: number; // Liquidez (%)
+
+  // Dimensión VOLUNTAD (5 IPCs)
+  ipc3_voluntad?: number; // Mora proporcional (%) - compartido
+  ipc4_voluntad?: number; // Tickets vencidos - compartido
+  ipc6?: number;  // Recurrencia de mora (ratio)
+  ipc10?: number; // Nivel de contagio (%)
+  ipc12?: number; // Rechazos (%)
+
+  // Dimensión GARANTÍA PSICOLÓGICA (7 IPCs)
+  ipc5?: number;  // Deuda vs Garantía (ratio)
+  ipc11?: number; // Nivel de retención (%)
+  ipc14?: number; // Variación de ingreso (ratio)
+  ipc15?: number; // Experiencia crediticia (ratio)
+  ipc16?: number; // Variación de activo (ratio)
+  ipc17?: number; // Cobertura de provisión (%)
+  ipc18?: number; // Respaldo de ahorros (%)
 }
