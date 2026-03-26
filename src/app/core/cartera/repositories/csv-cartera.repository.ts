@@ -52,13 +52,13 @@ export class CsvCarteraRepository implements CarteraRepository {
 
       if (count === 0 || forceReload) {
         if (forceReload && count > 0) {
-          console.log('🔄 Forzando recarga para incluir columnas IPC...');
+          console.log(' Forzando recarga para incluir columnas IPC...');
           await this.db.cartera.clear();
         }
-        console.log('📥 Cargando CSV desde assets...');
+        console.log(' Cargando CSV desde assets...');
         await this.loadCsvToDatabase();
       } else {
-        console.log(`✅ Datos encontrados: ${count} registros`);
+        console.log(` Datos encontrados: ${count} registros`);
       }
 
       this._lastUpdate.set(new Date());
@@ -179,9 +179,9 @@ export class CsvCarteraRepository implements CarteraRepository {
         await this.db.cartera.bulkAdd(batch);
       }
 
-      console.log(`✅ ${records.length} registros cargados exitosamente`);
+      console.log(` ${records.length} registros cargados exitosamente`);
     } catch (error) {
-      console.error('❌ Error cargando CSV a BD:', error);
+      console.error(' Error cargando CSV a BD:', error);
       throw error;
     }
   }
@@ -198,7 +198,7 @@ export class CsvCarteraRepository implements CarteraRepository {
       return parseFloat(cleaned) || 0;
     };
 
-    console.log('🔍 Parseando CSV - Total líneas:', lines.length);
+    console.log(' Parseando CSV - Total líneas:', lines.length);
     let registrosParseados = 0;
     let agenciasVacias = 0;
 
@@ -217,11 +217,113 @@ export class CsvCarteraRepository implements CarteraRepository {
       if (!values[1] || values[1].trim() === '') {
         agenciasVacias++;
         if (agenciasVacias <= 3) {
-          console.log(`⚠️ Agencia vacía en línea ${i}:`, values.slice(0, 10));
+          console.log(` Agencia vacía en línea ${i}:`, values.slice(0, 10));
         }
       }
 
       try {
+        // Parse de valores numéricos base (una sola vez)
+        const deuda_total = parseLatinNumber(values[39]);
+        const saldo_capital = parseLatinNumber(values[40]);
+        const dias_atraso = parseInt(values[51]) || 0;
+        const mora_1_8 = parseFloat(values[53]?.replace(',', '.')) || 0;
+        const mora_9_30 = parseFloat(values[54]?.replace(',', '.')) || 0;
+        const mora_31_60 = parseFloat(values[55]?.replace(',', '.')) || 0;
+        const mora_61_90 = parseFloat(values[56]?.replace(',', '.')) || 0;
+        const mora_91_120 = parseFloat(values[57]?.replace(',', '.')) || 0;
+        const mora_120_mas = parseFloat(values[58]?.replace(',', '.')) || 0;
+        const dias_credito = parseInt(values[105]) || 0;
+        const tot_garantia = parseLatinNumber(values[106]);
+        const ingreso_principal = parseLatinNumber(values[109]);
+        const ingreso_fijo_anterior = parseLatinNumber(values[110]);
+        const pasivo_total_pasivo = parseLatinNumber(values[112]);
+        const pasivo_total_riesgos = parseLatinNumber(values[113]);
+        const efectivo_caja = parseLatinNumber(values[116]);
+        const activo_total = parseLatinNumber(values[117]);
+        const activo_anterior_balance = parseLatinNumber(values[118]);
+        const años_experiencia_actividad = parseInt(values[122]) || 0;
+        const ahorro_programado = parseLatinNumber(values[123]);
+        const ahorro_voluntario = parseLatinNumber(values[124]);
+        const total_ahorro = parseLatinNumber(values[125]);
+        const saldo_ahorro_mes_anterior = parseLatinNumber(values[126]);
+        const capacidad_pago = parseFloat(values[88]?.replace(',', '.')) || 0;
+        const monto_colocado = parseLatinNumber(values[33]);
+        const ciclo_banca = parseInt(values[6]) || 1; // Evita división por 0
+        const ciclo_cliente = parseInt(values[11]) || 0;
+        const provision = parseFloat(values[65]?.replace(',', '.')) || 0;
+        const int_devengado = parseFloat(values[59]?.replace(',', '.')) || 0;
+        const interes_percibido = parseFloat(values[62]?.replace(',', '.')) || 0;
+
+        // Cálculo de IPCs usando valores previamente parseados
+        // IPC2: Suma de mora 31+ días
+        const ipc2 = mora_31_60 + mora_61_90 + mora_91_120 + mora_120_mas;
+
+        // IPC3: Mora proporcional (evita división por 0)
+        const ipc3 = dias_credito > 0 ? dias_atraso / dias_credito : 0;
+
+        // IPC5: Garantía vs Deuda (evita división por 0)
+        const ipc5 = deuda_total > 0 ? (efectivo_caja + tot_garantia) / deuda_total : 0;
+
+        // IPC6: Sin fórmula (valor fijo)
+        const ipc6 = 0;
+
+        // IPC7: Ingreso principal / Capacidad de pago (evita división por 0)
+        const ipc7 = capacidad_pago > 0 ? ingreso_principal / capacidad_pago : 0;
+
+        // IPC8: Suma de ingresos y garantía
+        const ipc8 = ingreso_principal + ingreso_fijo_anterior + tot_garantia;
+
+        // IPC9: Monto colocado / Total pasivos (evita división por 0)
+        const ipc9 = (pasivo_total_pasivo + pasivo_total_riesgos) > 0
+          ? monto_colocado / (pasivo_total_pasivo + pasivo_total_riesgos)
+          : 0;
+
+        // IPC10: Sin fórmula
+        const ipc10 = undefined;
+
+        // IPC11: (ciclo_cliente - 1) / ciclo_banca (evita división por 0)
+        const ipc11 = ciclo_banca > 0 ? (ciclo_cliente - 1) / ciclo_banca : 0;
+
+        // IPC12: Sin fórmula
+        const ipc12 = undefined;
+
+        // IPC13: (efectivo_caja + tot_garantia) / activo_total (evita división por 0)
+        const ipc13 = activo_total > 0 ? (efectivo_caja + tot_garantia) / activo_total : 0;
+
+        // IPC14: ingreso_fijo_anterior / ingreso_principal (evita división por 0)
+        const ipc14 = ingreso_principal > 0 ? ingreso_fijo_anterior / ingreso_principal : 0;
+
+        // IPC15: años_experiencia_actividad (numerador es string, lo saltamos como número por ahora)
+        const ipc15 = años_experiencia_actividad;
+
+        // IPC16: activo_anterior_balance / activo_total (evita división por 0)
+        const ipc16 = activo_total > 0 ? activo_anterior_balance / activo_total : 0;
+
+        // IPC17: provision / saldo_capital (evita división por 0)
+        const ipc17 = saldo_capital > 0 ? provision / saldo_capital : 0;
+
+        // IPC18: provision / suma_moras (evita división por 0)
+        const suma_moras = mora_1_8 + mora_9_30 + mora_31_60 + mora_61_90 + mora_91_120 + mora_120_mas;
+        const ipc18 = suma_moras > 0 ? provision / suma_moras : 0;
+
+        // IPC19: tot_garantia / saldo_capital (evita división por 0)
+        const ipc19 = saldo_capital > 0 ? tot_garantia / saldo_capital : 0;
+
+        // IPC20: deuda_total / capacidad_pago (evita división por 0)
+        const ipc20 = capacidad_pago > 0 ? deuda_total / capacidad_pago : 0;
+
+        // IPC21: ahorro_programado / ahorro_voluntario (evita división por 0)
+        const ipc21 = ahorro_voluntario > 0 ? ahorro_programado / ahorro_voluntario : 0;
+
+        // IPC22: Sin fórmula
+        const ipc22 = undefined;
+
+        // IPC23: int_devengado / interes_percibido (evita división por 0)
+        const ipc23 = interes_percibido > 0 ? int_devengado / interes_percibido : 0;
+
+        // IPC24: saldo_ahorro_mes_anterior - total_ahorro
+        const ipc24 = saldo_ahorro_mes_anterior - total_ahorro;
+
         const record: CarteraRecord = {
           cod_agencia: values[0] || '',
           agencia: values[1] || '',
@@ -256,14 +358,14 @@ export class CsvCarteraRepository implements CarteraRepository {
           fecha_desembolso: values[30] || '',
           fecha_cuota_1: values[31] || '',
           fecha_fin_cronograma: values[32] || '',
-          monto_colocado: parseLatinNumber(values[33]),
+          monto_colocado: monto_colocado,
           interes: parseLatinNumber(values[34]),
           igv_interes: parseLatinNumber(values[35]),
           fondo_cobertura: parseLatinNumber(values[36]),
           igv_fondo_cob: parseLatinNumber(values[37]),
           ajuste_mig: parseLatinNumber(values[38]),
-          deuda_total: parseLatinNumber(values[39]),
-          saldo_capital: parseLatinNumber(values[40]),
+          deuda_total: deuda_total,
+          saldo_capital: saldo_capital,
           saldo_interes: parseLatinNumber(values[41]),
           saldo_igv_interes: parseLatinNumber(values[42]),
           saldo_fondo_cobertura: parseLatinNumber(values[43]),
@@ -274,21 +376,21 @@ export class CsvCarteraRepository implements CarteraRepository {
           negociacion: values[48] || '',
           tipo_solicitud: values[49] || '',
           fecha_ultimo_vencimiento: values[50] || '',
-          dias_atraso: parseInt(values[51]) || 0,
+          dias_atraso: dias_atraso,
           capital_mora: parseFloat(values[52]?.replace(',', '.')) || 0,
-          mora_1_8: parseFloat(values[53]?.replace(',', '.')) || 0,
-          mora_9_30: parseFloat(values[54]?.replace(',', '.')) || 0,
-          mora_31_60: parseFloat(values[55]?.replace(',', '.')) || 0,
-          mora_61_90: parseFloat(values[56]?.replace(',', '.')) || 0,
-          mora_91_120: parseFloat(values[57]?.replace(',', '.')) || 0,
-          mora_120_mas: parseFloat(values[58]?.replace(',', '.')) || 0,
-          int_devengado: parseFloat(values[59]?.replace(',', '.')) || 0,
+          mora_1_8: mora_1_8,
+          mora_9_30: mora_9_30,
+          mora_31_60: mora_31_60,
+          mora_61_90: mora_61_90,
+          mora_91_120: mora_91_120,
+          mora_120_mas: mora_120_mas,
+          int_devengado: int_devengado,
           int_dev_no_pagado: parseFloat(values[60]?.replace(',', '.')) || 0,
           saldo_int_dev: parseFloat(values[61]?.replace(',', '.')) || 0,
-          interes_percibido: parseFloat(values[62]?.replace(',', '.')) || 0,
+          interes_percibido: interes_percibido,
           situacion: values[63] || '',
           clasificacion: values[64] || '',
-          provision: parseFloat(values[65]?.replace(',', '.')) || 0,
+          provision: provision,
           fuente_financiamiento: values[66] || '',
           codigo_pago: values[67] || '',
           forma_pago: values[68] || '',
@@ -311,66 +413,115 @@ export class CsvCarteraRepository implements CarteraRepository {
           actividad_economica: values[85] || '',
           calificacion_cr: values[86] || '',
           categoria: values[87] || '',
-          capacidad_pago: parseFloat(values[88]?.replace(',', '.')) || 0,
+          capacidad_pago: capacidad_pago,
           numero_cuenta: values[89] || '',
           entidad_financiera: values[90] || '',
           nombre_colegio: values[91] || '',
           nro_alumno: values[92] || '',
-          latitud: parseFloat(values[93]) || 0,
-          longitud: parseFloat(values[94]) || 0,
+          latitud: parseFloat(values[97]) || 0,
+          longitud: parseFloat(values[98]) || 0,
+          dias_credito: dias_credito,
+          tot_garantia: tot_garantia,
+          efectivo_caja: efectivo_caja,
+          ingreso_principal: ingreso_principal,
+          ingreso_fijo_anterior: ingreso_fijo_anterior,
+          pasivo_total_pasivo: pasivo_total_pasivo,
+          pasivo_total_riesgos: pasivo_total_riesgos,
+          activo_total: activo_total,
+          activo_anterior_balance: activo_anterior_balance,
+          fecha_creacion_cliente: values[120] || '',
+          años_experiencia_actividad: años_experiencia_actividad,
+          ahorro_programado: ahorro_programado,
+          ahorro_voluntario: ahorro_voluntario,
+          total_ahorro: total_ahorro,
+          saldo_ahorro_mes_anterior: saldo_ahorro_mes_anterior,
 
           // Indicadores de Control Interno (IPC) - 18 indicadores
-          // DIMENSIÓN INGRESO
-          ipc1: parseLatinNumber(values[95]),   // Mora (días)
-          ipc2: values[96] || '',                // Mora por tramos (categórico)
-          ipc3: parseLatinNumber(values[97]),    // Mora proporcional (%)
-          ipc4: parseLatinNumber(values[98]),    // Tickets vencidos
-          ipc7: parseLatinNumber(values[101]),   // Capacidad de pago
-          ipc8: values[102] || '',               // Jerarquía de pago (categórico)
-          ipc9: parseLatinNumber(values[103]),   // Concentración ADRA (%)
-          ipc13: parseLatinNumber(values[107]),  // Liquidez (%)
+          // DIMENSIÓN INGRESO - IPC1 subdivido en 6 tramos de mora
+          ipc1_1: mora_1_8,
+          ipc1_2: mora_9_30,
+          ipc1_3: mora_31_60,
+          ipc1_4: mora_61_90,
+          ipc1_5: mora_91_120,
+          ipc1_6: mora_120_mas,
+          // IPC2: Suma de mora 31+ días (pre-calculado)
+          ipc2: ipc2,
+          // IPC3: Mora proporcional (pre-calculado con protección /0)
+          ipc3: ipc3,
+          // IPC4: Saldo capital
+          ipc4: saldo_capital,
+          // IPC7: Ingreso principal / Capacidad de pago (pre-calculado con protección /0)
+          ipc7: ipc7,
+          // IPC8: Suma de ingresos y garantía (pre-calculado)
+          ipc8: ipc8,
+          // IPC9: Monto colocado / Total pasivos (pre-calculado con protección /0)
+          ipc9: ipc9,
+          // IPC10: Sin fórmula
+          ipc10: ipc10,
+          // IPC11: (ciclo_cliente - 1) / ciclo_banca (pre-calculado con protección /0)
+          ipc11: ipc11,
+          // IPC12: Sin fórmula
+          ipc12: ipc12,
+          // IPC13: (efectivo_caja + tot_garantia) / activo_total (pre-calculado con protección /0)
+          ipc13: ipc13,
 
           // DIMENSIÓN VOLUNTAD
-          ipc3_voluntad: parseLatinNumber(values[97]), // Mora proporcional - compartido
-          ipc4_voluntad: parseLatinNumber(values[98]), // Tickets vencidos - compartido
-          ipc6: parseLatinNumber(values[100]),   // Recurrencia de mora
-          ipc10: parseLatinNumber(values[104]),  // Nivel de contagio (%)
-          ipc12: parseLatinNumber(values[106]),  // Rechazos (%)
+          ipc3_voluntad: undefined, // Mora proporcional - compartido - PENDIENTE FÓRMULA
+          ipc4_voluntad: undefined, // Tickets vencidos - compartido - PENDIENTE FÓRMULA
+          // IPC6: Sin fórmula (valor fijo 0)
+          ipc6: ipc6,
 
           // DIMENSIÓN GARANTÍA PSICOLÓGICA
-          ipc5: parseLatinNumber(values[99]),    // Deuda vs Garantía
-          ipc11: parseLatinNumber(values[105]),  // Nivel de retención (%)
-          ipc14: parseLatinNumber(values[108]),  // Variación de ingreso
-          ipc15: parseLatinNumber(values[109]),  // Experiencia crediticia
-          ipc16: parseLatinNumber(values[110]),  // Variación de activo
-          ipc17: parseLatinNumber(values[111]),  // Cobertura de provisión (%)
-          ipc18: parseLatinNumber(values[112]),  // Respaldo de ahorros (%)
+          // IPC5: Garantía vs Deuda (pre-calculado con protección /0)
+          ipc5: ipc5,
+          // IPC14: ingreso_fijo_anterior / ingreso_principal (pre-calculado con protección /0)
+          ipc14: ipc14,
+          // IPC15: años_experiencia_actividad
+          ipc15: ipc15,
+          // IPC16: activo_anterior_balance / activo_total (pre-calculado con protección /0)
+          ipc16: ipc16,
+          // IPC17: provision / saldo_capital (pre-calculado con protección /0)
+          ipc17: ipc17,
+          // IPC18: provision / suma_moras (pre-calculado con protección /0)
+          ipc18: ipc18,
+          // IPC19: tot_garantia / saldo_capital (pre-calculado con protección /0)
+          ipc19: ipc19,
+          // IPC20: deuda_total / capacidad_pago (pre-calculado con protección /0)
+          ipc20: ipc20,
+          // IPC21: ahorro_programado / ahorro_voluntario (pre-calculado con protección /0)
+          ipc21: ipc21,
+          // IPC22: Sin fórmula
+          ipc22: ipc22,
+          // IPC23: int_devengado / interes_percibido (pre-calculado con protección /0)
+          ipc23: ipc23,
+          // IPC24: saldo_ahorro_mes_anterior - total_ahorro (pre-calculado)
+          ipc24: ipc24,
         };
 
         records.push(record);
         registrosParseados++;
       } catch (error) {
-        console.warn(`⚠️ Error parseando línea ${i}:`, error);
+        console.warn(` Error parseando línea ${i}:`, error);
         continue;
       }
     }
 
-    console.log(`✅ Parseados: ${registrosParseados} registros`);
-    console.log(`⚠️ Agencias vacías detectadas: ${agenciasVacias}`);
+    console.log(` Parseados: ${registrosParseados} registros`);
+    console.log(` Agencias vacías detectadas: ${agenciasVacias}`);
 
     // Debug: Verificar que las columnas IPC se cargaron correctamente
     const registrosConIPC = records.filter(
-      (r) => r.ipc1 !== undefined || r.ipc2 !== undefined || r.ipc3 !== undefined,
+      (r) => r.ipc1_1 !== undefined || r.ipc2 !== undefined || r.ipc3 !== undefined,
     );
     const registrosConCoordenadas = records.filter((r) => r.latitud !== 0 && r.longitud !== 0);
-    console.log(`📊 Registros con valores IPC: ${registrosConIPC.length}`);
-    console.log(`📍 Registros con coordenadas: ${registrosConCoordenadas.length}`);
+    console.log(` Registros con valores IPC: ${registrosConIPC.length}`);
+    console.log(`Registros con coordenadas: ${registrosConCoordenadas.length}`);
 
     // Mostrar muestra de los primeros 3 registros con IPC
-    console.log('📋 Muestra de registros con IPC:');
+    console.log('Muestra de registros con IPC:');
     registrosConIPC.slice(0, 3).forEach((r, i) => {
       console.log(
-        `  ${i + 1}. Cliente: ${r.cliente}, IPC1: ${r.ipc1}, IPC2: ${r.ipc2}, Coords: [${r.latitud}, ${r.longitud}]`,
+        `  ${i + 1}. Cliente: ${r.cliente}, IPC1_1: ${r.ipc1_1}, IPC2: ${r.ipc2}, Coords: [${r.latitud}, ${r.longitud}]`,
       );
     });
 

@@ -7,8 +7,9 @@ import type {
 } from '../models/ipc-config.interface';
 
 /**
- * Servicio que centraliza la configuración de los 18 Indicadores de Control Interno (IPC)
+ * Servicio que centraliza la configuración de los 24 Indicadores de Control Interno (IPC)
  * Basado en documento oficial "EXPLIC ipc.txt"
+ * IPC1 subdividido en 6 tramos + IPC2-IPC24
  */
 @Injectable({
   providedIn: 'root',
@@ -90,44 +91,123 @@ export class IPCConfigService {
   ];
 
   /**
-   * Configuración de los 18 IPCs según documento oficial
+   * Configuración de los 24 IPCs según documento oficial
+   * IPC1 subdividido en 6 tramos (1.1 a 1.6) + IPC2 a IPC24
    */
   private readonly IPCS_CONFIG: readonly IPCConfig[] = [
-    // IPC1 - Mora
+    // IPC1 - Mora por tramos (subdividido en 6 tramos)
     {
-      id: 'ipc1',
-      codigo: 'IPC1',
-      titulo: 'Mora',
-      descripcion:
-        'Mide días de atraso en pagos. Primera señal de pérdida de capacidad o voluntad de pago.',
+      id: 'ipc1_1',
+      codigo: 'IPC1.1',
+      titulo: 'Mora 1-8 días',
+      descripcion: 'Monto en mora entre 1 y 8 días. Primer nivel de atraso en pagos.',
       dimensiones: ['ingreso'],
       tipo: 'numerico',
-      campo: 'ipc1',
-      unidad: 'días',
+      campo: 'ipc1_1',
+      unidad: 'monto',
       colorPrimario: '#3B82F6',
       interpretacion: {
-        bajo: 'Pago puntual - Bajo riesgo',
-        moderado: 'Atraso moderado - Requiere monitoreo',
-        alto: 'Mora significativa - Riesgo elevado',
+        bajo: 'Mora mínima - Bajo riesgo',
+        moderado: 'Atraso inicial - Requiere monitoreo',
+        alto: 'Mora temprana elevada - Riesgo emergente',
+      },
+    },
+    {
+      id: 'ipc1_2',
+      codigo: 'IPC1.2',
+      titulo: 'Mora 9-30 días',
+      descripcion: 'Monto en mora entre 9 y 30 días. Atraso moderado que requiere atención.',
+      dimensiones: ['ingreso'],
+      tipo: 'numerico',
+      campo: 'ipc1_2',
+      unidad: 'monto',
+      colorPrimario: '#10B981',
+      interpretacion: {
+        bajo: 'Mora controlada - Seguimiento normal',
+        moderado: 'Atraso moderado - Requiere gestión',
+        alto: 'Mora elevada - Riesgo importante',
+      },
+    },
+    {
+      id: 'ipc1_3',
+      codigo: 'IPC1.3',
+      titulo: 'Mora 31-60 días',
+      descripcion: 'Monto en mora entre 31 y 60 días. Cartera en riesgo.',
+      dimensiones: ['ingreso'],
+      tipo: 'numerico',
+      campo: 'ipc1_3',
+      unidad: 'monto',
+      colorPrimario: '#F59E0B',
+      interpretacion: {
+        bajo: 'Mora temprana - Recuperable',
+        moderado: 'Cartera en riesgo - Acción requerida',
+        alto: 'Mora crítica - Alto riesgo de pérdida',
+      },
+    },
+    {
+      id: 'ipc1_4',
+      codigo: 'IPC1.4',
+      titulo: 'Mora 61-90 días',
+      descripcion: 'Monto en mora entre 61 y 90 días. Cartera deteriorada.',
+      dimensiones: ['ingreso'],
+      tipo: 'numerico',
+      campo: 'ipc1_4',
+      unidad: 'monto',
+      colorPrimario: '#EF4444',
+      interpretacion: {
+        bajo: 'Deterioro controlado',
+        moderado: 'Cartera deteriorada - Gestión intensiva',
+        alto: 'Mora severa - Provisionamiento alto',
+      },
+    },
+    {
+      id: 'ipc1_5',
+      codigo: 'IPC1.5',
+      titulo: 'Mora 91-120 días',
+      descripcion: 'Monto en mora entre 91 y 120 días. Cartera de muy alto riesgo.',
+      dimensiones: ['ingreso'],
+      tipo: 'numerico',
+      campo: 'ipc1_5',
+      unidad: 'monto',
+      colorPrimario: '#DC2626',
+      interpretacion: {
+        bajo: 'Mora grave - Baja recuperabilidad',
+        moderado: 'Cartera castigable - Pérdida probable',
+        alto: 'Mora crítica - Castigo inminente',
+      },
+    },
+    {
+      id: 'ipc1_6',
+      codigo: 'IPC1.6',
+      titulo: 'Mora +120 días',
+      descripcion: 'Monto en mora mayor a 120 días. Cartera castigable.',
+      dimensiones: ['ingreso'],
+      tipo: 'numerico',
+      campo: 'ipc1_6',
+      unidad: 'monto',
+      colorPrimario: '#991B1B',
+      interpretacion: {
+        bajo: 'Mora irrecuperable',
+        moderado: 'Cartera perdida - Provisión 100%',
+        alto: 'Castigo requerido - Sin valor',
       },
     },
 
-    // IPC2 - Mora por tramos
+    // IPC2 - Suma de mora 31+ días
     {
       id: 'ipc2',
       codigo: 'IPC2',
-      titulo: 'Mora por tramos',
-      descripcion: 'Clasificación de mora en rangos de días para análisis de severidad.',
+      titulo: 'Mora 31+ días',
+      descripcion: 'Suma de montos en mora desde 31 días en adelante (mora crítica).',
       dimensiones: ['ingreso'],
-      tipo: 'categorico',
+      tipo: 'numerico',
       campo: 'ipc2',
-      unidad: 'tramo',
+      unidad: 'monto',
       colorPrimario: '#8B5CF6',
-      categorias: this.IPC2_CATEGORIAS,
       interpretacion: {
-        bajo: '0-30 días - Mora temprana recuperable',
-        moderado: '31-90 días - Requiere gestión activa',
-        alto: '>90 días - Mora crítica, baja recuperación',
+        bajo: 'Mora crítica baja - Recuperable',
+        moderado: 'Mora significativa - Requiere gestión activa',
+        alto: 'Mora crítica alta - Baja recuperación',
       },
     },
 
@@ -438,6 +518,118 @@ export class IPCConfigService {
         alto: 'Alto respaldo - Compromiso y estabilidad',
       },
       invertido: true, // Mayor ahorro = mejor
+    },
+
+    // IPC19 - Cobertura de garantía
+    {
+      id: 'ipc19',
+      codigo: 'IPC19',
+      titulo: 'Cobertura de garantía',
+      descripcion: 'Total garantía / Saldo capital. Mide el respaldo patrimonial del crédito.',
+      dimensiones: ['garantia'],
+      tipo: 'numerico',
+      campo: 'ipc19',
+      unidad: 'ratio',
+      colorPrimario: '#8B5CF6',
+      interpretacion: {
+        bajo: 'Garantía insuficiente - Alto riesgo de pérdida',
+        moderado: 'Cobertura parcial - Riesgo moderado',
+        alto: 'Sobregarantizado - Protección completa',
+      },
+      invertido: true,
+    },
+
+    // IPC20 - Presión de deuda
+    {
+      id: 'ipc20',
+      codigo: 'IPC20',
+      titulo: 'Presión de deuda',
+      descripcion: 'Deuda total / Capacidad de pago. Mide el nivel de endeudamiento vs capacidad.',
+      dimensiones: ['ingreso'],
+      tipo: 'numerico',
+      campo: 'ipc20',
+      unidad: 'ratio',
+      colorPrimario: '#F97316',
+      interpretacion: {
+        bajo: 'Bajo endeudamiento - Capacidad holgada',
+        moderado: 'Endeudamiento equilibrado',
+        alto: 'Sobreendeudamiento - Riesgo de default',
+      },
+    },
+
+    // IPC21 - Disciplina de ahorro
+    {
+      id: 'ipc21',
+      codigo: 'IPC21',
+      titulo: 'Disciplina de ahorro',
+      descripcion: 'Ahorro programado / Ahorro voluntario. Mide compromiso con el ahorro.',
+      dimensiones: ['voluntad', 'garantia'],
+      tipo: 'numerico',
+      campo: 'ipc21',
+      unidad: 'ratio',
+      colorPrimario: '#06B6D4',
+      interpretacion: {
+        bajo: 'Bajo compromiso de ahorro',
+        moderado: 'Ahorro equilibrado',
+        alto: 'Alta disciplina financiera',
+      },
+      invertido: true,
+    },
+
+    // IPC22 - Indicador reservado
+    {
+      id: 'ipc22',
+      codigo: 'IPC22',
+      titulo: 'IPC22 (Sin fórmula)',
+      descripcion: 'Indicador reservado para uso futuro.',
+      dimensiones: ['ingreso'],
+      tipo: 'numerico',
+      campo: 'ipc22',
+      unidad: 'valor',
+      colorPrimario: '#94A3B8',
+      interpretacion: {
+        bajo: 'Sin definición',
+        moderado: 'Sin definición',
+        alto: 'Sin definición',
+      },
+    },
+
+    // IPC23 - Rendimiento de intereses
+    {
+      id: 'ipc23',
+      codigo: 'IPC23',
+      titulo: 'Rendimiento de intereses',
+      descripcion:
+        'Interés devengado / Interés percibido. Mide eficiencia en cobranza de intereses.',
+      dimensiones: ['ingreso', 'voluntad'],
+      tipo: 'numerico',
+      campo: 'ipc23',
+      unidad: 'ratio',
+      colorPrimario: '#A855F7',
+      interpretacion: {
+        bajo: 'Baja cobranza - Ingresos limitados',
+        moderado: 'Cobranza moderada',
+        alto: 'Alta eficiencia en cobranza',
+      },
+      invertido: true,
+    },
+
+    // IPC24 - Variación de ahorro
+    {
+      id: 'ipc24',
+      codigo: 'IPC24',
+      titulo: 'Variación de ahorro',
+      descripcion: 'Saldo ahorro mes anterior - Total ahorro actual. Mide tendencia de ahorro.',
+      dimensiones: ['garantia'],
+      tipo: 'numerico',
+      campo: 'ipc24',
+      unidad: 'monto',
+      colorPrimario: '#EC4899',
+      interpretacion: {
+        bajo: 'Ahorro estable o en crecimiento',
+        moderado: 'Variación moderada',
+        alto: 'Descapitalización - Retiro de ahorros',
+      },
     },
   ];
 

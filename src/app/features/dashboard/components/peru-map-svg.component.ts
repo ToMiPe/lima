@@ -36,12 +36,12 @@ import { DepartmentStats, MapClickEvent } from '../models';
           <div class="tooltip-header">{{ hoveredDeptData()!.name }}</div>
           <div class="tooltip-body">
             <div class="tooltip-row">
-              <span class="tooltip-icon">👥</span>
+              <span class="tooltip-icon"><i class="pi pi-users"></i></span>
               <span class="tooltip-label">Beneficiarios:</span>
               <span class="tooltip-value">{{ formatInteger(hoveredDeptData()!.count) }}</span>
             </div>
             <div class="tooltip-row">
-              <span class="tooltip-icon">📊</span>
+              <span class="tooltip-icon">&#128202;</span>
               <span class="tooltip-label">Participación:</span>
               <span class="tooltip-value"
                 >{{ formatPercentage(hoveredDeptData()!.percentage) }}%</span
@@ -49,7 +49,7 @@ import { DepartmentStats, MapClickEvent } from '../models';
             </div>
             @if (hoveredDeptData()!.totalAmount > 0) {
               <div class="tooltip-row">
-                <span class="tooltip-icon">💵</span>
+                <span class="tooltip-icon"><i class="pi pi-dollar"></i></span>
                 <span class="tooltip-label">Monto:</span>
                 <span class="tooltip-value">{{
                   formatCurrency(hoveredDeptData()!.totalAmount)
@@ -224,7 +224,7 @@ export class PeruMapSvgComponent implements AfterViewInit {
     effect(() => {
       const data = this.departmentData();
       if (this.svgLoaded && data.length > 0) {
-        console.log('\ud83c\udfa8 Actualizando colores del mapa con', data.length, 'departamentos');
+        console.log('Actualizando colores del mapa con', data.length, 'departamentos');
         this.applyDepartmentColors();
       }
     });
@@ -249,7 +249,7 @@ export class PeruMapSvgComponent implements AfterViewInit {
           this.attachEventListeners();
           this.applyDepartmentColors();
           this.svgLoaded = true;
-          console.log('\u2705 SVG del mapa cargado y listo');
+          console.log('SVG del mapa cargado y listo');
         }, 100);
       }
     } catch (error) {
@@ -339,7 +339,7 @@ export class PeruMapSvgComponent implements AfterViewInit {
     const maxValue = dataValues.length > 0 ? Math.max(...dataValues) : 1;
     const hasData = dataValues.length > 0;
 
-    console.log('\ud83d\udcca Aplicando colores:', {
+    console.log('Aplicando colores:', {
       departamentos: this.departmentData().length,
       maxValue,
       hasData,

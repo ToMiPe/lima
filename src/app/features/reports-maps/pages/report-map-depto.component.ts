@@ -146,11 +146,11 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
     // Effect DESACTIVADO temporalmente - los marcadores se crean solo al cargar el mapa
     // effect(() => {
     //   const clientes = this.filteredClients();
-    //   console.log(`🔄 Effect: filteredClients cambió a ${clientes.length} clientes`);
+    //   console.log(` Effect: filteredClients cambió a ${clientes.length} clientes`);
     //   if (this.map && !this.isLoading()) {
     //     // Solo actualizar marcadores (Teritorio desactivado)
     //     this.updateMarkers();
-    //     console.log(`✅ Marcadores actualizados: ${clientes.length} clientes`);
+    //     console.log(` Marcadores actualizados: ${clientes.length} clientes`);
     //   }
     // });
   }
@@ -160,10 +160,10 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
     this.route.params.subscribe((params) => {
       const deptName = params['department'];
       if (deptName) {
-        console.log('🔍 Parámetro de ruta recibido:', deptName);
+        console.log(' Parámetro de ruta recibido:', deptName);
         // Normalizar el nombre del departamento (capitalizar primera letra)
         const normalizedName = this.normalizeDepartmentName(deptName);
-        console.log('📍 Nombre normalizado:', normalizedName);
+        console.log('Nombre normalizado:', normalizedName);
         this.departmentName.set(normalizedName);
         this.loadDepartmentData(normalizedName);
       }
@@ -179,10 +179,10 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
 
     try {
-      console.log(`🔍 Buscando datos para: "${department}"`);
+      console.log(` Buscando datos para: "${department}"`);
       const data = await this.repository.getByDepartamento(department);
 
-      console.log(`📊 Datos recibidos:`, {
+      console.log(` Datos recibidos:`, {
         total: data?.length || 0,
         primero: data && data.length > 0 ? data[0] : null,
       });
@@ -199,14 +199,14 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
             item.longitud !== 0,
         );
 
-        console.log(`📍 ${department}:`, {
+        console.log(`${department}:`, {
           total: data.length,
           conCoordenadas: validData.length,
           sinCoordenadas: data.length - validData.length,
         });
 
         if (validData.length === 0) {
-          console.warn('⚠️ No hay registros con coordenadas válidas');
+          console.warn(' No hay registros con coordenadas válidas');
           this.isLoading.set(false);
           return;
         }
@@ -222,10 +222,10 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
         this.calculateFilterOptions(clientesAgrupados); // Inicializar mapa
         await this.initMap(validData);
       } else {
-        console.warn(`⚠️ No se encontraron datos para el departamento: "${department}"`);
+        console.warn(` No se encontraron datos para el departamento: "${department}"`);
       }
     } catch (error) {
-      console.error('❌ Error cargando datos del departamento:', error);
+      console.error(' Error cargando datos del departamento:', error);
     } finally {
       this.isLoading.set(false);
     }
@@ -258,15 +258,15 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
       if (monto > montoMax) montoMax = monto;
     });
 
-    console.log('📊 Opciones de filtros calculadas:', {
+    console.log(' Opciones de filtros calculadas:', {
       agencias: agencias.size,
       asesores: asesores.size,
       estados: estados.size,
       tiposCredito: tiposCredito.size,
       montoRange: [montoMin, montoMax],
     });
-    console.log('📋 Primeras agencias:', Array.from(agencias).slice(0, 5));
-    console.log('📋 Primeros asesores:', Array.from(asesores).slice(0, 5));
+    console.log('Primeras agencias:', Array.from(agencias).slice(0, 5));
+    console.log('Primeros asesores:', Array.from(asesores).slice(0, 5));
 
     this.filterOptions.set({
       agencias: Array.from(agencias).sort(),
@@ -283,7 +283,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
   }
 
   private async initMap(data: ReporteCartera[]): Promise<void> {
-    console.log('🗺️ Inicializando mapa con', data.length, 'registros');
+    console.log(' Inicializando mapa con', data.length, 'registros');
 
     // Esperar a que el DOM esté listo
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -291,7 +291,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
     // Verificar que el contenedor existe
     const container = document.getElementById('detail-map');
     if (!container) {
-      console.error('❌ No se encontró el contenedor del mapa');
+      console.error(' No se encontró el contenedor del mapa');
       return;
     }
 
@@ -303,7 +303,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
       }
     });
 
-    console.log('📐 Bounds calculados:', this.bounds.toArray());
+    console.log('Bounds calculados:', this.bounds.toArray());
 
     // Crear mapa
     try {
@@ -316,45 +316,45 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
         },
       });
 
-      console.log('✅ Mapa creado');
+      console.log(' Mapa creado');
 
       this.map.on('load', () => {
-        console.log('✅ Mapa cargado completamente');
+        console.log(' Mapa cargado completamente');
         // Agregar controles - zoom en la izquierda inferior
         this.map!.addControl(new NavigationControl(), 'bottom-left');
         this.map!.addControl(new ScaleControl(), 'bottom-left');
 
         // Crear marcadores nativos directamente (sin GeoJSON, sin Teritorio)
-        console.log('🎯 Creando marcadores nativos...');
+        console.log(' Creando marcadores nativos...');
         this.updateMarkers();
-        console.log('✅ Mapa inicializado con marcadores nativos');
+        console.log(' Mapa inicializado con marcadores nativos');
       });
 
       this.map.on('error', (e) => {
-        console.error('❌ Error en el mapa:', e);
+        console.error(' Error en el mapa:', e);
       });
     } catch (error) {
-      console.error('❌ Error creando el mapa:', error);
+      console.error(' Error creando el mapa:', error);
     }
   }
 
   private updateMarkers(): void {
-    console.log('🎯 updateMarkers() iniciado');
+    console.log(' updateMarkers() iniciado');
 
     // Limpiar marcadores existentes
     this.cleanupMarkers();
 
     // No crear marcadores si clustering está activo
     if (this.clusteringEnabled()) {
-      console.log('⚠️ Clustering activo, no se crean marcadores');
+      console.log(' Clustering activo, no se crean marcadores');
       return;
     }
 
     const clientes = this.filteredClients();
-    console.log(`📍 Creando ${clientes.length} marcadores`);
+    console.log(`Creando ${clientes.length} marcadores`);
 
     // Mostrar coordenadas de los primeros 10 para ver si están superpuestas
-    console.log('📋 Primeras 10 coordenadas (DETALLE):');
+    console.log('Primeras 10 coordenadas (DETALLE):');
     clientes.slice(0, 10).forEach((c, i) => {
       console.log(`  ${i + 1}. ${c.cliente}:`);
       console.log(`     longitud: ${c.longitud} (tipo: ${typeof c.longitud})`);
@@ -366,7 +366,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
     let creados = 0;
     clientes.forEach((cliente) => {
       if (!cliente.longitud || !cliente.latitud) {
-        console.warn('⚠️ Cliente sin coordenadas:', cliente.cod_cliente);
+        console.warn(' Cliente sin coordenadas:', cliente.cod_cliente);
         return;
       }
 
@@ -398,7 +398,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
 
       // Event listener para abrir drawer
       el.addEventListener('click', () => {
-        console.log('👆 Click en marcador:', cliente.cod_cliente);
+        console.log('Click en marcador:', cliente.cod_cliente);
         // NO llamar a highlightMarker para evitar que desaparezca
         this.openClientDrawer(cliente);
       });
@@ -415,7 +415,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
       creados++;
     });
 
-    console.log(`✅ Marcadores creados: ${creados} de ${clientes.length}`);
+    console.log(` Marcadores creados: ${creados} de ${clientes.length}`);
   }
 
   private createPopup(cliente: ClienteAgrupado): Popup {
@@ -488,7 +488,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
     );
 
     console.log(
-      `📍 GeoJSON: ${clientes.length} clientes recibidos, ${clientesConCoordenadas.length} con coordenadas válidas`,
+      `GeoJSON: ${clientes.length} clientes recibidos, ${clientesConCoordenadas.length} con coordenadas válidas`,
     );
 
     const features = clientesConCoordenadas.map((cliente, index) => {
@@ -516,7 +516,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
       };
     });
 
-    console.log(`✅ GeoJSON generado: ${features.length} features`);
+    console.log(` GeoJSON generado: ${features.length} features`);
 
     return {
       type: 'FeatureCollection',
@@ -572,7 +572,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
     // Función para renderizar marcadores individuales
     // Firma correcta: (element: HTMLDivElement, markerSize: number, feature?: GeoJSONFeature) => void
     const markerRender = (element: HTMLElement, markerSize: number, feature: any) => {
-      console.log('🔵 markerRender ejecutado:', { markerSize, feature: feature?.properties });
+      console.log('markerRender ejecutado:', { markerSize, feature: feature?.properties });
 
       const codCliente = feature?.properties?.cod_cliente;
       const totalCreditos = feature?.properties?.totalCreditos || 1;
@@ -581,7 +581,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
       const situacion = feature?.properties?.situacion || 'DESCONOCIDO';
       const color = this.getMarkerColor(situacion);
 
-      console.log(`🎨 Marcador ${codCliente}: situación=${situacion}, color=${color}`);
+      console.log(`Marcador ${codCliente}: situación=${situacion}, color=${color}`);
 
       // Agregar clase base para animaciones
       element.classList.add('custom-marker');
@@ -622,7 +622,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
       unfoldedClusterMaxLeaves: 50, // Mostrar más puntos al expandir
     });
 
-    console.log('🔧 Teritorio configurado: clusterMaxZoom=14, unfoldedLeaves=50');
+    console.log('Teritorio configurado: clusterMaxZoom=14, unfoldedLeaves=50');
 
     // Agregar layer al mapa
     this.map.addLayer(this.clusterLayer as any);
@@ -630,34 +630,34 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
     // Event listener para clicks en features (marcadores individuales)
     this.clusterLayer.addEventListener('feature-click', (event: any) => {
       const feature = event.detail.selectedFeature;
-      console.log('✅ Feature clicked:', feature);
+      console.log(' Feature clicked:', feature);
 
       if (!feature || !feature.properties) {
-        console.warn('⚠️ Feature sin properties');
+        console.warn(' Feature sin properties');
         return;
       }
 
       const codCliente = feature.properties.cod_cliente;
       if (!codCliente) {
-        console.warn('⚠️ Feature sin cod_cliente:', feature.properties);
+        console.warn(' Feature sin cod_cliente:', feature.properties);
         return;
       }
 
       // Buscar datos del cliente en el mapa
       const clienteData = this.clientesMap.get(codCliente);
       if (clienteData) {
-        console.log('📋 Mostrando drawer para:', clienteData.cliente);
+        console.log('Mostrando drawer para:', clienteData.cliente);
         // Aplicar efecto de selección al marcador
         this.highlightMarker(codCliente);
         // Abrir drawer
         this.openClientDrawer(clienteData);
       } else {
-        console.error('❌ Cliente no encontrado en clientesMap:', codCliente);
-        console.log('🔍 Clientes disponibles:', Array.from(this.clientesMap.keys()).slice(0, 5));
+        console.error(' Cliente no encontrado en clientesMap:', codCliente);
+        console.log(' Clientes disponibles:', Array.from(this.clientesMap.keys()).slice(0, 5));
       }
     });
 
-    console.log('✅ Cluster layer configurado');
+    console.log(' Cluster layer configurado');
   }
 
   /**
@@ -670,7 +670,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
     data.forEach((credito, index) => {
       // Debug: mostrar primer crédito para ver campos disponibles
       if (index === 0) {
-        console.log('🔍 Primer crédito - campos disponibles:', {
+        console.log(' Primer crédito - campos disponibles:', {
           agencia: credito.agencia,
           asesor_servicios: credito.asesor_servicios,
           tipo_credito: credito['tipo_credito'],
@@ -716,12 +716,12 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
 
     const result = Array.from(clientesMap.values());
     console.log(
-      `👥 Clientes agrupados: ${result.length} clientes únicos de ${data.length} créditos`,
+      `Clientes agrupados: ${result.length} clientes únicos de ${data.length} créditos`,
     );
 
     // Debug: mostrar ejemplo de cliente agrupado
     if (result.length > 0) {
-      console.log('📋 Ejemplo de cliente agrupado:', {
+      console.log('Ejemplo de cliente agrupado:', {
         nombre: result[0].cliente,
         totalCreditos: result[0].totalCreditos,
         agencias: result[0].agencias,
@@ -913,7 +913,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
       });
     }
 
-    console.log(`🔍 Filtros aplicados: ${filtered.length} clientes`);
+    console.log(` Filtros aplicados: ${filtered.length} clientes`);
     this.filteredClients.set(filtered);
   }
 
@@ -1010,7 +1010,6 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
   }
 
   exportToExcel(): void {
-    // TODO: Implementar exportación con ExcelJS
     console.log('Exportar a Excel:', this.filteredClients());
     alert('Funcionalidad de exportación en desarrollo');
   }

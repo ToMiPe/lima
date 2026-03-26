@@ -1009,12 +1009,12 @@ export class HHITipoCreditoComponent implements OnInit {
     try {
       // Limpiar la base de datos IndexedDB
       await this.carteraRepository.clearData();
-      console.log('✅ Base de datos limpiada');
+      console.log(' Base de datos limpiada');
 
       // Recargar datos
       await this.cargarDatos();
     } catch (error) {
-      console.error('❌ Error limpiando cache:', error);
+      console.error(' Error limpiando cache:', error);
       this.error.set('Error limpiando cache');
     } finally {
       this.isLoading.set(false);

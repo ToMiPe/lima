@@ -19,7 +19,12 @@ export type IPCTipo = 'numerico' | 'categorico';
  * Campo del CSV correspondiente al IPC
  */
 export type IPCCampo =
-  | 'ipc1'
+  | 'ipc1_1'
+  | 'ipc1_2'
+  | 'ipc1_3'
+  | 'ipc1_4'
+  | 'ipc1_5'
+  | 'ipc1_6'
   | 'ipc2'
   | 'ipc3'
   | 'ipc4'
@@ -36,7 +41,13 @@ export type IPCCampo =
   | 'ipc15'
   | 'ipc16'
   | 'ipc17'
-  | 'ipc18';
+  | 'ipc18'
+  | 'ipc19'
+  | 'ipc20'
+  | 'ipc21'
+  | 'ipc22'
+  | 'ipc23'
+  | 'ipc24';
 
 /**
  * Configuración completa de un IPC

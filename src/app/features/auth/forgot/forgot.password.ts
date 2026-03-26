@@ -41,9 +41,6 @@ export default class ForgotPasswordComponent {
         this.isLoading.set(false);
         this.emailSent.set(true);
       }, 2000);
-
-      // TODO: Implementar forgot password real
-      // this.authService.forgotPassword(this.forgotForm.value.email).subscribe({...});
     }
   }
 

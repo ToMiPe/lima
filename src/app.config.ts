@@ -71,13 +71,13 @@ export const appConfig: ApplicationConfig = {
     { provide: LOCALE_ID, useValue: 'es-PE' },
     provideEchartsCore({ echarts }),
 
-    // 🎯 CONFIGURACIÓN DEL REPOSITORY PATTERN
+    //  CONFIGURACIÓN DEL REPOSITORY PATTERN
     // Cambia fácilmente entre implementaciones:
 
-    // ✅ OPCIÓN 1: CSV Local (actual)
+    //  OPCIÓN 1: CSV Local (actual)
     { provide: CARTERA_REPOSITORY_TOKEN, useClass: CsvCarteraRepository },
 
-    // 🚀 OPCIÓN 2: API REST (para el futuro - solo descomenta esta línea y comenta la de arriba)
+    //  OPCIÓN 2: API REST (para el futuro - solo descomenta esta línea y comenta la de arriba)
     // { provide: CARTERA_REPOSITORY_TOKEN, useClass: ApiCarteraRepository },
   ],
 };

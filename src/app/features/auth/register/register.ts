@@ -132,9 +132,6 @@ export default class Register {
           queryParams: { message: 'registered' },
         });
       }, 2000);
-
-      // TODO: Implementar registro real
-      // this.authService.register(this.registerForm.value).subscribe({...});
     }
   }
 }

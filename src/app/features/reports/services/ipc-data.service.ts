@@ -64,7 +64,7 @@ export class IPCDataService {
 
   // Estado reactivo
   private _dimensionActiva = signal<IPCDimension>('ingreso');
-  private _ipcActivo = signal<IPCCampo>('ipc1');
+  private _ipcActivo = signal<IPCCampo>('ipc1_1');
   private _rangosFiltrados = signal<Set<string>>(new Set());
   private _dataFilters = signal<DataFilters | null>(null);
   private _isLoading = signal(false);

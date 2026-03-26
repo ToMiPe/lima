@@ -189,7 +189,7 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
 
   distribucionGeneros = computed(() => {
     const datosFiltrados = this._datosParaDistribucion();
-    console.log('🔢 Calculando distribución géneros, registros:', datosFiltrados.length);
+    console.log('Calculando distribución géneros, registros:', datosFiltrados.length);
     if (datosFiltrados.length === 0) return [];
 
     const distribucion = new Map<string, number>();
@@ -206,7 +206,7 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
       }))
       .sort((a, b) => b.cantidad - a.cantidad);
 
-    console.log('✅ Distribución géneros calculada:', resultado);
+    console.log('Distribución géneros calculada:', resultado);
     return resultado;
   });
 
@@ -584,17 +584,17 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
       const mostrarModal = this.mostrarDialogDistribucion();
 
       if (mostrarModal) {
-        console.log('🔄 Cargando datos para distribución...');
+        console.log('Cargando datos para distribución...');
         this.cargandoDistribucion.set(true);
         this.dataService
           .getTodosDatosFiltrados()
           .then((datos) => {
-            console.log('✅ Datos cargados para distribución:', datos.length, 'registros');
+            console.log('Datos cargados para distribución:', datos.length, 'registros');
             this._datosParaDistribucion.set(datos);
             this.cargandoDistribucion.set(false);
           })
           .catch((error) => {
-            console.error('❌ Error cargando datos para distribución:', error);
+            console.error('Error cargando datos para distribución:', error);
             this.cargandoDistribucion.set(false);
           });
       } else {
@@ -1050,28 +1050,19 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
     this.actualizarMapa();
   }
 
-  /**
-   * Obtener label de un rango de monto por su ID
-   */
   obtenerLabelRangoMonto(rangoId: string): string {
     const rango = this.rangosMonto().find((r) => r.value === rangoId);
     return rango?.label || rangoId;
   }
 
-  /**
-   * Helper para obtener el label de un rango de capacidad de pago por su id
-   */
   obtenerLabelRangoCapacidad(rangoId: string): string {
     const rango = this.rangosCapacidadPago().find((r) => r.value === rangoId);
     return rango?.label || rangoId;
   }
 
-  /**
-   * Descargar datos filtrados como CSV
-   */
   async descargarDatosFiltrados(): Promise<void> {
     try {
-      console.log('📥 Descargando datos filtrados...');
+      console.log('Descargando datos filtrados...');
       const datos = await this.dataService.getTodosDatosFiltrados();
 
       if (datos.length === 0) {
@@ -1100,16 +1091,13 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
       link.click();
       document.body.removeChild(link);
 
-      console.log(`✅ ${datos.length} registros descargados exitosamente`);
+      console.log(` ${datos.length} registros descargados exitosamente`);
     } catch (error) {
-      console.error('❌ Error al descargar datos:', error);
+      console.error(' Error al descargar datos:', error);
       alert('Error al descargar los datos. Por favor intente nuevamente.');
     }
   }
 
-  /**
-   * Convertir array de ReporteCartera a CSV
-   */
   private convertirACSV(datos: ReporteCartera[]): string {
     if (datos.length === 0) return '';
 
@@ -1187,9 +1175,6 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
     return csvContent;
   }
 
-  /**
-   * Escapar valores para CSV
-   */
   private escaparCSV(valor: string | undefined | null): string {
     if (!valor) return '';
 

@@ -41,11 +41,11 @@ export interface RolePermissions {
 }
 
 /**
- * ⚠️ PERMISOS POR DEFECTO PARA ROLES DESCONOCIDOS
+ *  PERMISOS POR DEFECTO PARA ROLES DESCONOCIDOS
  * Cuando el backend envía un rol nuevo que no está configurado,
  * se aplican estos permisos restrictivos por seguridad.
  *
- * 💡 Cuando un rol nuevo se vuelva permanente, configúralo en ROLE_PERMISSIONS
+ *  Cuando un rol nuevo se vuelva permanente, configúralo en ROLE_PERMISSIONS
  */
 const DEFAULT_PERMISSIONS: RolePermissions = {
   role: 'unknown',
@@ -65,8 +65,8 @@ const DEFAULT_PERMISSIONS: RolePermissions = {
 /**
  * Matriz de permisos por rol
  *
- * ✅ DINÁMICO: Roles nuevos del backend funcionarán con DEFAULT_PERMISSIONS
- * 💡 Agrega configuración aquí cuando un rol nuevo se vuelva permanente
+ *  DINÁMICO: Roles nuevos del backend funcionarán con DEFAULT_PERMISSIONS
+ *  Agrega configuración aquí cuando un rol nuevo se vuelva permanente
  */
 export const ROLE_PERMISSIONS: Record<string, RolePermissions> = {
   // ========================================
@@ -144,7 +144,7 @@ export const ROLE_PERMISSIONS: Record<string, RolePermissions> = {
 
 /**
  * Obtiene los permisos de un rol
- * ✅ Si el rol no existe, devuelve permisos por defecto
+ *  Si el rol no existe, devuelve permisos por defecto
  */
 export function getRolePermissions(role: UserRole): RolePermissions {
   return ROLE_PERMISSIONS[role] ?? DEFAULT_PERMISSIONS;
@@ -152,7 +152,7 @@ export function getRolePermissions(role: UserRole): RolePermissions {
 
 /**
  * Verifica si un rol tiene un permiso específico
- * ✅ Roles desconocidos usan permisos por defecto
+ *  Roles desconocidos usan permisos por defecto
  */
 export function hasRolePermission(
   role: UserRole,
@@ -168,7 +168,7 @@ export function hasRolePermission(
  * Helper para obtener todos los permisos de un rol en formato ABAC
  */
 export function getRolePermissionsAsABAC(role: UserRole): string[] {
-  const rolePermissions = getRolePermissions(role); // ✅ Usa la función con fallback
+  const rolePermissions = getRolePermissions(role); //  Usa la función con fallback
   const abacPermissions: string[] = [];
 
   // Para cada recurso, generar permisos ABAC

@@ -78,8 +78,8 @@ export class AuthState {
         // Cargar perfil en background (EPSAs y permisos)
         // Se ejecuta de forma asíncrona sin bloquear la UI
         this.loadUserProfile().subscribe({
-          next: () => console.log('✅ Perfil cargado en inicialización'),
-          error: (err) => console.error('❌ Error cargando perfil en inicialización:', err),
+          next: () => console.log(' Perfil cargado en inicialización'),
+          error: (err) => console.error(' Error cargando perfil en inicialización:', err),
         });
       } catch (error) {
         console.error('Error al inicializar autenticación:', error);
@@ -111,8 +111,8 @@ export class AuthState {
         this.setAuthData(response);
         // Cargar perfil en background después del login (EPSAs y permisos)
         this.loadUserProfile().subscribe({
-          next: () => console.log('✅ Perfil cargado después de login'),
-          error: (err) => console.error('❌ Error cargando perfil después de login:', err),
+          next: () => console.log(' Perfil cargado después de login'),
+          error: (err) => console.error(' Error cargando perfil después de login:', err),
         });
       }),
       tap(() => this._isLoading.set(false)),
@@ -220,18 +220,18 @@ export class AuthState {
     // Extraer roles del realm_access
     const realmRoles = decoded.realm_access?.roles ?? [];
 
-    // ✅ FILTRAR roles técnicos de Keycloak (solo queremos roles de negocio)
+    //  FILTRAR roles técnicos de Keycloak (solo queremos roles de negocio)
     // Filtrar roles del sistema y convertir a minúsculas para consistencia
     const businessRoles = realmRoles
       .filter((role) => !(KEYCLOAK_SYSTEM_ROLES as readonly string[]).includes(role))
       .map((role) => role.toLowerCase()) as UserRole[];
 
-    // ⚠️ Advertir en consola sobre roles nuevos/desconocidos (solo roles de negocio)
+    //  Advertir en consola sobre roles nuevos/desconocidos (solo roles de negocio)
     const unknownRoles = businessRoles.filter((role) => !isKnownRole(role));
     if (unknownRoles.length > 0) {
-      console.warn('⚠️ Roles desconocidos detectados:', unknownRoles);
+      console.warn(' Roles desconocidos detectados:', unknownRoles);
       console.warn(
-        '💡 Estos roles funcionarán automáticamente, pero considera:',
+        ' Estos roles funcionarán automáticamente, pero considera:',
         '\n  - Agregar configuración de permisos en roles.config.ts',
         '\n  - Actualizar KNOWN_ROLES si son roles permanentes',
       );
@@ -244,7 +244,7 @@ export class AuthState {
       firstName: decoded.given_name || '',
       lastName: decoded.family_name || '',
       name: decoded.name || `${decoded.given_name} ${decoded.family_name}`,
-      roles: businessRoles, // ✅ Solo roles de negocio (sin roles técnicos de Keycloak)
+      roles: businessRoles, //  Solo roles de negocio (sin roles técnicos de Keycloak)
       emailVerified: decoded.email_verified,
       epsas: [], // Se llenará con loadUserProfile()
       permissions: {}, // Se llenará con loadUserProfile()

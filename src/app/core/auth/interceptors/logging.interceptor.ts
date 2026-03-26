@@ -12,12 +12,12 @@ export const loggingInterceptor: HttpInterceptorFn = (req, next) => {
         if (response.type === 4) {
           // HttpEventType.Response
           // Only log when the response is complete
-          console.log(`✅ ${req.method} ${req.url} - ${(response as any).status} (${elapsed}ms)`);
+          console.log(` ${req.method} ${req.url} - ${(response as any).status} (${elapsed}ms)`);
         }
       },
       error: (error) => {
         const elapsed = Date.now() - startTime;
-        console.error(`❌ ${req.method} ${req.url} - ${error.status} (${elapsed}ms)`, error);
+        console.error(` ${req.method} ${req.url} - ${error.status} (${elapsed}ms)`, error);
       },
     }),
   );

@@ -93,7 +93,7 @@ export class HHIAgenciasComponent implements OnInit {
       // Recargar datos
       await this.cargarDatos();
     } catch (error) {
-      console.error('❌ Error limpiando cache:', error);
+      console.error(' Error limpiando cache:', error);
       this.error.set('Error limpiando cache');
     } finally {
       this.isLoading.set(false);
@@ -276,7 +276,6 @@ export class HHIAgenciasComponent implements OnInit {
     return agencias.reduce((total, agencia) => total + agencia.numeroOperaciones, 0);
   }
 
-  // Helper para formatear números al estilo peruano
   private formatPeruvianNumber(value: number, decimals = 0): string {
     return value.toLocaleString('es-PE', {
       minimumFractionDigits: decimals,
@@ -284,7 +283,6 @@ export class HHIAgenciasComponent implements OnInit {
     });
   }
 
-  // Helper para formatear moneda peruana
   private formatPeruvianCurrency(value: number): string {
     return 'S/. ' + this.formatPeruvianNumber(value, 2);
   }

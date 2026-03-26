@@ -20,6 +20,7 @@ import {
   NavigationControl,
   ScaleControl,
   MapLayerMouseEvent,
+  GeoJSONSource,
 } from 'maplibre-gl';
 
 // PrimeNG
@@ -122,7 +123,7 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
   // Mapa
   private map?: MapLibreMap;
   private markers = new Map<string, Marker>();
-  private clusterSource?: any;
+  private clusterSource?: GeoJSONSource;
   private bounds?: LngLatBounds;
 
   // Colores públicos para template
@@ -158,7 +159,7 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
       // Inicializar mapa después de cargar datos
       setTimeout(() => this.inicializarMapa(), 100);
     } catch (error) {
-      console.error('❌ Error al inicializar componente:', error);
+      console.error(' Error al inicializar componente:', error);
     } finally {
       this.isLoading.set(false);
     }
@@ -187,9 +188,9 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
       const opciones = await this.cumplimientoService.getOpcionesFiltros();
       this.opcionesFiltros.set(opciones);
 
-      console.log(`✅ Cargados ${puntos.length} puntos de cumplimiento`);
+      console.log(` Cargados ${puntos.length} puntos de cumplimiento`);
     } catch (error) {
-      console.error('❌ Error al cargar datos:', error);
+      console.error(' Error al cargar datos:', error);
     }
   }
 
@@ -198,7 +199,7 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
    */
   private inicializarMapa(): void {
     if (!this.mapContainerRef?.nativeElement) {
-      console.error('❌ Contenedor del mapa no disponible');
+      console.error(' Contenedor del mapa no disponible');
       return;
     }
 
@@ -219,11 +220,11 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
 
       // Evento cuando el mapa está listo
       this.map.on('load', () => {
-        console.log('🗺️ Mapa cargado');
+        console.log(' Mapa cargado');
         this.renderizarPuntos();
       });
     } catch (error) {
-      console.error('❌ Error al inicializar mapa:', error);
+      console.error(' Error al inicializar mapa:', error);
     }
   }
 
@@ -236,7 +237,7 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
     const puntos = this.filteredPuntos();
 
     if (puntos.length === 0) {
-      console.warn('⚠️ No hay puntos para renderizar');
+      console.warn(' No hay puntos para renderizar');
       return;
     }
 
@@ -335,7 +336,7 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
       });
 
       // Click en cluster para zoom
-      this.map.on('click', 'clusters', (e: MapLayerMouseEvent) => {
+      this.map.on('click', 'clusters', async (e: MapLayerMouseEvent) => {
         const features = this.map!.queryRenderedFeatures(e.point, {
           layers: ['clusters'],
         });
@@ -343,16 +344,18 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
         if (features.length === 0) return;
 
         const clusterId = features[0].properties['cluster_id'];
-        const source = this.map!.getSource('cumplimiento-source') as any;
+        const source = this.map!.getSource('cumplimiento-source') as GeoJSONSource;
+        const geometry = features[0].geometry as GeoJSON.Point;
 
-        source.getClusterExpansionZoom(clusterId, (err: any, zoom: number) => {
-          if (err) return;
-
+        try {
+          const zoom = await source.getClusterExpansionZoom(clusterId);
           this.map!.easeTo({
-            center: (features[0].geometry as any).coordinates,
+            center: geometry.coordinates as [number, number],
             zoom: zoom,
           });
-        });
+        } catch (err) {
+          console.error('Error al expandir cluster:', err);
+        }
       });
 
       // Click en punto individual
@@ -382,7 +385,7 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
       });
     } else {
       // Actualizar source existente
-      const source = this.map.getSource('cumplimiento-source') as any;
+      const source = this.map.getSource('cumplimiento-source') as GeoJSONSource;
       source.setData(geojson);
     }
   }
@@ -398,7 +401,7 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
       this.markers.set(punto.id, marker);
     });
 
-    console.log(`📍 Renderizados ${this.markers.size} marcadores`);
+    console.log(`Renderizados ${this.markers.size} marcadores`);
   }
 
   /**
@@ -589,7 +592,6 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
    * Exporta los datos filtrados
    */
   exportarDatos(): void {
-    // TODO: Implementar exportación a CSV/Excel
     console.log('Exportar', this.filteredPuntos().length, 'registros');
   }
 }

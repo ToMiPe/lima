@@ -30,9 +30,9 @@ export class ApiCarteraRepository implements CarteraRepository {
       // Para API, la inicialización podría verificar conectividad
       await this.checkApiHealth();
       this._lastUpdate.set(new Date());
-      console.log('✅ API conectada exitosamente');
+      console.log(' API conectada exitosamente');
     } catch (error) {
-      console.error('❌ Error conectando con API:', error);
+      console.error(' Error conectando con API:', error);
       throw error;
     } finally {
       this._isLoading.set(false);
@@ -46,7 +46,7 @@ export class ApiCarteraRepository implements CarteraRepository {
       );
       return response.count;
     } catch (error) {
-      console.error('❌ Error obteniendo conteo:', error);
+      console.error(' Error obteniendo conteo:', error);
       throw error;
     }
   }
@@ -58,7 +58,7 @@ export class ApiCarteraRepository implements CarteraRepository {
       );
       return response;
     } catch (error) {
-      console.error('❌ Error obteniendo estadísticas:', error);
+      console.error(' Error obteniendo estadísticas:', error);
       throw error;
     }
   }
@@ -72,7 +72,7 @@ export class ApiCarteraRepository implements CarteraRepository {
       );
       return response;
     } catch (error) {
-      console.error(`❌ Error obteniendo datos del departamento ${departamento}:`, error);
+      console.error(` Error obteniendo datos del departamento ${departamento}:`, error);
       return [];
     }
   }
@@ -84,7 +84,7 @@ export class ApiCarteraRepository implements CarteraRepository {
       );
       return response;
     } catch (error) {
-      console.error('❌ Error obteniendo todos los registros:', error);
+      console.error(' Error obteniendo todos los registros:', error);
       throw error;
     }
   }
@@ -96,7 +96,7 @@ export class ApiCarteraRepository implements CarteraRepository {
       );
       return response;
     } catch (error) {
-      console.error('❌ Error obteniendo HHI de agencias:', error);
+      console.error(' Error obteniendo HHI de agencias:', error);
       throw error;
     }
   }
@@ -108,7 +108,7 @@ export class ApiCarteraRepository implements CarteraRepository {
       );
       return response;
     } catch (error) {
-      console.error('❌ Error obteniendo HHI de tipo de crédito:', error);
+      console.error(' Error obteniendo HHI de tipo de crédito:', error);
       throw error;
     }
   }
@@ -120,7 +120,7 @@ export class ApiCarteraRepository implements CarteraRepository {
       );
       return response;
     } catch (error) {
-      console.error('❌ Error obteniendo HHI de destino de crédito:', error);
+      console.error(' Error obteniendo HHI de destino de crédito:', error);
       throw error;
     }
   }
@@ -132,7 +132,7 @@ export class ApiCarteraRepository implements CarteraRepository {
       );
       return response;
     } catch (error) {
-      console.error('❌ Error obteniendo HHI de plazo:', error);
+      console.error(' Error obteniendo HHI de plazo:', error);
       throw error;
     }
   }
@@ -144,7 +144,7 @@ export class ApiCarteraRepository implements CarteraRepository {
       );
       return response;
     } catch (error) {
-      console.error('❌ Error obteniendo HHI de zona geográfica:', error);
+      console.error(' Error obteniendo HHI de zona geográfica:', error);
       throw error;
     }
   }
@@ -156,7 +156,7 @@ export class ApiCarteraRepository implements CarteraRepository {
       );
       return response;
     } catch (error) {
-      console.error('❌ Error obteniendo HHI de sector económico:', error);
+      console.error(' Error obteniendo HHI de sector económico:', error);
       throw error;
     }
   }
@@ -168,14 +168,14 @@ export class ApiCarteraRepository implements CarteraRepository {
       );
       return response;
     } catch (error) {
-      console.error('❌ Error obteniendo HHI de calificación CR:', error);
+      console.error(' Error obteniendo HHI de calificación CR:', error);
       throw error;
     }
   }
 
   async clearData(): Promise<void> {
     // Para API, esto podría hacer un DELETE o limpiar caché local
-    console.log('🧹 Limpiando caché local...');
+    console.log('Limpiando caché local...');
     // Implementación específica de caché si fuera necesario
   }
 
@@ -185,7 +185,7 @@ export class ApiCarteraRepository implements CarteraRepository {
       // Para API, esto podría invalidar caché o recargar datos
       await this.clearData();
       this._lastUpdate.set(new Date());
-      console.log('🔄 Datos actualizados desde API');
+      console.log(' Datos actualizados desde API');
     } finally {
       this._isLoading.set(false);
     }

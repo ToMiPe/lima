@@ -354,13 +354,13 @@
           <div class="classification-badge" [class]="selectedPunto()!.color">
             <span class="badge-icon">
               @if (selectedPunto()!.color === 'verde') {
-                ✓
+                <i class="pi pi-check"></i>
               }
               @if (selectedPunto()!.color === 'naranja') {
-                ⚠
+                <i class="pi pi-exclamation-triangle"></i>
               }
               @if (selectedPunto()!.color === 'rojo') {
-                ✕
+                <i class="pi pi-times"></i>
               }
             </span>
             <span class="badge-text">{{ selectedPunto()!.clasificacion }}</span>

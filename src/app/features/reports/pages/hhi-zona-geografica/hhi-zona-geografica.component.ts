@@ -1004,10 +1004,10 @@ export class HHIZonaGeograficaComponent implements OnInit {
     this.isLoading.set(true);
     try {
       await this.carteraRepository.clearData();
-      console.log('✅ Base de datos limpiada');
+      console.log(' Base de datos limpiada');
       await this.cargarDatos();
     } catch (error) {
-      console.error('❌ Error limpiando cache:', error);
+      console.error(' Error limpiando cache:', error);
       this.error.set('Error limpiando cache');
     } finally {
       this.isLoading.set(false);

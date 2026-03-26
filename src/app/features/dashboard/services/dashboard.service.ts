@@ -32,7 +32,7 @@ export class DashboardService {
    */
   async initialize(): Promise<void> {
     if (this.isInitialized()) {
-      console.log('✅ Dashboard ya inicializado');
+      console.log(' Dashboard ya inicializado');
       return;
     }
 
@@ -45,7 +45,7 @@ export class DashboardService {
       this.isInitialized.set(true);
       this.lastUpdate.set(this.repository.getLastUpdate());
     } catch (error) {
-      console.error('❌ Error inicializando dashboard:', error);
+      console.error(' Error inicializando dashboard:', error);
       throw error;
     } finally {
       this.isLoading.set(false);
@@ -58,13 +58,13 @@ export class DashboardService {
   async refreshData(): Promise<void> {
     this.isLoading.set(true);
     try {
-      console.log('🔄 Refrescando datos...');
+      console.log(' Refrescando datos...');
       await this.repository.refreshData();
       await this.loadStatistics();
       this.lastUpdate.set(this.repository.getLastUpdate());
-      console.log('✅ Datos actualizados');
+      console.log(' Datos actualizados');
     } catch (error) {
-      console.error('❌ Error actualizando datos:', error);
+      console.error(' Error actualizando datos:', error);
       throw error;
     } finally {
       this.isLoading.set(false);
@@ -83,7 +83,7 @@ export class DashboardService {
       this.updateKPIs(stats);
       this.updateDepartmentStats(stats);
     } catch (error) {
-      console.error('❌ Error cargando estadísticas:', error);
+      console.error(' Error cargando estadísticas:', error);
     }
   }
 
@@ -112,7 +112,7 @@ export class DashboardService {
         id: 'departments',
         title: 'Departamentos',
         value: Object.keys(stats.porDepartamento || {}).length,
-        icon: '🗺️',
+        icon: '📍',
         color: 'yellow',
         format: 'number',
       },
@@ -120,7 +120,7 @@ export class DashboardService {
         id: 'balance',
         title: 'Saldo Total',
         value: stats.totalSaldo || 0,
-        icon: '📊',
+        icon: '💼',
         color: 'red',
         format: 'currency',
       },
@@ -136,7 +136,7 @@ export class DashboardService {
     const porDept = stats.porDepartamento || {};
     const maxCount = Math.max(...Object.values(porDept).map((v) => v || 0));
 
-    console.log('📊 updateDepartmentStats:', {
+    console.log(' updateDepartmentStats:', {
       total: stats.total,
       departamentos: Object.keys(porDept).length,
       porDept,
@@ -157,7 +157,7 @@ export class DashboardService {
       };
     });
 
-    console.log('📍 Departamentos procesados:', deptStats.length);
+    console.log('Departamentos procesados:', deptStats.length);
     this.departmentStats.set(deptStats);
   }
 
@@ -170,7 +170,7 @@ export class DashboardService {
         id: 'cumplimiento',
         title: 'Reporte de Cumplimiento',
         description: 'Mapa georreferenciado con clasificación de riesgo por crédito',
-        icon: '🎯',
+        icon: '',
         category: 'geographic',
         route: '/reports/cumplimiento',
         color: '#10B981',
@@ -179,7 +179,7 @@ export class DashboardService {
         id: 'geographic',
         title: 'Vista Geográfica',
         description: 'Mapa interactivo con distribución por regiones',
-        icon: '🗺️',
+        icon: '',
         category: 'geographic',
         route: '/maps',
         color: ADRA_COLORS.green.primary,
@@ -188,7 +188,7 @@ export class DashboardService {
         id: 'financial',
         title: 'Análisis Financiero',
         description: 'Montos, colocaciones y tendencias',
-        icon: '💰',
+        icon: 'pi pi-dollar',
         category: 'financial',
         route: '/reportes/financiero',
         color: ADRA_COLORS.blue.primary,
@@ -197,7 +197,7 @@ export class DashboardService {
         id: 'social',
         title: 'Impacto Social',
         description: 'Demografía, género y actividades económicas',
-        icon: '👥',
+        icon: 'pi pi-users',
         category: 'social',
         route: '/reportes/social',
         color: ADRA_COLORS.green.light,
@@ -206,7 +206,7 @@ export class DashboardService {
         id: 'temporal',
         title: 'Análisis Temporal',
         description: 'Tendencias y evolución en el tiempo',
-        icon: '📈',
+        icon: '',
         category: 'temporal',
         route: '/reportes/temporal',
         color: ADRA_COLORS.yellow.accent,

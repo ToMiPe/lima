@@ -7,7 +7,7 @@
           <div
             class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-3xl shadow-lg"
           >
-            🌿
+            <i class="pi pi-chart-line text-white"></i>
           </div>
           <div>
             <h1 class="text-3xl font-bold tracking-tight">MIRAR - ADRA</h1>
@@ -18,13 +18,12 @@
         <div class="flex items-center gap-3">
           <div class="flex items-center gap-3 bg-white/15 backdrop-blur-sm px-5 py-3 rounded-xl">
             <div
-              class="w-3 h-3 rounded-full transition-all duration-300"
               [class]="{
-                'bg-yellow-400 shadow-[0_0_0_4px_rgba(251,191,36,0.3)] animate-pulse':
+                'w-3 h-3 rounded-full transition-all duration-300 bg-yellow-400 shadow-[0_0_0_4px_rgba(251,191,36,0.3)] animate-pulse':
                   dashboardService.isLoading(),
-                'bg-green-400 shadow-[0_0_0_4px_rgba(34,197,94,0.3)]':
+                'w-3 h-3 rounded-full transition-all duration-300 bg-green-400 shadow-[0_0_0_4px_rgba(34,197,94,0.3)]':
                   !dashboardService.isLoading() && dashboardService.totalRecords() > 0,
-                'bg-red-400 shadow-[0_0_0_4px_rgba(239,68,68,0.3)]':
+                'w-3 h-3 rounded-full transition-all duration-300 bg-red-400 shadow-[0_0_0_4px_rgba(239,68,68,0.3)]':
                   !dashboardService.isLoading() && dashboardService.totalRecords() === 0,
               }"
             ></div>
@@ -53,7 +52,7 @@
             class="bg-gradient-to-br from-gray-50 to-white rounded-2xl shadow-md p-6 border border-gray-100"
           >
             <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <span class="text-2xl">🗺️</span>
+              <i class="pi pi-map text-2xl"></i>
               Mapa Interactivo del Perú
             </h2>
             <app-peru-map-svg
@@ -75,20 +74,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- Reportes Section -->
-    <section class="max-w-[1400px] mx-auto px-6 py-12">
-      <div class="mb-8 text-center">
-        <h2 class="text-3xl font-bold text-gray-800 mb-3">Explorar por Dimensión</h2>
-        <p class="text-lg text-gray-600">Selecciona el tipo de análisis que deseas realizar</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        @for (report of dashboardService.availableReports(); track report.id) {
-          <app-report-card [report]="report" (selectReport)="onReportSelect($event)" />
-        }
       </div>
     </section>
 
@@ -116,37 +101,111 @@
 
       <div class="flex justify-center">
         <div
-          class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 cursor-pointer border-4 border-transparent hover:border-blue-300 hover:-translate-y-2 group overflow-hidden max-w-2xl"
+          class="relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 group overflow-hidden border border-gray-100 hover:border-[#005EB8] max-w-4xl w-full"
           routerLink="/reports/ipc"
         >
-          <div class="p-8 text-center text-white">
-            <div
-              class="w-20 h-20 mx-auto mb-6 rounded-full bg-white bg-opacity-20 flex items-center justify-center text-4xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"
-            >
-              📊
-            </div>
-            <h3 class="text-3xl font-bold mb-3">Indicadores de Control Interno</h3>
-            <p class="text-lg text-blue-100 mb-6">
-              Explore 18 indicadores agrupados en 3 dimensiones: Ingreso, Voluntad y Garantía
-              Psicológica
-            </p>
-            <div
-              class="inline-flex items-center gap-3 text-lg font-semibold bg-white text-blue-600 px-6 py-3 rounded-full group-hover:gap-4 transition-all duration-300 group-hover:shadow-xl"
-            >
-              Abrir Sistema IPC
-              <svg
-                class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <!-- Barra superior con degradado corporativo -->
+          <div
+            class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00843D] via-[#005EB8] to-[#FDB913]"
+          ></div>
+
+          <div class="p-8">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-16 h-16 bg-gradient-to-br from-[#00843D] to-[#005EB8] rounded-xl flex items-center justify-center text-white text-3xl shadow-md group-hover:scale-110 transition-transform duration-300"
+                >
+                  <i class="pi pi-chart-pie"></i>
+                </div>
+                <div>
+                  <h3 class="text-2xl font-bold text-gray-800">Sistema IPC</h3>
+                  <p class="text-sm text-gray-600">Análisis multidimensional de riesgo</p>
+                </div>
+              </div>
+              <div
+                class="hidden sm:flex items-center gap-2 text-gray-400 group-hover:text-[#005EB8] transition-colors duration-300"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                ></path>
-              </svg>
+                <i class="pi pi-arrow-right text-xl"></i>
+              </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div
+                class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-100"
+              >
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 bg-[#005EB8]/10 rounded-lg flex items-center justify-center text-[#005EB8]"
+                  >
+                    <i class="pi pi-chart-line text-xl"></i>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-bold text-gray-800">18</p>
+                    <p class="text-sm text-gray-600">Indicadores</p>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-100"
+              >
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 bg-[#00843D]/10 rounded-lg flex items-center justify-center text-[#00843D]"
+                  >
+                    <i class="pi pi-th-large text-xl"></i>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-bold text-gray-800">3</p>
+                    <p class="text-sm text-gray-600">Dimensiones</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dimensiones -->
+            <div class="space-y-3 mb-6">
+              <div
+                class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100 group-hover:bg-blue-50 transition-colors duration-300"
+              >
+                <div
+                  class="w-8 h-8 bg-[#005EB8] rounded-lg flex items-center justify-center text-white text-sm"
+                >
+                  <i class="pi pi-arrow-right-arrow-left"></i>
+                </div>
+                <span class="font-medium text-gray-700">Capacidad de Ingreso</span>
+              </div>
+              <div
+                class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100 group-hover:bg-green-50 transition-colors duration-300"
+              >
+                <div
+                  class="w-8 h-8 bg-[#00843D] rounded-lg flex items-center justify-center text-white text-sm"
+                >
+                  <i class="pi pi-thumbs-up"></i>
+                </div>
+                <span class="font-medium text-gray-700">Voluntad de Pago</span>
+              </div>
+              <div
+                class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100 group-hover:bg-yellow-50 transition-colors duration-300"
+              >
+                <div
+                  class="w-8 h-8 bg-[#FDB913] rounded-lg flex items-center justify-center text-white text-sm"
+                >
+                  <i class="pi pi-shield"></i>
+                </div>
+                <span class="font-medium text-gray-700">Garantía Psicológica</span>
+              </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="flex justify-end">
+              <div
+                class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#00843D] to-[#005EB8] text-white rounded-lg font-semibold group-hover:shadow-lg transition-all duration-300"
+              >
+                Abrir Sistema IPC
+                <i class="pi pi-external-link"></i>
+              </div>
             </div>
           </div>
         </div>
@@ -160,7 +219,7 @@
           <div
             class="w-20 h-20 bg-gradient-to-br from-[#00843D] to-[#005EB8] rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg"
           >
-            🌿
+            <i class="pi pi-chart-line text-white"></i>
           </div>
           <div
             class="w-16 h-16 border-4 border-[#00843D]/30 border-t-[#00843D] rounded-full animate-spin mx-auto mb-4"

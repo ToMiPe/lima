@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { DashboardService } from '../services/dashboard.service';
 import { KpiCardComponent } from '../components/kpi-card.component';
-import { ReportCardComponent } from '../components/report-card.component';
 import { PeruMapSvgComponent } from '../components/peru-map-svg.component';
 import { HHIWidgetComponent } from '@features/reports';
 import { MapClickEvent, ReportType } from '../models';
@@ -19,7 +18,6 @@ import { MapClickEvent, ReportType } from '../models';
     CommonModule,
     RouterModule,
     KpiCardComponent,
-    ReportCardComponent,
     PeruMapSvgComponent,
     HHIWidgetComponent,
   ],
@@ -35,13 +33,13 @@ export class HomeComponent implements OnInit {
   }
 
   onDepartmentClick(event: MapClickEvent): void {
-    console.log('📍 Departamento seleccionado:', event);
+    console.log('Departamento seleccionado:', event);
     // Navegar al reporte de mapa por departamento
     this.router.navigate(['/reports/map', event.departmentName]);
   }
 
   onReportSelect(report: ReportType): void {
-    console.log('📊 Reporte seleccionado:', report);
+    console.log(' Reporte seleccionado:', report);
     this.router.navigate([report.route]);
   }
 

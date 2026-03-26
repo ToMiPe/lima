@@ -187,7 +187,7 @@ export class CumplimientoReportService {
 
     // Log de auditoría
     if (excluidos.length > 0) {
-      console.warn(`⚠️ ${excluidos.length} registros excluidos del reporte`);
+      console.warn(` ${excluidos.length} registros excluidos del reporte`);
       console.table(
         excluidos.slice(0, 10).map((e) => ({
           Crédito: e.codCredito,

@@ -136,7 +136,7 @@ export class TokenService {
     const accessToken = this.getAccessToken();
     const refreshToken = this.getRefreshToken();
 
-    console.group('🔑 Token Debug Info');
+    console.group('Token Debug Info');
     console.log('Access Token:', accessToken ? 'Present' : 'Missing');
     console.log('Refresh Token:', refreshToken ? 'Present' : 'Missing');
 
