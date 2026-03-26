@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, effect, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, effect, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -13,6 +13,10 @@ import { SliderModule } from 'primeng/slider';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
+import { TableModule, Table } from 'primeng/table';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
 
 // ECharts
 import { NgxEchartsModule } from 'ngx-echarts';
@@ -38,6 +42,26 @@ import {
 } from '@core/cartera/models/hhi-concentration-ranges';
 
 /**
+ * Interfaz para filas de la tabla de datos
+ */
+interface TablaDataRow {
+  cliente: string;
+  cod_cliente: string;
+  documento: string;
+  agencia: string;
+  genero: string;
+  producto: string;
+  saldo_capital: number;
+  dias_atraso: number;
+  valorIPC: number | string | null;
+  rangoLabel: string;
+  colorHex: string;
+  latitud?: number;
+  longitud?: number;
+  tieneUbicacion: boolean;
+}
+
+/**
  * Componente unificado para visualización de 18 IPCs
  * Navegación: Dimensión (tabs) → Indicador (dropdown) → Mapa
  */
@@ -58,6 +82,10 @@ import {
     FloatLabelModule,
     DialogModule,
     ButtonModule,
+    TableModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
   ],
   templateUrl: './ipc-unified.component.html',
   styleUrls: ['./ipc-unified.component.scss'],
@@ -65,6 +93,9 @@ import {
 export class IPCUnifiedComponent implements OnInit, OnDestroy {
   private configService = inject(IPCConfigService);
   private dataService = inject(IPCDataService);
+
+  // Referencia a la tabla para búsqueda
+  @ViewChild('dt') dataTable?: Table;
 
   // Mapa
   private map?: MapLibreMap;
@@ -89,7 +120,25 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
   mostrarFiltrosBaseDatos = signal(false); // Filtros de BD colapsados por defecto
   mostrarDialogFiltros = signal(false); // Modal de filtros
   mostrarDialogDistribucion = signal(false); // Modal de distribución de datos
+  mostrarDialogDetalleRango = signal(false); // Modal de detalle de rango específico
+  rangoSeleccionadoDetalle = signal<{ id: string; label: string; colorHex: string } | null>(null); // Rango seleccionado para ver detalle
   tabDistribucionActiva: string | number | undefined = 'genero'; // Tab activo en modal de distribución
+  mostrarMapa = signal(true); // Control de visibilidad del mapa (colapsable)
+  mapaInicializado = signal(false); // Lazy loading del mapa
+  tabGraficosActiva = signal<string | number | undefined>('distribucion'); // Tab activo en panel de gráficos (reactivo)
+  datosTablaCache = signal<TablaDataRow[]>([]); // Cache de datos transformados para la tabla
+  filaSeleccionada = signal<{ cliente: string; documento: string } | null>(null); // Fila seleccionada (sincronización mapa ↔ tabla)
+  datosRangoSeleccionado = computed<TablaDataRow[]>(() => {
+    const rango = this.rangoSeleccionadoDetalle();
+    const todosLosDatos = this.datosTablaCache();
+
+    if (!rango || todosLosDatos.length === 0) {
+      return [];
+    }
+
+    // Filtrar solo los registros del rango seleccionado
+    return todosLosDatos.filter((d) => d.rangoLabel === rango.label);
+  });
 
   // Filtros de rangos (controles de visualización)
   filtrosActivos = signal<Set<string>>(new Set());
@@ -125,6 +174,18 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
 
   // Contador de registros filtrados (signal en vez de computed porque necesita async)
   registrosFiltrados = signal<{ filtrados: number; total: number }>({ filtrados: 0, total: 0 });
+
+  // Datos para tabla (computed)
+  datosTabla = computed<TablaDataRow[] | null>(() => {
+    const cache = this.datosTablaCache();
+    const isLoading = this.isLoadingData();
+
+    if (isLoading || cache.length === 0) {
+      return null;
+    }
+
+    return cache;
+  });
 
   // Filtros de base de datos
   sedesDisponibles = signal<{ label: string; value: string }[]>([]);
@@ -315,6 +376,19 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
       },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Descargar imagen',
+            name: 'IPC_Distribucion_Generos',
+            pixelRatio: 2,
+          },
+        },
+        right: 20,
+        top: 10,
+      },
       xAxis: {
         type: 'category',
         data: data.map((d) => d.categoria),
@@ -344,6 +418,19 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Descargar imagen',
+            name: 'IPC_Distribucion_Sedes',
+            pixelRatio: 2,
+          },
+        },
+        right: 20,
+        top: 10,
       },
       xAxis: {
         type: 'value',
@@ -382,6 +469,19 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
       },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Descargar imagen',
+            name: 'IPC_Distribucion_Productos',
+            pixelRatio: 2,
+          },
+        },
+        right: 20,
+        top: 10,
+      },
       xAxis: {
         type: 'category',
         data: data.map((d) => d.categoria),
@@ -419,6 +519,19 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
       },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Descargar imagen',
+            name: 'IPC_Distribucion_Zonas',
+            pixelRatio: 2,
+          },
+        },
+        right: 20,
+        top: 10,
+      },
       xAxis: {
         type: 'category',
         data: data.map((d) => d.categoria),
@@ -448,6 +561,19 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Descargar imagen',
+            name: 'IPC_Distribucion_Montos',
+            pixelRatio: 2,
+          },
+        },
+        right: 20,
+        top: 10,
       },
       xAxis: {
         type: 'category',
@@ -501,6 +627,19 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
         appendToBody: true,
         position: 'top',
         z: 99999,
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Descargar imagen',
+            name: `IPC_${this.indicadorSeleccionado()?.codigo || 'Grafico'}_Distribucion`,
+            pixelRatio: 2,
+          },
+        },
+        right: 20,
+        top: 10,
       },
       legend: {
         show: false,
@@ -602,12 +741,51 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
         this._datosParaDistribucion.set([]);
       }
     });
+
+    // Efecto: cargar datos para tabla cuando se activa el tab de datos
+    effect(() => {
+      const tabActiva = this.tabGraficosActiva();
+      const config = this.indicadorSeleccionado();
+
+      if (tabActiva === 'datos' && config) {
+        console.log('🔄 Cargando datos para tabla...');
+        this.cargarDatosTabla();
+      }
+    });
+
+    // Efecto: recargar tabla cuando cambian filtros de base de datos
+    effect(() => {
+      const tabActiva = this.tabGraficosActiva();
+      const config = this.indicadorSeleccionado();
+
+      // Observar todos los filtros de base de datos
+      this.sedesSeleccionadas();
+      this.generosSeleccionados();
+      this.productosSeleccionados();
+      this.zonasSeleccionadas();
+      this.rangosMontosSeleccionados();
+      this.categoriasSeleccionadas();
+      this.calificacionesCRSeleccionadas();
+      this.rangosCapacidadPagoSeleccionados();
+
+      // Si la tabla está activa, recargar
+      if (tabActiva === 'datos' && config) {
+        console.log('🔄 Filtros cambiaron, recargando tabla...');
+        this.cargarDatosTabla();
+      }
+    });
   }
 
   ngOnInit(): void {
     this.inicializarDimensiones();
-    this.inicializarMapa();
     this.cargarOpcionesFiltros();
+
+    // Lazy loading: inicializar mapa solo si está visible
+    setTimeout(() => {
+      if (this.mostrarMapa()) {
+        this.inicializarMapaSiNecesario();
+      }
+    }, 500);
   }
 
   ngOnDestroy(): void {
@@ -821,6 +999,25 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
             this.popup.remove();
           }
         });
+
+        // Click en puntos individuales para seleccionar en tabla
+        this.map.on('click', 'unclustered-point', (e) => {
+          if (!e.features || e.features.length === 0) return;
+
+          const feature = e.features[0];
+          const props = feature.properties as Record<string, unknown>;
+
+          // Marcar como seleccionado
+          this.filaSeleccionada.set({
+            cliente: props['nombre'] as string,
+            documento: props['documento'] as string,
+          });
+
+          // Si la tabla está visible, hacer scroll a la fila
+          if (this.tabGraficosActiva() === 'datos') {
+            console.log('📍 Punto seleccionado en mapa:', props['nombre']);
+          }
+        });
       }
 
       // No aplicar fitBounds aquí para preservar el zoom del usuario
@@ -845,8 +1042,9 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
       this.dataService.setIPC(ipcs[0].campo);
     }
 
-    // Limpiar filtros
+    // Limpiar filtros y selección
     this.filtrosActivos.set(new Set());
+    this.filaSeleccionada.set(null);
     this.dataService.clearFiltros();
   }
 
@@ -858,8 +1056,9 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
     this.indicadorSeleccionado.set(config);
     this.dataService.setIPC(config.campo);
 
-    // Limpiar filtros
+    // Limpiar filtros y selección
     this.filtrosActivos.set(new Set());
+    this.filaSeleccionada.set(null);
     this.dataService.clearFiltros();
   }
 
@@ -1031,6 +1230,11 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
 
     this.dataService.setDataFilters(filters);
     this.actualizarMapa();
+
+    // Recargar tabla si está activa
+    if (this.tabGraficosActiva() === 'datos') {
+      this.cargarDatosTabla();
+    }
   }
 
   /**
@@ -1047,7 +1251,21 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
     this.rangosCapacidadPagoSeleccionados.set([]);
 
     this.dataService.clearDataFilters();
+    this.filaSeleccionada.set(null); // Limpiar selección de fila
     this.actualizarMapa();
+
+    // Recargar tabla si está activa
+    if (this.tabGraficosActiva() === 'datos') {
+      this.cargarDatosTabla();
+    }
+  }
+
+  /**
+   * Helper para verificar si una fila está seleccionada
+   */
+  esFilaSeleccionada(cliente: string, documento: string): boolean {
+    const seleccionada = this.filaSeleccionada();
+    return !!seleccionada && seleccionada.cliente === cliente && seleccionada.documento === documento;
   }
 
   obtenerLabelRangoMonto(rangoId: string): string {
@@ -1169,8 +1387,8 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
       d.longitud || '',
     ]);
 
-    // Combinar
-    const csvContent = [encabezados.join(','), ...filas.map((fila) => fila.join(','))].join('\n');
+    // Combinar con punto y coma (;) para compatibilidad con Excel en español
+    const csvContent = [encabezados.join(';'), ...filas.map((fila) => fila.join(';'))].join('\n');
 
     return csvContent;
   }
@@ -1178,11 +1396,582 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
   private escaparCSV(valor: string | undefined | null): string {
     if (!valor) return '';
 
-    // Si contiene coma, comillas o salto de línea, envolver en comillas
-    if (valor.includes(',') || valor.includes('"') || valor.includes('\n')) {
+    // Si contiene punto y coma, comillas o salto de línea, envolver en comillas
+    if (valor.includes(';') || valor.includes('"') || valor.includes('\n')) {
       return `"${valor.replace(/"/g, '""')}"`;
     }
 
     return valor;
   }
+
+  /**
+   * Cargar datos transformados para la tabla
+   */
+  private async cargarDatosTabla(): Promise<void> {
+    try {
+      const config = this.indicadorSeleccionado();
+      if (!config) return;
+
+      const datos = await this.dataService.getDatosFiltrados();
+      console.log(`📊 Transformando ${datos.length} registros para tabla...`);
+
+      const rangos = config.rangosCustom || HHI_CONCENTRATION_RANGES;
+
+      const datosTransformados: TablaDataRow[] = datos.map((row) => {
+        const valorIPC = this.obtenerValorIPC(row, config.campo);
+        const rango = this.getRangoParaValor(valorIPC, config, rangos);
+
+        // Verificar si tiene ubicación válida
+        const latitud = row.latitud || 0;
+        const longitud = row.longitud || 0;
+        const tieneUbicacion = latitud !== 0 && longitud !== 0 && !isNaN(latitud) && !isNaN(longitud);
+
+        return {
+          cliente: row.cliente || 'N/A',
+          cod_cliente: row.cod_cliente || 'N/A',
+          documento: row.documento || 'N/A',
+          agencia: row.agencia || 'N/A',
+          genero: row.genero || 'N/A',
+          producto: row.producto || 'N/A',
+          saldo_capital: row.saldo_capital || 0,
+          dias_atraso: row.dias_atraso || 0,
+          valorIPC: valorIPC,
+          rangoLabel: rango.label,
+          colorHex: rango.colorHex,
+          latitud: latitud,
+          longitud: longitud,
+          tieneUbicacion: tieneUbicacion,
+        };
+      });
+
+      this.datosTablaCache.set(datosTransformados);
+      console.log(`✅ ${datosTransformados.length} filas cargadas en tabla`);
+    } catch (error) {
+      console.error('❌ Error cargando datos para tabla:', error);
+      this.datosTablaCache.set([]);
+    }
+  }
+
+  /**
+   * Manejar click en segmentos del gráfico (drill-down)
+   */
+  onChartClick(event: any): void {
+    try {
+      const rangoLabel = event.name; // e.g., "0.01 - 100 S/"
+      console.log('📊 Click en gráfico:', rangoLabel);
+
+      // Obtener configuración actual y rangos
+      const config = this.indicadorSeleccionado();
+      if (!config) return;
+
+      const rangos = config.rangosCustom || HHI_CONCENTRATION_RANGES;
+
+      // Buscar el rango por label
+      const rango = rangos.find((r) => r.label === rangoLabel);
+      if (!rango) {
+        console.warn('⚠️ No se encontró rango para:', rangoLabel);
+        return;
+      }
+
+      // Cargar datos de tabla si no están disponibles
+      if (this.datosTablaCache().length === 0) {
+        console.log('📥 Cargando datos de tabla para drill-down...');
+        this.cargarDatosTabla().then(() => {
+          // Configurar rango seleccionado y abrir modal
+          this.rangoSeleccionadoDetalle.set({
+            id: `${rango.from}-${rango.to}`,
+            label: rango.label,
+            colorHex: rango.colorHex,
+          });
+          this.mostrarDialogDetalleRango.set(true);
+        });
+      } else {
+        // Datos ya disponibles, abrir modal inmediatamente
+        this.rangoSeleccionadoDetalle.set({
+          id: `${rango.from}-${rango.to}`,
+          label: rango.label,
+          colorHex: rango.colorHex,
+        });
+        this.mostrarDialogDetalleRango.set(true);
+      }
+    } catch (error) {
+      console.error('❌ Error manejando click en gráfico:', error);
+    }
+  }
+
+  /**
+   * Navegar mapa a un registro específico
+   */
+  navegarARegistro(registro: TablaDataRow): void {
+    try {
+      console.log('🗺️ Navegando a registro:', registro.cliente);
+
+      if (!this.map) {
+        console.warn('⚠️ Mapa no inicializado');
+        return;
+      }
+
+      // Verificar si el registro tiene coordenadas
+      if (!registro.latitud || !registro.longitud || registro.latitud === 0 || registro.longitud === 0) {
+        console.warn('⚠️ Registro sin coordenadas válidas');
+        return;
+      }
+
+      console.log(`📍 Coordenadas: [${registro.longitud}, ${registro.latitud}]`);
+
+      // Marcar como seleccionado
+      this.filaSeleccionada.set({
+        cliente: registro.cliente,
+        documento: registro.documento,
+      });
+
+      // Cerrar modal si está abierto
+      this.mostrarDialogDetalleRango.set(false);
+
+      // Mostrar mapa si está oculto
+      this.mostrarMapa.set(true);
+
+      // Volar a las coordenadas
+      this.map!.flyTo({
+        center: [registro.longitud, registro.latitud],
+        zoom: 16,
+        duration: 2000,
+      });
+
+      // Agregar marcador temporal
+      this.agregarMarcadorTemporal(registro.longitud, registro.latitud, registro.cliente);
+    } catch (error) {
+      console.error('❌ Error navegando a registro:', error);
+    }
+  }
+
+  /**
+   * Marcador temporal para resaltar en el mapa
+   */
+  private marcadorTemporal?: maplibregl.Marker;
+
+  /**
+   * Agregar marcador temporal pulsante en el mapa
+   */
+  private agregarMarcadorTemporal(lng: number, lat: number, nombre: string): void {
+    try {
+      // Remover marcador anterior si existe
+      if (this.marcadorTemporal) {
+        this.marcadorTemporal.remove();
+      }
+
+      // Crear elemento HTML para el marcador
+      const el = document.createElement('div');
+      el.className = 'marker-pulse';
+      el.style.width = '30px';
+      el.style.height = '30px';
+      el.style.backgroundColor = '#3b82f6';
+      el.style.borderRadius = '50%';
+      el.style.border = '3px solid white';
+      el.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.5)';
+
+      // Crear popup
+      const popup = new Popup({ offset: 25 }).setHTML(`
+        <div class="font-semibold">${nombre}</div>
+        <div class="text-xs text-gray-600">Click para más detalles</div>
+      `);
+
+      // Crear y agregar marcador
+      this.marcadorTemporal = new maplibregl.Marker(el)
+        .setLngLat([lng, lat])
+        .setPopup(popup)
+        .addTo(this.map!);
+
+      // Mostrar popup automáticamente
+      this.marcadorTemporal.togglePopup();
+
+      // Remover automáticamente después de 10 segundos
+      setTimeout(() => {
+        if (this.marcadorTemporal) {
+          this.marcadorTemporal.remove();
+          this.marcadorTemporal = undefined;
+        }
+      }, 10000);
+
+      console.log('✅ Marcador temporal agregado');
+    } catch (error) {
+      console.error('❌ Error agregando marcador temporal:', error);
+    }
+  }
+
+  /**
+   * Obtener valor IPC de un registro
+   */
+  private obtenerValorIPC(row: ReporteCartera, campo: string): number | string | null {
+    const valor = (row as unknown as Record<string, unknown>)[campo];
+
+    if (valor === undefined || valor === null) {
+      return null;
+    }
+
+    if (typeof valor === 'number') {
+      return valor;
+    }
+
+    if (typeof valor === 'string') {
+      return valor;
+    }
+
+    return null;
+  }
+
+  /**
+   * Obtener el rango correspondiente a un valor IPC
+   */
+  private getRangoParaValor(
+    valor: number | string | null,
+    config: IPCConfig,
+    rangos: readonly HHIConcentrationRange[],
+  ): HHIConcentrationRange {
+    // Para IPCs categóricos, buscar por categoría
+    if (config.tipo === 'categorico' && typeof valor === 'string' && config.categorias) {
+      const cat = config.categorias.find((c) => c.valor === valor);
+      if (cat) {
+        return {
+          from: 0,
+          to: 0,
+          color: cat.color,
+          colorHex: cat.colorHex,
+          label: cat.label,
+          riskLevel: 'bajo',
+        };
+      }
+    }
+
+    // Para IPCs numéricos
+    if (config.tipo === 'numerico' && typeof valor === 'number' && !isNaN(valor)) {
+      const rango = rangos.find((r) => valor > r.from && valor <= r.to);
+      if (rango) return rango;
+    }
+
+    // Default: primer rango o anómalo
+    return rangos[0] || HHI_CONCENTRATION_RANGES[0];
+  }
+
+  /**
+   * Toggle visibilidad del mapa (colapsar/expandir)
+   */
+  toggleMapa(): void {
+    this.mostrarMapa.update((v) => !v);
+
+    // Si se está mostrando el mapa y no ha sido inicializado, inicializarlo
+    if (this.mostrarMapa() && !this.mapaInicializado()) {
+      setTimeout(() => this.inicializarMapaSiNecesario(), 100);
+    }
+
+    // Si el mapa ya existe y se está mostrando, resize para ajustar canvas
+    if (this.map && this.mostrarMapa()) {
+      setTimeout(() => this.map?.resize(), 300);
+    }
+  }
+
+  /**
+   * Inicializar mapa solo cuando es necesario (lazy loading)
+   */
+  async inicializarMapaSiNecesario(): Promise<void> {
+    if (this.mapaInicializado() || !this.mostrarMapa()) return;
+
+    this.mapaInicializado.set(true);
+    await this.inicializarMapa();
+  }
+
+  // ============================================
+  // GRÁFICOS ADICIONALES PARA PANEL CENTRAL
+  // ============================================
+
+  /**
+   * Gráfico de barras horizontales con detalle de rangos
+   */
+  chartBarrasDetalle = computed<EChartsOption>(() => {
+    const stats = this.estadisticas();
+    const rangos = this.rangosDisponibles();
+
+    if (!stats || rangos.length === 0) return {};
+
+    const data = rangos.map((rango) => ({
+      name: rango.label,
+      value: stats.distribucion.get(rango.id) || 0,
+      itemStyle: { color: rango.colorHex },
+    }));
+
+    return {
+      title: {
+        text: 'Distribución por Rangos',
+        left: 'center',
+        textStyle: { fontSize: 14, fontWeight: 'bold' },
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+        formatter: '{b}: {c} registros',
+      },
+      grid: {
+        left: '25%',
+        right: '10%',
+        top: '15%',
+        bottom: '10%',
+      },
+      xAxis: {
+        type: 'value',
+        name: 'Cantidad',
+        nameTextStyle: { fontSize: 12 },
+      },
+      yAxis: {
+        type: 'category',
+        data: data.map((d) => d.name),
+        axisLabel: {
+          fontSize: 11,
+          interval: 0,
+        },
+      },
+      series: [
+        {
+          type: 'bar',
+          data: data.map((d) => ({
+            value: d.value,
+            itemStyle: d.itemStyle,
+          })),
+          label: {
+            show: true,
+            position: 'right',
+            formatter: '{c}',
+            fontSize: 11,
+          },
+          barMaxWidth: 30,
+        },
+      ],
+    };
+  });
+
+  /**
+   * Gráfico de línea de tendencia acumulada
+   */
+  chartLinea = computed<EChartsOption>(() => {
+    const stats = this.estadisticas();
+    const rangos = this.rangosDisponibles();
+
+    if (!stats || rangos.length === 0) return {};
+
+    // Calcular acumulados
+    let acumulado = 0;
+    const dataAcumulada = rangos.map((rango) => {
+      acumulado += stats.distribucion.get(rango.id) || 0;
+      return {
+        name: rango.label,
+        value: acumulado,
+      };
+    });
+
+    return {
+      title: {
+        text: 'Distribución Acumulada',
+        left: 'center',
+        textStyle: { fontSize: 14, fontWeight: 'bold' },
+      },
+      tooltip: {
+        trigger: 'axis',
+        formatter: '{b}: {c} registros acumulados',
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Descargar imagen',
+            name: `IPC_${this.indicadorSeleccionado()?.codigo || 'Grafico'}_Acumulado`,
+            pixelRatio: 2,
+          },
+        },
+        right: 20,
+        top: 10,
+      },
+      grid: {
+        left: '10%',
+        right: '10%',
+        top: '15%',
+        bottom: '15%',
+      },
+      xAxis: {
+        type: 'category',
+        data: dataAcumulada.map((d) => d.name),
+        axisLabel: {
+          fontSize: 10,
+          rotate: 45,
+          interval: 0,
+        },
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Acumulado',
+        nameTextStyle: { fontSize: 12 },
+      },
+      series: [
+        {
+          type: 'line',
+          data: dataAcumulada.map((d) => d.value),
+          smooth: true,
+          areaStyle: {
+            color: 'rgba(59, 130, 246, 0.2)',
+          },
+          lineStyle: {
+            color: '#3b82f6',
+            width: 3,
+          },
+          itemStyle: {
+            color: '#3b82f6',
+          },
+          label: {
+            show: true,
+            position: 'top',
+            fontSize: 10,
+          },
+        },
+      ],
+    };
+  });
+
+  /**
+   * Gráfico de área apilada para comparación
+   */
+  chartAreaComparativa = computed<EChartsOption>(() => {
+    const stats = this.estadisticas();
+    const rangos = this.rangosDisponibles();
+
+    if (!stats || rangos.length === 0) return {};
+
+    // Calcular porcentajes
+    const total = stats.total;
+    const data = rangos.map((rango) => {
+      const cantidad = stats.distribucion.get(rango.id) || 0;
+      return {
+        name: rango.label,
+        value: total > 0 ? Number(((cantidad / total) * 100).toFixed(2)) : 0,
+        color: rango.colorHex,
+      };
+    });
+
+    return {
+      title: {
+        text: 'Distribución Porcentual',
+        left: 'center',
+        textStyle: { fontSize: 14, fontWeight: 'bold' },
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: '{b}: {c}%',
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Descargar imagen',
+            name: `IPC_${this.indicadorSeleccionado()?.codigo || 'Grafico'}_Porcentual`,
+            pixelRatio: 2,
+          },
+        },
+        right: 20,
+        top: 10,
+      },
+      legend: {
+        bottom: 10,
+        type: 'scroll',
+        textStyle: { fontSize: 10 },
+      },
+      series: [
+        {
+          type: 'pie',
+          radius: ['30%', '60%'],
+          center: ['50%', '45%'],
+          data: data.map((d) => ({
+            name: d.name,
+            value: d.value,
+            itemStyle: { color: d.color },
+          })),
+          label: {
+            show: true,
+            formatter: '{d}%',
+            fontSize: 11,
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)',
+            },
+          },
+        },
+      ],
+    };
+  });
+
+  /**
+   * Gráfico de estadísticas resumidas (min, max, avg)
+   */
+  chartEstadisticasResumen = computed<EChartsOption>(() => {
+    const stats = this.estadisticas();
+
+    if (!stats) return {};
+
+    return {
+      title: {
+        text: 'Resumen Estadístico',
+        left: 'center',
+        textStyle: { fontSize: 14, fontWeight: 'bold' },
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' },
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          saveAsImage: {
+            show: true,
+            title: 'Descargar imagen',
+            name: `IPC_${this.indicadorSeleccionado()?.codigo || 'Grafico'}_Estadisticas`,
+            pixelRatio: 2,
+          },
+        },
+        right: 20,
+        top: 10,
+      },
+      grid: {
+        left: '15%',
+        right: '10%',
+        top: '15%',
+        bottom: '10%',
+      },
+      xAxis: {
+        type: 'category',
+        data: ['Mínimo', 'Promedio', 'Mediana', 'Máximo'],
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Valor',
+      },
+      series: [
+        {
+          type: 'bar',
+          data: [
+            { value: stats.minimo, itemStyle: { color: '#10b981' } },
+            { value: stats.media, itemStyle: { color: '#3b82f6' } },
+            { value: stats.mediana, itemStyle: { color: '#f59e0b' } },
+            { value: stats.maximo, itemStyle: { color: '#ef4444' } },
+          ],
+          label: {
+            show: true,
+            position: 'top',
+            formatter: '{c}',
+            fontSize: 11,
+          },
+        },
+      ],
+    };
+  });
 }

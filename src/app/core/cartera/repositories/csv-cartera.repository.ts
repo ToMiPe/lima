@@ -261,6 +261,9 @@ export class CsvCarteraRepository implements CarteraRepository {
         // IPC3: Mora proporcional (evita división por 0)
         const ipc3 = dias_credito > 0 ? dias_atraso / dias_credito : 0;
 
+        // IPC4: Saldo capital / Días atraso (evita división por 0)
+        const ipc4 = dias_atraso > 0 ? saldo_capital / dias_atraso : 0;
+
         // IPC5: Garantía vs Deuda (evita división por 0)
         const ipc5 = deuda_total > 0 ? (efectivo_caja + tot_garantia) / deuda_total : 0;
 
@@ -448,8 +451,8 @@ export class CsvCarteraRepository implements CarteraRepository {
           ipc2: ipc2,
           // IPC3: Mora proporcional (pre-calculado con protección /0)
           ipc3: ipc3,
-          // IPC4: Saldo capital
-          ipc4: saldo_capital,
+          // IPC4: Saldo capital / Días atraso (pre-calculado con protección /0)
+          ipc4: ipc4,
           // IPC7: Ingreso principal / Capacidad de pago (pre-calculado con protección /0)
           ipc7: ipc7,
           // IPC8: Suma de ingresos y garantía (pre-calculado)
@@ -467,7 +470,7 @@ export class CsvCarteraRepository implements CarteraRepository {
 
           // DIMENSIÓN VOLUNTAD
           ipc3_voluntad: undefined, // Mora proporcional - compartido - PENDIENTE FÓRMULA
-          ipc4_voluntad: undefined, // Tickets vencidos - compartido - PENDIENTE FÓRMULA
+          ipc4_voluntad: undefined, // Ratio Capital/Días Atraso - compartido (ahora calculado)
           // IPC6: Sin fórmula (valor fijo 0)
           ipc6: ipc6,
 

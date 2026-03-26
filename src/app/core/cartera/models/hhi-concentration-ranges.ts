@@ -5,13 +5,13 @@
  * visualización en reportes y análisis de cartera.
  *
  * Interpretación:
- * - < 0%: Valores anómalos (negro)
+ * - < 0%: Valores anómalos (gris oscuro)
  * - 0-20%: Concentración baja/saludable (verde)
  * - 20-40%: Concentración moderada (naranja)
  * - 40-60%: Concentración media-alta (amarillo)
  * - 60-80%: Concentración alta (celeste - requiere atención)
  * - 80-100%: Concentración muy alta (rojo - riesgo crítico)
- * - > 100%: Valores anómalos (negro)
+ * - > 100%: Valores anómalos (gris oscuro)
  */
 
 /**
@@ -45,8 +45,8 @@ export const HHI_CONCENTRATION_RANGES: readonly HHIConcentrationRange[] = [
   {
     from: -Infinity,
     to: 0,
-    color: 'text-black',
-    colorHex: '#000000',
+    color: 'text-gray-700',
+    colorHex: '#374151',
     label: '< 0%',
     riskLevel: 'anomalo',
   },
@@ -93,8 +93,8 @@ export const HHI_CONCENTRATION_RANGES: readonly HHIConcentrationRange[] = [
   {
     from: 100.001,
     to: Infinity,
-    color: 'text-black',
-    colorHex: '#000000',
+    color: 'text-gray-700',
+    colorHex: '#374151',
     label: '> 100%',
     riskLevel: 'anomalo',
   },

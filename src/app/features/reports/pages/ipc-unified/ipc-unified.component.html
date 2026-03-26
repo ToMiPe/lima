@@ -394,10 +394,50 @@
       </div>
     </div>
 
-    <!-- Panel central: Mapa -->
-    <div class="ipc-map-container flex-1 relative">
-      <!-- Loader del mapa -->
-      @if (isLoadingMap() || isLoadingData()) {
+    <!-- Panel central: Gráficos Detallados -->
+    <div class="ipc-charts-container flex-1 relative bg-gray-50 flex flex-col">
+      <!-- Header con tabs de gráficos -->
+      <div class="bg-white border-b border-gray-200 px-6 py-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <i class="pi pi-chart-line text-blue-600"></i>
+            Análisis Gráfico Detallado
+          </h3>
+
+          @if (indicadorSeleccionado(); as config) {
+            <div class="text-sm text-gray-600">{{ config.codigo }} - {{ config.titulo }}</div>
+          }
+        </div>
+
+        <!-- Tabs de tipos de gráficos -->
+        <p-tabs [(value)]="tabGraficosActiva" class="mt-2">
+          <p-tablist>
+            <p-tab value="distribucion">
+              <i class="pi pi-chart-pie mr-2"></i>
+              Distribución
+            </p-tab>
+            <p-tab value="barras">
+              <i class="pi pi-chart-bar mr-2"></i>
+              Barras Detalladas
+            </p-tab>
+            <p-tab value="tendencia">
+              <i class="pi pi-chart-line mr-2"></i>
+              Tendencia Acumulada
+            </p-tab>
+            <p-tab value="estadisticas">
+              <i class="pi pi-calculator mr-2"></i>
+              Estadísticas
+            </p-tab>
+            <p-tab value="datos">
+              <i class="pi pi-table mr-2"></i>
+              Tabla de Datos
+            </p-tab>
+          </p-tablist>
+        </p-tabs>
+      </div>
+
+      <!-- Loader de datos -->
+      @if (isLoadingData()) {
         <div class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
           <div class="text-center">
             <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" animationDuration="1s" />
@@ -406,217 +446,534 @@
         </div>
       }
 
-      <!-- Mapa -->
-      <div id="ipc-map" class="w-full h-full"></div>
-    </div>
-
-    <!-- Panel derecho: Estadísticas y Gráficas -->
-    <div
-      class="ipc-right-panel w-80 bg-white border-l border-gray-200 flex flex-col overflow-hidden relative z-10"
-    >
-      <!-- Estadísticas (Collapsible) -->
-      @if (estadisticas(); as stats) {
-        <div class="stats-section border-b border-gray-200">
-          <!-- Header clickeable -->
-          <div
-            class="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 cursor-pointer transition-colors"
-            role="button"
-            tabindex="0"
-            (click)="mostrarEstadisticas.set(!mostrarEstadisticas())"
-            (keydown.enter)="mostrarEstadisticas.set(!mostrarEstadisticas())"
-            (keydown.space)="mostrarEstadisticas.set(!mostrarEstadisticas())"
-          >
-            <div class="flex items-center gap-2">
-              <i class="pi pi-chart-bar text-blue-600"></i>
-              <h4 class="font-semibold text-xs text-gray-700 uppercase tracking-wide">
-                Estadísticas
+      <!-- Contenido de gráficos -->
+      <div class="flex-1 overflow-y-auto p-6">
+        <!-- Tab: Distribución -->
+        @if (tabGraficosActiva() === 'distribucion') {
+          <div class="grid grid-cols-2 gap-6">
+            <!-- Gráfico de torta principal -->
+            <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <h4 class="text-md font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="pi pi-chart-pie text-purple-600"></i>
+                Distribución Porcentual
               </h4>
-            </div>
-            <i
-              class="text-xs text-gray-500"
-              [ngClass]="mostrarEstadisticas() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
-            ></i>
-          </div>
+              <div
+                echarts
+                [options]="chartOptions()"
+                (chartClick)="onChartClick($event)"
+                class="h-[450px] cursor-pointer"
+              ></div>
 
-          <!-- Contenido expandible -->
-          @if (mostrarEstadisticas()) {
-            <div class="px-4 py-3 space-y-2">
-              <!-- Impacto de Filtros -->
-              @if (impactoFiltros(); as impacto) {
-                <div class="mb-4 pb-4 border-b border-gray-200">
-                  <h5
-                    class="text-xs font-bold text-purple-700 uppercase mb-3 flex items-center gap-2"
-                  >
-                    <i class="pi pi-filter"></i>
-                    Impacto de Filtros
-                  </h5>
-
-                  <div class="space-y-2">
-                    <!-- Total original -->
-                    <div class="flex justify-between items-center">
-                      <span class="text-xs text-gray-600">Total sin filtrar:</span>
-                      <span class="font-bold text-gray-900">{{
-                        formatearNumero(impacto.totalOriginal, 0)
-                      }}</span>
-                    </div>
-
-                    <!-- Con filtros BD -->
-                    @if (filtrosBaseDatosActivos() > 0) {
-                      <div class="flex justify-between items-center">
-                        <span class="text-xs text-gray-600">Con filtros BD:</span>
-                        <div class="text-right">
-                          <span class="font-bold text-purple-700">{{
-                            formatearNumero(impacto.conFiltrosBD, 0)
-                          }}</span>
-                          <div class="text-xs text-gray-500">
-                            ↓ {{ formatearNumero(impacto.reduccionBD, 0) }} ({{
-                              formatearNumero(impacto.porcentajeFiltrosBD, 1)
-                            }}%)
-                          </div>
-                        </div>
-                      </div>
-                    }
-
-                    <!-- Visible en mapa -->
-                    <div class="flex justify-between items-center">
-                      <span class="text-xs text-gray-600">Visible en mapa:</span>
-                      <div class="text-right">
-                        <span class="font-bold text-blue-700">{{
-                          formatearNumero(impacto.visibleEnMapa, 0)
-                        }}</span>
-                        <div class="text-xs text-gray-500">
-                          ({{ formatearNumero(impacto.porcentajeVisible, 1) }}% del total)
-                        </div>
-                      </div>
+              @if (estadisticas(); as stats) {
+                <div class="mt-4 grid grid-cols-2 gap-3">
+                  <div class="bg-blue-50 rounded p-3 text-center">
+                    <div class="text-xs text-gray-600">Total Registros</div>
+                    <div class="text-xl font-bold text-blue-700">
+                      {{ formatearNumero(stats.total, 0) }}
                     </div>
                   </div>
-
-                  <!-- Botones de acciones -->
-                  <div class="grid grid-cols-2 gap-2 mt-3">
-                    <button
-                      pButton
-                      type="button"
-                      label="Ver Distribución"
-                      icon="pi pi-chart-bar"
-                      (click)="mostrarDialogDistribucion.set(true)"
-                      severity="help"
-                      size="small"
-                    >
-                       
-                    </button>
-
-                    <button
-                      pButton
-                      type="button"
-                      label="Descargar Datos"
-                      icon="pi pi-download"
-                      (click)="descargarDatosFiltrados()"
-                      severity="success"
-                      size="small"
-                    >
-                       
-                    </button>
+                  <div class="bg-green-50 rounded p-3 text-center">
+                    <div class="text-xs text-gray-600">Promedio</div>
+                    <div class="text-xl font-bold text-green-700">
+                      {{ formatearNumero(stats.media, 2) }}
+                    </div>
                   </div>
                 </div>
               }
+            </div>
 
-              <!-- Total de registros -->
-              <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-600">Total:</span>
-                <span class="font-bold text-gray-900">{{ formatearNumero(stats.total, 0) }}</span>
+            <!-- Gráfico de área comparativa -->
+            <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <h4 class="text-md font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="pi pi-percentage text-indigo-600"></i>
+                Vista Porcentual
+              </h4>
+              <div echarts [options]="chartAreaComparativa()" class="h-[450px]"></div>
+            </div>
+          </div>
+        }
+
+        <!-- Tab: Barras Detalladas -->
+        @if (tabGraficosActiva() === 'barras') {
+          <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <h4 class="text-md font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <i class="pi pi-chart-bar text-blue-600"></i>
+              Distribución Detallada por Rangos
+            </h4>
+            <div
+              echarts
+              [options]="chartBarrasDetalle()"
+              (chartClick)="onChartClick($event)"
+              class="h-[600px] cursor-pointer"
+            ></div>
+
+            <!-- Tabla de detalle -->
+            @if (estadisticas(); as stats) {
+              <div class="mt-6 overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase">
+                        Rango
+                      </th>
+                      <th
+                        class="px-4 py-2 text-right text-xs font-semibold text-gray-700 uppercase"
+                      >
+                        Cantidad
+                      </th>
+                      <th
+                        class="px-4 py-2 text-right text-xs font-semibold text-gray-700 uppercase"
+                      >
+                        Porcentaje
+                      </th>
+                      <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase">
+                        Indicador
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    @for (rango of rangosDisponibles(); track rango.id) {
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2 text-sm">
+                          <div class="flex items-center gap-2">
+                            <div
+                              class="w-3 h-3 rounded"
+                              [style.background-color]="rango.colorHex"
+                            ></div>
+                            <span class="font-medium text-gray-900">{{ rango.label }}</span>
+                          </div>
+                        </td>
+                        <td class="px-4 py-2 text-sm text-right font-semibold text-gray-900">
+                          {{ formatearNumero(obtenerCantidadEnRango(rango.id), 0) }}
+                        </td>
+                        <td class="px-4 py-2 text-sm text-right text-gray-600">
+                          {{
+                            formatearNumero(
+                              stats.total > 0
+                                ? (obtenerCantidadEnRango(rango.id) / stats.total) * 100
+                                : 0,
+                              2
+                            )
+                          }}%
+                        </td>
+                        <td class="px-4 py-2">
+                          <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              class="h-2 rounded-full"
+                              [style.width.%]="
+                                stats.total > 0
+                                  ? (obtenerCantidadEnRango(rango.id) / stats.total) * 100
+                                  : 0
+                              "
+                              [style.background-color]="rango.colorHex"
+                            ></div>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Tab: Tendencia Acumulada -->
+        @if (tabGraficosActiva() === 'tendencia') {
+          <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <h4 class="text-md font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <i class="pi pi-chart-line text-green-600"></i>
+              Análisis de Tendencia Acumulada
+            </h4>
+            <div echarts [options]="chartLinea()" class="h-[600px]"></div>
+
+            <div class="mt-6 bg-blue-50 rounded-lg p-4">
+              <p class="text-sm text-gray-700">
+                <i class="pi pi-info-circle text-blue-600 mr-2"></i>
+                <strong>Interpretación:</strong> Este gráfico muestra la acumulación progresiva de
+                registros a través de los diferentes rangos. Una curva pronunciada indica
+                concentración en los rangos iniciales, mientras que una curva suave indica
+                distribución uniforme.
+              </p>
+            </div>
+          </div>
+        }
+
+        <!-- Tab: Estadísticas -->
+        @if (tabGraficosActiva() === 'estadisticas') {
+          <div class="space-y-6">
+            <!-- Gráfico de resumen estadístico -->
+            <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <h4 class="text-md font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="pi pi-calculator text-purple-600"></i>
+                Medidas Estadísticas Principales
+              </h4>
+              <div echarts [options]="chartEstadisticasResumen()" class="h-[450px]"></div>
+            </div>
+
+            <!-- Cards de estadísticas -->
+            @if (estadisticas(); as stats) {
+              <div class="grid grid-cols-4 gap-4">
+                <div
+                  class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-5 border border-green-200 shadow"
+                >
+                  <div class="text-xs font-semibold text-green-700 uppercase mb-2">Mínimo</div>
+                  <div class="text-2xl font-bold text-green-900">
+                    {{ formatearNumero(stats.minimo, 2) }}
+                  </div>
+                  <div class="text-xs text-green-600 mt-1">
+                    {{ indicadorSeleccionado()?.unidad }}
+                  </div>
+                </div>
+
+                <div
+                  class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border border-blue-200 shadow"
+                >
+                  <div class="text-xs font-semibold text-blue-700 uppercase mb-2">Promedio</div>
+                  <div class="text-2xl font-bold text-blue-900">
+                    {{ formatearNumero(stats.media, 2) }}
+                  </div>
+                  <div class="text-xs text-blue-600 mt-1">
+                    {{ indicadorSeleccionado()?.unidad }}
+                  </div>
+                </div>
+
+                <div
+                  class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-5 border border-orange-200 shadow"
+                >
+                  <div class="text-xs font-semibold text-orange-700 uppercase mb-2">Mediana</div>
+                  <div class="text-2xl font-bold text-orange-900">
+                    {{ formatearNumero(stats.mediana, 2) }}
+                  </div>
+                  <div class="text-xs text-orange-600 mt-1">
+                    {{ indicadorSeleccionado()?.unidad }}
+                  </div>
+                </div>
+
+                <div
+                  class="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-5 border border-red-200 shadow"
+                >
+                  <div class="text-xs font-semibold text-red-700 uppercase mb-2">Máximo</div>
+                  <div class="text-2xl font-bold text-red-900">
+                    {{ formatearNumero(stats.maximo, 2) }}
+                  </div>
+                  <div class="text-xs text-red-600 mt-1">
+                    {{ indicadorSeleccionado()?.unidad }}
+                  </div>
+                </div>
               </div>
 
-              @if (indicadorSeleccionado()?.tipo === 'numerico') {
-                <!-- Estadísticas numéricas -->
-                <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-600">Media:</span>
-                  <span class="font-semibold text-gray-900">{{
-                    formatearNumero(stats.media)
-                  }}</span>
-                </div>
-
-                <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-600">Mediana:</span>
-                  <span class="font-semibold text-gray-900">{{
-                    formatearNumero(stats.mediana)
-                  }}</span>
-                </div>
-
-                <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-600">Mínimo:</span>
-                  <span class="font-semibold text-green-600">{{
-                    formatearNumero(stats.minimo)
-                  }}</span>
-                </div>
-
-                <div class="flex justify-between items-center">
-                  <span class="text-sm text-gray-600">Máximo:</span>
-                  <span class="font-semibold text-red-600">{{
-                    formatearNumero(stats.maximo)
-                  }}</span>
-                </div>
-
-                <!-- Badge de nivel de riesgo promedio -->
-                <div class="mt-3 pt-3 border-t border-gray-200">
-                  <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-gray-600 uppercase"
-                      >Nivel Promedio:</span
-                    >
-                    <span
-                      class="px-2 py-1 rounded text-xs font-bold text-white"
-                      [ngClass]="obtenerClaseRiesgo(stats)"
-                    >
-                      {{ formatearNumero(stats.media) }} {{ indicadorSeleccionado()?.unidad }}
+              <!-- Métricas adicionales -->
+              <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                <h4 class="text-md font-bold text-gray-800 mb-4">Métricas Adicionales</h4>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="flex justify-between items-center border-b pb-2">
+                    <span class="text-sm font-medium text-gray-600">Total de Registros</span>
+                    <span class="text-lg font-bold text-gray-900">
+                      {{ formatearNumero(stats.total, 0) }}
+                    </span>
+                  </div>
+                  <div class="flex justify-between items-center border-b pb-2">
+                    <span class="text-sm font-medium text-gray-600">Rango (Max - Min)</span>
+                    <span class="text-lg font-bold text-gray-900">
+                      {{ formatearNumero(stats.maximo - stats.minimo, 2) }}
+                    </span>
+                  </div>
+                  <div class="flex justify-between items-center border-b pb-2">
+                    <span class="text-sm font-medium text-gray-600">Valor Medio</span>
+                    <span class="text-lg font-bold text-gray-900">
+                      {{ formatearNumero(stats.media, 2) }}
+                    </span>
+                  </div>
+                  <div class="flex justify-between items-center border-b pb-2">
+                    <span class="text-sm font-medium text-gray-600">Valor Mediano</span>
+                    <span class="text-lg font-bold text-gray-900">
+                      {{ formatearNumero(stats.mediana, 2) }}
                     </span>
                   </div>
                 </div>
-              }
-
-              <!-- Distribución Porcentual (Gráfica de Torta) -->
-              <div class="mt-4 pt-4 border-t border-gray-200">
-                <h5 class="text-xs font-semibold text-gray-600 uppercase mb-3">
-                  Distribución Porcentual
-                </h5>
-                <div echarts [options]="chartOptions()" class="h-48"></div>
               </div>
+            }
+          </div>
+        }
 
-              <!-- Distribución por rangos -->
-              <div class="mt-4 pt-4 border-t border-gray-200">
-                <h5 class="text-xs font-semibold text-gray-600 uppercase mb-2">
-                  Distribución por Rango:
-                </h5>
-                <div class="space-y-1.5">
-                  @for (rango of rangosDisponibles(); track rango.id) {
-                    <div class="flex items-center justify-between text-xs">
-                      <div class="flex items-center gap-2">
-                        <div
-                          class="w-3 h-3 rounded"
-                          [style.background-color]="rango.colorHex"
-                        ></div>
-                        <span class="text-gray-700">{{ rango.label }}</span>
-                      </div>
-                      <span class="font-semibold text-gray-900">
-                        {{ formatearNumero(obtenerCantidadEnRango(rango.id), 0) }}
-                      </span>
-                    </div>
-                  }
-                </div>
+        <!-- Tab: Tabla de Datos -->
+        @if (tabGraficosActiva() === 'datos') {
+          <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-md font-bold text-gray-800 flex items-center gap-2">
+                <i class="pi pi-table text-blue-600"></i>
+                Datos Detallados
+              </h4>
+
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  (click)="descargarDatosFiltrados()"
+                  class="px-3 py-2 bg-green-600 text-white hover:bg-green-700 rounded text-sm font-semibold transition-colors flex items-center gap-2"
+                >
+                  <i class="pi pi-download"></i>
+                  Exportar CSV
+                </button>
               </div>
             </div>
-          }
-        </div>
-      }
 
-      <!-- Gráficas -->
-      <div class="charts-section flex-1 overflow-y-auto p-4">
-        <div class="space-y-4">
-          <!-- Espacio para futuras gráficas -->
-          <div class="text-center py-8 text-gray-400">
-            <i class="pi pi-chart-line text-3xl mb-2"></i>
-            <p class="text-xs">Más gráficas disponibles próximamente</p>
+            <!-- Búsqueda -->
+            <div class="mb-4">
+              <p-iconfield iconPosition="left" class="w-full md:w-96">
+                <p-inputicon styleClass="pi pi-search" />
+                <input
+                  pInputText
+                  type="text"
+                  (input)="dataTable?.filterGlobal($any($event.target).value, 'contains')"
+                  placeholder="Buscar por cliente o código..."
+                  class="w-full"
+                />
+              </p-iconfield>
+            </div>
+
+            @if (datosTabla(); as datos) {
+              <p-table
+                #dt
+                [value]="datos"
+                [paginator]="true"
+                [rows]="50"
+                [rowsPerPageOptions]="[10, 25, 50, 100]"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+                [scrollable]="true"
+                scrollHeight="600px"
+                styleClass="p-datatable-sm p-datatable-striped"
+                [globalFilterFields]="['cliente', 'cod_cliente', 'documento']"
+              >
+                <ng-template #header>
+                  <tr>
+                    <th style="width: 40px" class="text-center">
+                      <i class="pi pi-map-marker text-blue-600" pTooltip="Ubicación en mapa"></i>
+                    </th>
+                    <th style="width: 180px" pSortableColumn="cliente">
+                      Cliente <p-sortIcon field="cliente" />
+                    </th>
+                    <th style="width: 120px" pSortableColumn="cod_cliente">
+                      Código Cliente <p-sortIcon field="cod_cliente" />
+                    </th>
+                    <th style="width: 120px" pSortableColumn="documento">
+                      Documento <p-sortIcon field="documento" />
+                    </th>
+                    <th style="width: 150px" pSortableColumn="agencia">
+                      Agencia <p-sortIcon field="agencia" />
+                    </th>
+                    <th style="width: 100px" pSortableColumn="genero">
+                      Género <p-sortIcon field="genero" />
+                    </th>
+                    <th style="width: 130px" pSortableColumn="producto">
+                      Producto <p-sortIcon field="producto" />
+                    </th>
+                    <th style="width: 120px" class="text-right">Saldo Capital</th>
+                    <th style="width: 100px" class="text-center">Días Atraso</th>
+                    <th style="width: 140px" class="text-right" pSortableColumn="valorIPC">
+                      {{ indicadorSeleccionado()?.codigo }} <p-sortIcon field="valorIPC" />
+                    </th>
+                    <th style="width: 130px" class="text-center">Clasificación</th>
+                  </tr>
+                </ng-template>
+                <ng-template #body let-row>
+                  <tr
+                    [class.bg-blue-100]="
+                      filaSeleccionada() &&
+                      filaSeleccionada()?.cliente === row.cliente &&
+                      filaSeleccionada()?.documento === row.documento
+                    "
+                    [class.border-l-4]="
+                      filaSeleccionada() &&
+                      filaSeleccionada()?.cliente === row.cliente &&
+                      filaSeleccionada()?.documento === row.documento
+                    "
+                    [class.border-blue-600]="
+                      filaSeleccionada() &&
+                      filaSeleccionada()?.cliente === row.cliente &&
+                      filaSeleccionada()?.documento === row.documento
+                    "
+                  >
+                    <td
+                      class="text-center"
+                      [class.cursor-pointer]="row.tieneUbicacion"
+                      [class.hover:bg-blue-100]="row.tieneUbicacion"
+                      (click)="row.tieneUbicacion ? navegarARegistro(row) : null"
+                      [pTooltip]="
+                        row.tieneUbicacion
+                          ? 'Click para ver ubicación en el mapa'
+                          : 'Sin coordenadas disponibles'
+                      "
+                      tooltipPosition="right"
+                    >
+                      @if (row.tieneUbicacion) {
+                        <i class="pi pi-map-marker text-blue-600 text-lg"></i>
+                      } @else {
+                        <i class="pi pi-minus text-gray-300"></i>
+                      }
+                    </td>
+                    <td>
+                      <div class="font-medium text-gray-900">{{ row.cliente }}</div>
+                    </td>
+                    <td>
+                      <span class="text-sm text-gray-600">{{ row.cod_cliente }}</span>
+                    </td>
+                    <td>
+                      <span class="text-sm text-gray-600">{{ row.documento }}</span>
+                    </td>
+                    <td>
+                      <span class="text-sm">{{ row.agencia }}</span>
+                    </td>
+                    <td>
+                      <span class="text-sm">{{ row.genero }}</span>
+                    </td>
+                    <td>
+                      <span class="text-sm">{{ row.producto }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="font-semibold text-gray-900">
+                        {{ formatearNumero(row.saldo_capital, 2) }}
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      <span
+                        class="px-2 py-1 rounded text-xs font-semibold"
+                        [ngClass]="
+                          row.dias_atraso === 0
+                            ? 'bg-green-100 text-green-800'
+                            : row.dias_atraso <= 30
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : row.dias_atraso <= 90
+                                ? 'bg-orange-100 text-orange-800'
+                                : 'bg-red-100 text-red-800'
+                        "
+                      >
+                        {{ row.dias_atraso || 0 }}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <span class="font-bold" [style.color]="row.colorHex">
+                        {{ formatearValorIPC(row.valorIPC) }}
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      <span
+                        class="px-2 py-1 rounded-full text-xs font-semibold"
+                        [style.background-color]="row.colorHex + '20'"
+                        [style.color]="row.colorHex"
+                      >
+                        {{ row.rangoLabel }}
+                      </span>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                  <tr>
+                    <td colspan="11" class="text-center py-8 text-gray-500">
+                      <i class="pi pi-inbox text-4xl mb-3"></i>
+                      <p>No hay datos disponibles con los filtros actuales</p>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            } @else {
+              <div class="flex items-center justify-center py-12">
+                <div class="text-center text-gray-400">
+                  <p-progressSpinner styleClass="w-12 h-12" />
+                  <p class="mt-3 text-sm">Cargando datos...</p>
+                </div>
+              </div>
+            }
           </div>
+        }
+
+        <!-- Mensaje cuando no hay indicador seleccionado -->
+        @if (!indicadorSeleccionado()) {
+          <div class="flex items-center justify-center h-full">
+            <div class="text-center text-gray-400">
+              <i class="pi pi-chart-line text-6xl mb-4"></i>
+              <p class="text-lg font-semibold">Seleccione un indicador</p>
+              <p class="text-sm mt-2">Elija un IPC del menú lateral para visualizar los gráficos</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Panel derecho: Mapa (Colapsable) -->
+    <div
+      [hidden]="!mostrarMapa()"
+      class="ipc-map-panel w-96 bg-white border-l border-gray-200 flex flex-col overflow-hidden relative transition-all duration-300"
+    >
+      <!-- Header del mapa con botón de colapsar -->
+      <div class="bg-gradient-to-r from-green-50 to-green-100 px-4 py-3 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-map text-green-700 text-lg"></i>
+            <h4 class="font-bold text-sm text-gray-800">Vista Geográfica</h4>
+          </div>
+          <button
+            (click)="toggleMapa()"
+            class="text-gray-600 hover:text-gray-900 transition-colors"
+            pTooltip="Ocultar mapa"
+            tooltipPosition="left"
+          >
+            <i class="pi pi-times text-lg"></i>
+          </button>
         </div>
       </div>
+
+      <!-- Contenedor del mapa -->
+      <div class="flex-1 relative">
+        <!-- Loader del mapa -->
+        @if (isLoadingMap() || isLoadingData()) {
+          <div
+            class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10"
+          >
+            <div class="text-center">
+              <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" animationDuration="1s" />
+              <p class="mt-3 text-sm text-gray-600">Cargando mapa...</p>
+            </div>
+          </div>
+        }
+
+        <!-- Mapa -->
+        <div id="ipc-map" class="w-full h-full"></div>
+      </div>
+
+      <!-- Mini estadísticas bajo el mapa -->
+      @if (estadisticas(); as stats) {
+        <div class="bg-gray-50 p-3 border-t border-gray-200">
+          <div class="text-xs text-gray-600 space-y-1">
+            <div class="flex justify-between">
+              <span>Puntos visibles:</span>
+              <span class="font-semibold text-gray-900">{{ formatearNumero(stats.total, 0) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Rango activo:</span>
+              <span class="font-semibold text-blue-700">{{ filtrosActivos().size }} filtros</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Botón para mostrar mapa cuando está colapsado -->
+    <div [hidden]="mostrarMapa()" class="fixed right-4 top-1/2 -translate-y-1/2 z-50">
+      <button
+        (click)="toggleMapa()"
+        class="bg-green-600 hover:bg-green-700 text-white p-3 rounded-l-lg shadow-lg transition-all hover:shadow-xl group"
+        pTooltip="Mostrar vista de mapa"
+        tooltipPosition="left"
+      >
+        <i class="pi pi-map text-lg"></i>
+        <div
+          class="text-xs font-semibold mt-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          Mapa
+        </div>
+      </button>
     </div>
   </div>
 
@@ -1074,6 +1431,143 @@
         (onClick)="mostrarDialogDistribucion.set(false)"
         severity="secondary"
       />
+    </ng-template>
+  </p-dialog>
+
+  <!-- Modal: Detalle de Rango (Drill-down) -->
+  <p-dialog
+    [(visible)]="mostrarDialogDetalleRango"
+    [style]="{ width: '90vw', height: '85vh' }"
+    [modal]="true"
+    [closable]="true"
+    [dismissableMask]="true"
+  >
+    <ng-template pTemplate="header">
+      @if (rangoSeleccionadoDetalle(); as rango) {
+        <div class="flex items-center gap-3">
+          <div
+            class="w-6 h-6 rounded border-2 border-white shadow-sm"
+            [style.background-color]="rango.colorHex"
+          ></div>
+          <h3 class="text-lg font-bold text-gray-800">Registros en rango: {{ rango.label }}</h3>
+          <span class="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+            {{ datosRangoSeleccionado().length }} registros
+          </span>
+        </div>
+      }
+    </ng-template>
+
+    <div class="h-full overflow-auto">
+      @if (datosRangoSeleccionado().length > 0) {
+        <p-table
+          [value]="datosRangoSeleccionado()"
+          [paginator]="true"
+          [rows]="25"
+          [rowsPerPageOptions]="[10, 25, 50, 100]"
+          [scrollable]="true"
+          scrollHeight="calc(85vh - 180px)"
+          styleClass="p-datatable-sm p-datatable-striped"
+          [tableStyle]="{ 'min-width': '50rem' }"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="cliente">Cliente <p-sortIcon field="cliente" /></th>
+              <th pSortableColumn="documento">Documento <p-sortIcon field="documento" /></th>
+              <th pSortableColumn="agencia">Agencia <p-sortIcon field="agencia" /></th>
+              <th pSortableColumn="genero">Género</th>
+              <th pSortableColumn="departamento">Departamento</th>
+              <th pSortableColumn="producto">Producto <p-sortIcon field="producto" /></th>
+              <th pSortableColumn="saldo_capital" class="text-right">
+                Saldo Capital <p-sortIcon field="saldo_capital" />
+              </th>
+              <th pSortableColumn="dias_atraso" class="text-right">
+                Días Atraso <p-sortIcon field="dias_atraso" />
+              </th>
+              <th pSortableColumn="valorIPC" class="text-right">
+                Valor <p-sortIcon field="valorIPC" />
+              </th>
+              <th>Clasificación</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row>
+            <tr class="hover:bg-blue-50 cursor-pointer" (click)="navegarARegistro(row)">
+              <td>{{ row.cliente }}</td>
+              <td>{{ row.documento }}</td>
+              <td>{{ row.agencia }}</td>
+              <td>{{ row.genero }}</td>
+              <td>{{ row.departamento }}</td>
+              <td>{{ row.producto }}</td>
+              <td class="text-right">{{ formatearNumero(row.saldo_capital, 2) }}</td>
+              <td class="text-right">
+                @if (row.dias_atraso === 0) {
+                  <span
+                    class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800"
+                  >
+                    Al día
+                  </span>
+                } @else if (row.dias_atraso <= 30) {
+                  <span
+                    class="px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800"
+                  >
+                    {{ row.dias_atraso }} días
+                  </span>
+                } @else if (row.dias_atraso <= 90) {
+                  <span
+                    class="px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800"
+                  >
+                    {{ row.dias_atraso }} días
+                  </span>
+                } @else {
+                  <span
+                    class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"
+                  >
+                    {{ row.dias_atraso }} días
+                  </span>
+                }
+              </td>
+              <td class="text-right">
+                @if (typeof row.valorIPC === 'number') {
+                  {{ formatearNumero(row.valorIPC, 2) }}
+                } @else {
+                  {{ row.valorIPC }}
+                }
+              </td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <div
+                    class="w-3 h-3 rounded-full border border-gray-300"
+                    [style.background-color]="row.colorHex"
+                  ></div>
+                  <span class="text-xs text-gray-600">{{ row.rangoLabel }}</span>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      } @else {
+        <div class="flex flex-col items-center justify-center p-8 text-gray-500">
+          <i class="pi pi-inbox text-5xl mb-4"></i>
+          <p>No hay registros en este rango</p>
+        </div>
+      }
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-between items-center">
+        <p-button
+          label="Ver en Mapa"
+          icon="pi pi-map-marker"
+          severity="info"
+          (onClick)="mostrarMapa.set(true)"
+          [text]="true"
+        />
+        <p-button
+          label="Cerrar"
+          icon="pi pi-times"
+          (onClick)="mostrarDialogDetalleRango.set(false)"
+          severity="secondary"
+        />
+      </div>
     </ng-template>
   </p-dialog>
 </div>

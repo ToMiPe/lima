@@ -29,6 +29,9 @@ export {
   getHHILabel,
   getHHIRiskLevel,
 } from './models/hhi-concentration-ranges';
+export type { MoraRange } from './models/mora-ranges';
+export { RANGOS_MORA_MONTO, RANGOS_MORA_MONTO_AS_HHI, getMoraRange } from './models/mora-ranges';
+export { RANGOS_VOLUNTAD_PAGO } from './models/voluntad-ranges';
 
 // Repositories
 export type {

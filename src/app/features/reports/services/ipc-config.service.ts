@@ -5,6 +5,7 @@ import type {
   IPCDimension,
   IPCCategoria,
 } from '../models/ipc-config.interface';
+import { RANGOS_MORA_MONTO_AS_HHI, RANGOS_VOLUNTAD_PAGO } from '@core/cartera';
 
 /**
  * Servicio que centraliza la configuración de los 24 Indicadores de Control Interno (IPC)
@@ -104,8 +105,9 @@ export class IPCConfigService {
       dimensiones: ['ingreso'],
       tipo: 'numerico',
       campo: 'ipc1_1',
-      unidad: 'monto',
+      unidad: 'S/',
       colorPrimario: '#3B82F6',
+      rangosCustom: RANGOS_MORA_MONTO_AS_HHI,
       interpretacion: {
         bajo: 'Mora mínima - Bajo riesgo',
         moderado: 'Atraso inicial - Requiere monitoreo',
@@ -120,8 +122,9 @@ export class IPCConfigService {
       dimensiones: ['ingreso'],
       tipo: 'numerico',
       campo: 'ipc1_2',
-      unidad: 'monto',
+      unidad: 'S/',
       colorPrimario: '#10B981',
+      rangosCustom: RANGOS_MORA_MONTO_AS_HHI,
       interpretacion: {
         bajo: 'Mora controlada - Seguimiento normal',
         moderado: 'Atraso moderado - Requiere gestión',
@@ -136,8 +139,9 @@ export class IPCConfigService {
       dimensiones: ['ingreso'],
       tipo: 'numerico',
       campo: 'ipc1_3',
-      unidad: 'monto',
+      unidad: 'S/',
       colorPrimario: '#F59E0B',
+      rangosCustom: RANGOS_MORA_MONTO_AS_HHI,
       interpretacion: {
         bajo: 'Mora temprana - Recuperable',
         moderado: 'Cartera en riesgo - Acción requerida',
@@ -152,8 +156,9 @@ export class IPCConfigService {
       dimensiones: ['ingreso'],
       tipo: 'numerico',
       campo: 'ipc1_4',
-      unidad: 'monto',
+      unidad: 'S/',
       colorPrimario: '#EF4444',
+      rangosCustom: RANGOS_MORA_MONTO_AS_HHI,
       interpretacion: {
         bajo: 'Deterioro controlado',
         moderado: 'Cartera deteriorada - Gestión intensiva',
@@ -168,8 +173,9 @@ export class IPCConfigService {
       dimensiones: ['ingreso'],
       tipo: 'numerico',
       campo: 'ipc1_5',
-      unidad: 'monto',
+      unidad: 'S/',
       colorPrimario: '#DC2626',
+      rangosCustom: RANGOS_MORA_MONTO_AS_HHI,
       interpretacion: {
         bajo: 'Mora grave - Baja recuperabilidad',
         moderado: 'Cartera castigable - Pérdida probable',
@@ -184,8 +190,9 @@ export class IPCConfigService {
       dimensiones: ['ingreso'],
       tipo: 'numerico',
       campo: 'ipc1_6',
-      unidad: 'monto',
+      unidad: 'S/',
       colorPrimario: '#991B1B',
+      rangosCustom: RANGOS_MORA_MONTO_AS_HHI,
       interpretacion: {
         bajo: 'Mora irrecuperable',
         moderado: 'Cartera perdida - Provisión 100%',
@@ -202,8 +209,9 @@ export class IPCConfigService {
       dimensiones: ['ingreso'],
       tipo: 'numerico',
       campo: 'ipc2',
-      unidad: 'monto',
+      unidad: 'S/',
       colorPrimario: '#8B5CF6',
+      rangosCustom: RANGOS_MORA_MONTO_AS_HHI,
       interpretacion: {
         bajo: 'Mora crítica baja - Recuperable',
         moderado: 'Mora significativa - Requiere gestión activa',
@@ -222,6 +230,7 @@ export class IPCConfigService {
       campo: 'ipc3',
       unidad: '%',
       colorPrimario: '#10B981',
+      rangosCustom: RANGOS_VOLUNTAD_PAGO,
       interpretacion: {
         bajo: 'Mora baja respecto al plazo - Deterioro controlado',
         moderado: 'Mora moderada - Disciplina financiera débil',
@@ -229,22 +238,22 @@ export class IPCConfigService {
       },
     },
 
-    // IPC4 - Tickets vencidos
+    // IPC4 - Ratio Capital/Días Atraso
     {
       id: 'ipc4',
       codigo: 'IPC4',
-      titulo: 'Tickets vencidos',
+      titulo: 'Ratio Capital/Días Atraso',
       descripcion:
-        'Capital en mora / Tickets. Número de pagos incumplidos, detecta falta de disciplina.',
+        'Saldo capital / Días atraso. Mide la magnitud del saldo pendiente por día de mora.',
       dimensiones: ['ingreso', 'voluntad'],
       tipo: 'numerico',
       campo: 'ipc4',
-      unidad: 'pagos',
+      unidad: 'S//día',
       colorPrimario: '#F59E0B',
       interpretacion: {
-        bajo: 'Pocos pagos vencidos - Disciplina aceptable',
-        moderado: 'Varios tickets impagos - Alerta temprana',
-        alto: 'Múltiples pagos vencidos - Alto riesgo operativo',
+        bajo: 'Bajo saldo por día - Capacidad de recuperación',
+        moderado: 'Ratio moderado - Seguimiento necesario',
+        alto: 'Alto saldo por día - Dificultad de recuperación',
       },
     },
 
@@ -278,6 +287,7 @@ export class IPCConfigService {
       campo: 'ipc6',
       unidad: 'ratio',
       colorPrimario: '#EC4899',
+      rangosCustom: RANGOS_VOLUNTAD_PAGO,
       interpretacion: {
         bajo: 'Historial limpio - Baja probabilidad de deterioro',
         moderado: 'Mora recurrente - Fragilidad estructural',
@@ -356,6 +366,7 @@ export class IPCConfigService {
       campo: 'ipc10',
       unidad: '%',
       colorPrimario: '#F97316',
+      rangosCustom: RANGOS_VOLUNTAD_PAGO,
       interpretacion: {
         bajo: 'Pocos créditos externos - Fidelidad alta',
         moderado: 'Múltiples entidades - Riesgo de contagio',
@@ -395,6 +406,7 @@ export class IPCConfigService {
       campo: 'ipc12',
       unidad: '%',
       colorPrimario: '#DC2626',
+      rangosCustom: RANGOS_VOLUNTAD_PAGO,
       interpretacion: {
         bajo: 'Sin rechazos - Comportamiento confiable',
         moderado: 'Rechazos ocasionales - Alerta documental',
@@ -623,7 +635,7 @@ export class IPCConfigService {
       dimensiones: ['garantia'],
       tipo: 'numerico',
       campo: 'ipc24',
-      unidad: 'monto',
+      unidad: 'S/',
       colorPrimario: '#EC4899',
       interpretacion: {
         bajo: 'Ahorro estable o en crecimiento',

@@ -124,7 +124,7 @@ export interface ReporteCartera {
   ipc1_6?: number; // Mora 120+ días
   ipc2?: number;   // Suma de mora 31+ días (mora_31_60 + mora_61_90 + mora_91_120 + mora_120_mas)
   ipc3?: number;   // Mora proporcional (dias_atraso / dias_credito)
-  ipc4?: number;   // Saldo capital
+  ipc4?: number;   // Ratio Capital/Días Atraso (saldo_capital / dias_atraso)
   ipc7?: number;   // Ingreso principal / Capacidad de pago
   ipc8?: number;   // Suma de ingresos y garantía (ingreso_principal + ingreso_fijo_anterior + tot_garantia)
   ipc9?: number;   // Monto colocado / Total pasivos (pasivo_total_pasivo + pasivo_total_riesgos)
@@ -135,7 +135,7 @@ export interface ReporteCartera {
 
   // Dimensión VOLUNTAD (5 IPCs)
   ipc3_voluntad?: number; // Mora proporcional (%) - compartido
-  ipc4_voluntad?: number; // Tickets vencidos - compartido
+  ipc4_voluntad?: number; // Ratio Capital/Días Atraso - compartido
   ipc6?: number;  // Sin fórmula (valor fijo: 0)
 
   // Dimensión GARANTÍA PSICOLÓGICA (7 IPCs)
