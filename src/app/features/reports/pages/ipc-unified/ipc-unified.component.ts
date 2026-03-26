@@ -51,6 +51,7 @@ interface TablaDataRow {
   agencia: string;
   genero: string;
   producto: string;
+  plazo: number;
   saldo_capital: number;
   dias_atraso: number;
   valorIPC: number | string | null;
@@ -1548,6 +1549,7 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
           agencia: row.agencia || 'N/A',
           genero: row.genero || 'N/A',
           producto: row.producto || 'N/A',
+          plazo: row.plazo || 0,
           saldo_capital: row.saldo_capital || 0,
           dias_atraso: row.dias_atraso || 0,
           valorIPC: valorIPC,

@@ -769,6 +769,9 @@
                     <th style="width: 130px" pSortableColumn="producto">
                       Producto <p-sortIcon field="producto" />
                     </th>
+                    <th style="width: 90px" pSortableColumn="plazo" class="text-center">
+                      Plazo <p-sortIcon field="plazo" />
+                    </th>
                     <th style="width: 120px" class="text-right">Saldo Capital</th>
                     <th style="width: 100px" class="text-center">Días Atraso</th>
                     <th style="width: 140px" class="text-right" pSortableColumn="valorIPC">
@@ -831,6 +834,9 @@
                     <td>
                       <span class="text-sm">{{ row.producto }}</span>
                     </td>
+                    <td class="text-center">
+                      <span class="text-sm font-medium">{{ formatearNumero(row.plazo, 0) }}</span>
+                    </td>
                     <td class="text-right">
                       <span class="font-semibold text-gray-900">
                         {{ formatearNumero(row.saldo_capital, 2) }}
@@ -878,7 +884,7 @@
                 </ng-template>
                 <ng-template #emptymessage>
                   <tr>
-                    <td colspan="11" class="text-center py-8 text-gray-500">
+                    <td colspan="12" class="text-center py-8 text-gray-500">
                       <i class="pi pi-inbox text-4xl mb-3"></i>
                       <p>No hay datos disponibles con los filtros actuales</p>
                     </td>
