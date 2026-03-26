@@ -190,12 +190,19 @@ export class CsvCarteraRepository implements CarteraRepository {
     const lines = csvText.split('\n');
     const records: CarteraRecord[] = [];
 
-    // Función auxiliar para parsear números en formato latinoamericano
+    // Función auxiliar para parsear números en formato PE: coma miles, punto decimal.
     const parseLatinNumber = (value: string): number => {
       if (!value || value.trim() === '') return 0;
-      // Remover comas como separadores de miles y convertir punto como decimal
+      // Ejemplo: "1,540.25" => "1540.25"
       const cleaned = value.replace(/,/g, '');
       return parseFloat(cleaned) || 0;
+    };
+
+    const parseLatinInteger = (value: string): number => {
+      if (!value || value.trim() === '') return 0;
+      const cleaned = value.replace(/,/g, '').trim();
+      const parsed = parseInt(cleaned, 10);
+      return Number.isNaN(parsed) ? 0 : parsed;
     };
 
     console.log(' Parseando CSV - Total líneas:', lines.length);
@@ -225,15 +232,15 @@ export class CsvCarteraRepository implements CarteraRepository {
         // Parse de valores numéricos base (una sola vez)
         const deuda_total = parseLatinNumber(values[39]);
         const saldo_capital = parseLatinNumber(values[40]);
-        const dias_atraso = parseInt(values[51]) || 0;
-        const mora_1_8 = parseFloat(values[53]?.replace(',', '.')) || 0;
-        const mora_9_30 = parseFloat(values[54]?.replace(',', '.')) || 0;
-        const mora_31_60 = parseFloat(values[55]?.replace(',', '.')) || 0;
-        const mora_61_90 = parseFloat(values[56]?.replace(',', '.')) || 0;
-        const mora_91_120 = parseFloat(values[57]?.replace(',', '.')) || 0;
-        const mora_120_mas = parseFloat(values[58]?.replace(',', '.')) || 0;
-        const dias_credito = parseInt(values[105]) || 0;
-        const tot_garantia = parseLatinNumber(values[106]);
+        const dias_atraso = parseLatinInteger(values[51]);
+        const mora_1_8 = parseLatinNumber(values[53]);
+        const mora_9_30 = parseLatinNumber(values[54]);
+        const mora_31_60 = parseLatinNumber(values[55]);
+        const mora_61_90 = parseLatinNumber(values[56]);
+        const mora_91_120 = parseLatinNumber(values[57]);
+        const mora_120_mas = parseLatinNumber(values[58]);
+        const dias_credito = parseLatinInteger(values[105]);
+        const total_ahorros = parseLatinNumber(values[106]);
         const ingreso_principal = parseLatinNumber(values[109]);
         const ingreso_fijo_anterior = parseLatinNumber(values[110]);
         const pasivo_total_pasivo = parseLatinNumber(values[112]);
@@ -241,18 +248,18 @@ export class CsvCarteraRepository implements CarteraRepository {
         const efectivo_caja = parseLatinNumber(values[116]);
         const activo_total = parseLatinNumber(values[117]);
         const activo_anterior_balance = parseLatinNumber(values[118]);
-        const años_experiencia_actividad = parseInt(values[122]) || 0;
+        const años_experiencia_actividad = parseLatinInteger(values[122]);
         const ahorro_programado = parseLatinNumber(values[123]);
         const ahorro_voluntario = parseLatinNumber(values[124]);
         const total_ahorro = parseLatinNumber(values[125]);
         const saldo_ahorro_mes_anterior = parseLatinNumber(values[126]);
-        const capacidad_pago = parseFloat(values[88]?.replace(',', '.')) || 0;
+        const capacidad_pago = parseLatinNumber(values[88]);
         const monto_colocado = parseLatinNumber(values[33]);
-        const ciclo_banca = parseInt(values[6]) || 1; // Evita división por 0
-        const ciclo_cliente = parseInt(values[11]) || 0;
-        const provision = parseFloat(values[65]?.replace(',', '.')) || 0;
-        const int_devengado = parseFloat(values[59]?.replace(',', '.')) || 0;
-        const interes_percibido = parseFloat(values[62]?.replace(',', '.')) || 0;
+        const ciclo_banca = parseLatinInteger(values[6]) || 1; // Evita división por 0
+        const ciclo_cliente = parseLatinInteger(values[11]);
+        const provision = parseLatinNumber(values[65]);
+        const int_devengado = parseLatinNumber(values[59]);
+        const interes_percibido = parseLatinNumber(values[62]);
 
         // Cálculo de IPCs usando valores previamente parseados
         // IPC2: Suma de mora 31+ días
@@ -261,11 +268,11 @@ export class CsvCarteraRepository implements CarteraRepository {
         // IPC3: Mora proporcional (evita división por 0)
         const ipc3 = dias_credito > 0 ? dias_atraso / dias_credito : 0;
 
-        // IPC4: Saldo capital / Días atraso (evita división por 0)
-        const ipc4 = dias_atraso > 0 ? saldo_capital / dias_atraso : 0;
+        // IPC4: Capital en mora (saldo_capital)
+        const ipc4 = saldo_capital;
 
         // IPC5: Garantía vs Deuda (evita división por 0)
-        const ipc5 = deuda_total > 0 ? (efectivo_caja + tot_garantia) / deuda_total : 0;
+        const ipc5 = deuda_total > 0 ? (efectivo_caja + total_ahorros) / deuda_total : 0;
 
         // IPC6: Sin fórmula (valor fijo)
         const ipc6 = 0;
@@ -274,7 +281,7 @@ export class CsvCarteraRepository implements CarteraRepository {
         const ipc7 = capacidad_pago > 0 ? ingreso_principal / capacidad_pago : 0;
 
         // IPC8: Suma de ingresos y garantía
-        const ipc8 = ingreso_principal + ingreso_fijo_anterior + tot_garantia;
+        const ipc8 = ingreso_principal + ingreso_fijo_anterior + total_ahorros;
 
         // IPC9: Monto colocado / Total pasivos (evita división por 0)
         const ipc9 = (pasivo_total_pasivo + pasivo_total_riesgos) > 0
@@ -290,8 +297,8 @@ export class CsvCarteraRepository implements CarteraRepository {
         // IPC12: Sin fórmula
         const ipc12 = undefined;
 
-        // IPC13: (efectivo_caja + tot_garantia) / activo_total (evita división por 0)
-        const ipc13 = activo_total > 0 ? (efectivo_caja + tot_garantia) / activo_total : 0;
+        // IPC13: (efectivo_caja + total_ahorros) / activo_total (evita división por 0)
+        const ipc13 = activo_total > 0 ? (efectivo_caja + total_ahorros) / activo_total : 0;
 
         // IPC14: ingreso_fijo_anterior / ingreso_principal (evita división por 0)
         const ipc14 = ingreso_principal > 0 ? ingreso_fijo_anterior / ingreso_principal : 0;
@@ -309,8 +316,8 @@ export class CsvCarteraRepository implements CarteraRepository {
         const suma_moras = mora_1_8 + mora_9_30 + mora_31_60 + mora_61_90 + mora_91_120 + mora_120_mas;
         const ipc18 = suma_moras > 0 ? provision / suma_moras : 0;
 
-        // IPC19: tot_garantia / saldo_capital (evita división por 0)
-        const ipc19 = saldo_capital > 0 ? tot_garantia / saldo_capital : 0;
+        // IPC19: total_ahorros / saldo_capital (evita división por 0)
+        const ipc19 = saldo_capital > 0 ? total_ahorros / saldo_capital : 0;
 
         // IPC20: deuda_total / capacidad_pago (evita división por 0)
         const ipc20 = capacidad_pago > 0 ? deuda_total / capacidad_pago : 0;
@@ -357,7 +364,7 @@ export class CsvCarteraRepository implements CarteraRepository {
           tea: parseLatinNumber(values[26]),
           tasa_fon_cob: parseLatinNumber(values[27]),
           tcea: parseLatinNumber(values[28]),
-          plazo: parseInt(values[29]) || 0,
+          plazo: parseLatinInteger(values[29]),
           fecha_desembolso: values[30] || '',
           fecha_cuota_1: values[31] || '',
           fecha_fin_cronograma: values[32] || '',
@@ -375,12 +382,12 @@ export class CsvCarteraRepository implements CarteraRepository {
           saldo_igv_fondo_cob: parseLatinNumber(values[44]),
           saldo_ajuste_mig: parseLatinNumber(values[45]),
           saldo_total: parseLatinNumber(values[46]),
-          capital_largo_plazo: parseFloat(values[47]?.replace(',', '.')) || 0,
+          capital_largo_plazo: parseLatinNumber(values[47]),
           negociacion: values[48] || '',
           tipo_solicitud: values[49] || '',
           fecha_ultimo_vencimiento: values[50] || '',
           dias_atraso: dias_atraso,
-          capital_mora: parseFloat(values[52]?.replace(',', '.')) || 0,
+          capital_mora: parseLatinNumber(values[52]),
           mora_1_8: mora_1_8,
           mora_9_30: mora_9_30,
           mora_31_60: mora_31_60,
@@ -388,8 +395,8 @@ export class CsvCarteraRepository implements CarteraRepository {
           mora_91_120: mora_91_120,
           mora_120_mas: mora_120_mas,
           int_devengado: int_devengado,
-          int_dev_no_pagado: parseFloat(values[60]?.replace(',', '.')) || 0,
-          saldo_int_dev: parseFloat(values[61]?.replace(',', '.')) || 0,
+          int_dev_no_pagado: parseLatinNumber(values[60]),
+          saldo_int_dev: parseLatinNumber(values[61]),
           interes_percibido: interes_percibido,
           situacion: values[63] || '',
           clasificacion: values[64] || '',
@@ -410,7 +417,7 @@ export class CsvCarteraRepository implements CarteraRepository {
           zona_geografica: values[79] || '',
           celular: values[80] || '',
           fecha_nacimiento: values[81] || '',
-          edad: parseInt(values[82]) || 0,
+          edad: parseLatinInteger(values[82]),
           genero: values[83] || '',
           sector_economico: values[84] || '',
           actividad_economica: values[85] || '',
@@ -424,7 +431,7 @@ export class CsvCarteraRepository implements CarteraRepository {
           latitud: parseFloat(values[97]) || 0,
           longitud: parseFloat(values[98]) || 0,
           dias_credito: dias_credito,
-          tot_garantia: tot_garantia,
+          total_ahorros: total_ahorros,
           efectivo_caja: efectivo_caja,
           ingreso_principal: ingreso_principal,
           ingreso_fijo_anterior: ingreso_fijo_anterior,
@@ -465,7 +472,7 @@ export class CsvCarteraRepository implements CarteraRepository {
           ipc11: ipc11,
           // IPC12: Sin fórmula
           ipc12: ipc12,
-          // IPC13: (efectivo_caja + tot_garantia) / activo_total (pre-calculado con protección /0)
+          // IPC13: (efectivo_caja + total_ahorros) / activo_total (pre-calculado con protección /0)
           ipc13: ipc13,
 
           // DIMENSIÓN VOLUNTAD
@@ -487,7 +494,7 @@ export class CsvCarteraRepository implements CarteraRepository {
           ipc17: ipc17,
           // IPC18: provision / suma_moras (pre-calculado con protección /0)
           ipc18: ipc18,
-          // IPC19: tot_garantia / saldo_capital (pre-calculado con protección /0)
+          // IPC19: total_ahorros / saldo_capital (pre-calculado con protección /0)
           ipc19: ipc19,
           // IPC20: deuda_total / capacidad_pago (pre-calculado con protección /0)
           ipc20: ipc20,

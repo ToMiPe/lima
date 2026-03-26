@@ -99,7 +99,7 @@ export interface ReporteCartera {
   latitud: number;
   longitud: number;
   dias_credito: number;
-  tot_garantia: number;
+  total_ahorros: number;
   efectivo_caja: number;
   ingreso_principal: number;
   ingreso_fijo_anterior: number;
@@ -124,18 +124,18 @@ export interface ReporteCartera {
   ipc1_6?: number; // Mora 120+ días
   ipc2?: number;   // Suma de mora 31+ días (mora_31_60 + mora_61_90 + mora_91_120 + mora_120_mas)
   ipc3?: number;   // Mora proporcional (dias_atraso / dias_credito)
-  ipc4?: number;   // Ratio Capital/Días Atraso (saldo_capital / dias_atraso)
+  ipc4?: number;   // Capital en mora (saldo_capital)
   ipc7?: number;   // Ingreso principal / Capacidad de pago
-  ipc8?: number;   // Suma de ingresos y garantía (ingreso_principal + ingreso_fijo_anterior + tot_garantia)
+  ipc8?: number;   // Suma de ingresos y ahorros (ingreso_principal + ingreso_fijo_anterior + total_ahorros)
   ipc9?: number;   // Monto colocado / Total pasivos (pasivo_total_pasivo + pasivo_total_riesgos)
   ipc10?: number;  // Sin fórmula
   ipc11?: number;  // (ciclo_cliente-1) / ciclo_banca
   ipc12?: number;  // Sin fórmula
-  ipc13?: number;  // (efectivo_caja + tot_garantia) / activo_total
+  ipc13?: number;  // (efectivo_caja + total_ahorros) / activo_total
 
   // Dimensión VOLUNTAD (5 IPCs)
   ipc3_voluntad?: number; // Mora proporcional (%) - compartido
-  ipc4_voluntad?: number; // Ratio Capital/Días Atraso - compartido
+  ipc4_voluntad?: number; // Capital en mora - compartido
   ipc6?: number;  // Sin fórmula (valor fijo: 0)
 
   // Dimensión GARANTÍA PSICOLÓGICA (7 IPCs)
@@ -145,7 +145,7 @@ export interface ReporteCartera {
   ipc16?: number;  // activo_anterior_balance / activo_total
   ipc17?: number;  // provision / saldo_capital
   ipc18?: number;  // provision / suma_moras
-  ipc19?: number;  // tot_garantia / saldo_capital
+  ipc19?: number;  // total_ahorros / saldo_capital
   ipc20?: number;  // deuda_total / capacidad_pago
   ipc21?: number;  // ahorro_programado / ahorro_voluntario
   ipc22?: number;  // Sin fórmula

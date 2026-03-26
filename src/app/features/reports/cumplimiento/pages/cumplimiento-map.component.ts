@@ -448,7 +448,7 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
           ${punto.porcentajeCumplimiento.toFixed(1)}%
         </div>
         <p class="clasificacion">${punto.clasificacion}</p>
-        <p class="monto">Monto: S/ ${punto.montoColocado.toLocaleString()}</p>
+        <p class="monto">Monto: S/ ${punto.montoColocado.toLocaleString('es-PE')}</p>
         <p class="agencia">${punto.nombreAgencia}</p>
       </div>
     `;

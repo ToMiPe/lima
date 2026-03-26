@@ -238,31 +238,31 @@ export class IPCConfigService {
       },
     },
 
-    // IPC4 - Ratio Capital/Días Atraso
+    // IPC4 - Capital en mora
     {
       id: 'ipc4',
       codigo: 'IPC4',
-      titulo: 'Ratio Capital/Días Atraso',
+      titulo: 'Capital en mora',
       descripcion:
-        'Saldo capital / Días atraso. Mide la magnitud del saldo pendiente por día de mora.',
+        'Saldo de capital pendiente. Mide la magnitud absoluta del riesgo crediticio.',
       dimensiones: ['ingreso', 'voluntad'],
       tipo: 'numerico',
       campo: 'ipc4',
-      unidad: 'S//día',
+      unidad: 'S/',
       colorPrimario: '#F59E0B',
       interpretacion: {
-        bajo: 'Bajo saldo por día - Capacidad de recuperación',
-        moderado: 'Ratio moderado - Seguimiento necesario',
-        alto: 'Alto saldo por día - Dificultad de recuperación',
+        bajo: 'Saldo bajo - Riesgo controlado',
+        moderado: 'Saldo moderado - Seguimiento necesario',
+        alto: 'Saldo alto - Exposición significativa',
       },
     },
 
-    // IPC5 - Deuda vs Garantía
+    // IPC5 - Deuda vs Ahorros
     {
       id: 'ipc5',
       codigo: 'IPC5',
-      titulo: 'Deuda vs Garantía',
-      descripcion: 'Total deuda / Total garantía. Evalúa cobertura del crédito mediante garantías.',
+      titulo: 'Deuda vs Ahorros',
+      descripcion: 'Total deuda / Total ahorros. Evalúa cobertura del crédito mediante ahorros.',
       dimensiones: ['ingreso', 'garantia'],
       tipo: 'numerico',
       campo: 'ipc5',
@@ -532,21 +532,21 @@ export class IPCConfigService {
       invertido: true, // Mayor ahorro = mejor
     },
 
-    // IPC19 - Cobertura de garantía
+    // IPC19 - Cobertura de ahorros
     {
       id: 'ipc19',
       codigo: 'IPC19',
-      titulo: 'Cobertura de garantía',
-      descripcion: 'Total garantía / Saldo capital. Mide el respaldo patrimonial del crédito.',
+      titulo: 'Cobertura de ahorros',
+      descripcion: 'Total ahorros / Saldo capital. Mide el respaldo patrimonial del crédito.',
       dimensiones: ['garantia'],
       tipo: 'numerico',
       campo: 'ipc19',
       unidad: 'ratio',
       colorPrimario: '#8B5CF6',
       interpretacion: {
-        bajo: 'Garantía insuficiente - Alto riesgo de pérdida',
+        bajo: 'Ahorros insuficientes - Alto riesgo de pérdida',
         moderado: 'Cobertura parcial - Riesgo moderado',
-        alto: 'Sobregarantizado - Protección completa',
+        alto: 'Alta cobertura de ahorros - Protección completa',
       },
       invertido: true,
     },

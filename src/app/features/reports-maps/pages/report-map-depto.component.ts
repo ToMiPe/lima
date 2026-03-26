@@ -396,9 +396,32 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
         el.setAttribute('data-cliente-id', cliente.cod_cliente);
       }
 
+      // Fallback nativo para accesibilidad y lectura rápida del código
+      el.title = cliente.cod_cliente
+        ? `${cliente.cliente} (${cliente.cod_cliente})`
+        : cliente.cliente;
+
+      const hoverTooltip = new Popup({
+        closeButton: false,
+        closeOnClick: false,
+        closeOnMove: true,
+        offset: [0, -18],
+        className: 'marker-tooltip-popup',
+      }).setHTML(this.createMarkerTooltipContent(cliente));
+
+      el.addEventListener('mouseenter', () => {
+        if (!this.map) return;
+        hoverTooltip.setLngLat([cliente.longitud, cliente.latitud]).addTo(this.map);
+      });
+
+      el.addEventListener('mouseleave', () => {
+        hoverTooltip.remove();
+      });
+
       // Event listener para abrir drawer
       el.addEventListener('click', () => {
         console.log('Click en marcador:', cliente.cod_cliente);
+        hoverTooltip.remove();
         // NO llamar a highlightMarker para evitar que desaparezca
         this.openClientDrawer(cliente);
       });
@@ -471,6 +494,24 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
     }).setHTML(popupContent);
   }
 
+  private createMarkerTooltipContent(cliente: ClienteAgrupado): string {
+    const situacion = this.getSituacionPredominante(cliente.creditos);
+
+    return `
+      <div class="marker-tooltip">
+        <div class="marker-tooltip-header">
+          <span class="marker-tooltip-name">${cliente.cliente}</span>
+          ${cliente.cod_cliente ? `<span class="marker-tooltip-code">${cliente.cod_cliente}</span>` : ''}
+        </div>
+        <div class="marker-tooltip-meta">
+          <span class="marker-tooltip-badge">${cliente.totalCreditos} crédito${cliente.totalCreditos > 1 ? 's' : ''}</span>
+          <span class="marker-tooltip-status">${situacion}</span>
+          <span class="marker-tooltip-amount">${this.formatCurrency(cliente.montoTotal)}</span>
+        </div>
+      </div>
+    `;
+  }
+
   private cleanupMarkers(): void {
     this.markers.forEach(({ marker }) => marker.remove());
     this.markers = [];
@@ -532,7 +573,7 @@ export class ReportMapDeptoComponent implements OnInit, OnDestroy {
       const count = props.point_count || 0;
       const clusterId = props.cluster_id;
 
-      element.innerHTML = count.toLocaleString();
+      element.innerHTML = count.toLocaleString('es-PE');
       element.style.setProperty('background-color', '#3b82f6');
       element.style.setProperty('border-radius', '50%');
       element.style.setProperty('border', '3px solid white');

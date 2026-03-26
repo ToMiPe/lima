@@ -59,6 +59,7 @@ interface TablaDataRow {
   latitud?: number;
   longitud?: number;
   tieneUbicacion: boolean;
+  registroCompleto?: ReporteCartera; // Para tooltip con datos de fórmula
 }
 
 /**
@@ -1393,6 +1394,120 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
     return csvContent;
   }
 
+  /**
+   * Genera el contenido HTML del tooltip con los datos de la fórmula del IPC
+   */
+  generarTooltipFormulaIPC(row: TablaDataRow): string {
+    const registro = row.registroCompleto;
+    if (!registro) return 'Sin datos disponibles';
+
+    const config = this.indicadorSeleccionado();
+    if (!config) return '';
+
+    const ipcId = config.id;
+    const formatNum = (n: number | string | undefined, decimales = 2) => {
+      if (n === undefined || n === null) return 'N/A';
+      const num = typeof n === 'string' ? parseFloat(n) : n;
+      return isNaN(num) ? 'N/A' : num.toLocaleString('es-PE', { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
+    };
+
+    // Mapear cada IPC a su fórmula y datos
+    switch (ipcId) {
+      case 'ipc1_1':
+        return `<div class="text-sm"><strong>Mora 1-8 días</strong><br/>Valor directo del CSV<br/><br/><strong>Monto:</strong> S/ ${formatNum(registro.mora_1_8)}</div>`;
+
+      case 'ipc1_2':
+        return `<div class="text-sm"><strong>Mora 9-30 días</strong><br/>Valor directo del CSV<br/><br/><strong>Monto:</strong> S/ ${formatNum(registro.mora_9_30)}</div>`;
+
+      case 'ipc1_3':
+        return `<div class="text-sm"><strong>Mora 31-60 días</strong><br/>Valor directo del CSV<br/><br/><strong>Monto:</strong> S/ ${formatNum(registro.mora_31_60)}</div>`;
+
+      case 'ipc1_4':
+        return `<div class="text-sm"><strong>Mora 61-90 días</strong><br/>Valor directo del CSV<br/><br/><strong>Monto:</strong> S/ ${formatNum(registro.mora_61_90)}</div>`;
+
+      case 'ipc1_5':
+        return `<div class="text-sm"><strong>Mora 91-120 días</strong><br/>Valor directo del CSV<br/><br/><strong>Monto:</strong> S/ ${formatNum(registro.mora_91_120)}</div>`;
+
+      case 'ipc1_6':
+        return `<div class="text-sm"><strong>Mora 120+ días</strong><br/>Valor directo del CSV<br/><br/><strong>Monto:</strong> S/ ${formatNum(registro.mora_120_mas)}</div>`;
+
+      case 'ipc2':
+        return `<div class="text-sm"><strong>Suma de mora 31+ días</strong><br/><em>mora_31_60 + mora_61_90 + mora_91_120 + mora_120_mas</em><br/><br/>• Mora 31-60 días: S/ ${formatNum(registro.mora_31_60)}<br/>• Mora 61-90 días: S/ ${formatNum(registro.mora_61_90)}<br/>• Mora 91-120 días: S/ ${formatNum(registro.mora_91_120)}<br/>• Mora 120+ días: S/ ${formatNum(registro.mora_120_mas)}<br/><br/><strong>Resultado:</strong> S/ ${formatNum(registro.ipc2)}</div>`;
+
+      case 'ipc3':
+        return `<div class="text-sm"><strong>Mora proporcional</strong><br/><em>días_atraso / días_crédito</em><br/><br/>• Días atraso: ${formatNum(registro.dias_atraso, 0)}<br/>• Días crédito: ${formatNum(registro.dias_credito, 0)}<br/><br/><strong>Resultado:</strong> ${formatNum((registro.ipc3 || 0) * 100)}%</div>`;
+
+      case 'ipc4':
+        return `<div class="text-sm"><strong>Capital en mora</strong><br/>Valor directo del saldo de capital<br/><br/><strong>Saldo capital:</strong> S/ ${formatNum(registro.saldo_capital)}</div>`;
+
+      case 'ipc5':
+        return `<div class="text-sm"><strong>Deuda vs Ahorros</strong><br/><em>(efectivo_caja + total_ahorros) / deuda_total</em><br/><br/>• Efectivo caja: S/ ${formatNum(registro.efectivo_caja)}<br/>• Total ahorros: S/ ${formatNum(registro.total_ahorros)}<br/>• Deuda total: S/ ${formatNum(registro.deuda_total)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc5)}</div>`;
+
+      case 'ipc6':
+        return `<div class="text-sm"><strong>Recurrencia de mora</strong><br/>Sin fórmula (valor fijo)</div>`;
+
+      case 'ipc7':
+        return `<div class="text-sm"><strong>Capacidad de pago directa</strong><br/><em>ingreso_principal / capacidad_pago</em><br/><br/>• Ingreso principal: S/ ${formatNum(registro.ingreso_principal)}<br/>• Capacidad pago: S/ ${formatNum(registro.capacidad_pago)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc7)}</div>`;
+
+      case 'ipc8':
+        return `<div class="text-sm"><strong>Jerarquía de fuente de pago</strong><br/><em>ingreso_principal + ingreso_fijo_anterior + total_ahorros</em><br/><br/>• Ingreso principal: S/ ${formatNum(registro.ingreso_principal)}<br/>• Ingreso fijo anterior: S/ ${formatNum(registro.ingreso_fijo_anterior)}<br/>• Total ahorros: S/ ${formatNum(registro.total_ahorros)}<br/><br/><strong>Resultado:</strong> S/ ${formatNum(registro.ipc8)}</div>`;
+
+      case 'ipc9':
+        const totalPasivos = (registro.pasivo_total_pasivo || 0) + (registro.pasivo_total_riesgos || 0);
+        return `<div class="text-sm"><strong>Apalancamiento crédito</strong><br/><em>monto_colocado / (pasivo_total_pasivo + pasivo_total_riesgos)</em><br/><br/>• Monto colocado: S/ ${formatNum(registro.monto_colocado)}<br/>• Pasivo total pasivo: S/ ${formatNum(registro.pasivo_total_pasivo)}<br/>• Pasivo total riesgos: S/ ${formatNum(registro.pasivo_total_riesgos)}<br/>• <strong>Total pasivos:</strong> S/ ${formatNum(totalPasivos)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc9)}</div>`;
+
+      case 'ipc10':
+        return `<div class="text-sm"><strong>IPC10</strong><br/>Sin fórmula definida</div>`;
+
+      case 'ipc11':
+        return `<div class="text-sm"><strong>Madurez relativa del cliente</strong><br/><em>(ciclo_cliente - 1) / ciclo_banca</em><br/><br/>• Ciclo cliente: ${formatNum(registro.ciclo_cliente, 0)}<br/>• Ciclo banca: ${formatNum(registro.ciclo_banca, 0)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc11)}</div>`;
+
+      case 'ipc12':
+        return `<div class="text-sm"><strong>IPC12</strong><br/>Sin fórmula definida</div>`;
+
+      case 'ipc13':
+        return `<div class="text-sm"><strong>Liquidez respaldada</strong><br/><em>(efectivo_caja + total_ahorros) / activo_total</em><br/><br/>• Efectivo caja: S/ ${formatNum(registro.efectivo_caja)}<br/>• Total ahorros: S/ ${formatNum(registro.total_ahorros)}<br/>• Activo total: S/ ${formatNum(registro.activo_total)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc13)}</div>`;
+
+      case 'ipc14':
+        return `<div class="text-sm"><strong>Estabilidad de ingresos</strong><br/><em>ingreso_fijo_anterior / ingreso_principal</em><br/><br/>• Ingreso fijo anterior: S/ ${formatNum(registro.ingreso_fijo_anterior)}<br/>• Ingreso principal: S/ ${formatNum(registro.ingreso_principal)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc14)}</div>`;
+
+      case 'ipc15':
+        return `<div class="text-sm"><strong>Experiencia en actividad</strong><br/>Valor directo del CSV<br/><br/><strong>Años experiencia:</strong> ${formatNum(registro.años_experiencia_actividad, 0)}</div>`;
+
+      case 'ipc16':
+        return `<div class="text-sm"><strong>Estabilidad patrimonial</strong><br/><em>activo_anterior_balance / activo_total</em><br/><br/>• Activo anterior: S/ ${formatNum(registro.activo_anterior_balance)}<br/>• Activo total: S/ ${formatNum(registro.activo_total)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc16)}</div>`;
+
+      case 'ipc17':
+        return `<div class="text-sm"><strong>Cobertura de provisión directa</strong><br/><em>provisión / saldo_capital</em><br/><br/>• Provisión: S/ ${formatNum(registro.provision)}<br/>• Saldo capital: S/ ${formatNum(registro.saldo_capital)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc17)}</div>`;
+
+      case 'ipc18':
+        const sumaMoras = (registro.mora_1_8 || 0) + (registro.mora_9_30 || 0) + (registro.mora_31_60 || 0) +
+          (registro.mora_61_90 || 0) + (registro.mora_91_120 || 0) + (registro.mora_120_mas || 0);
+        return `<div class="text-sm"><strong>Cobertura de provisión indirecta</strong><br/><em>provisión / suma_moras</em><br/><br/>• Provisión: S/ ${formatNum(registro.provision)}<br/>• Suma moras: S/ ${formatNum(sumaMoras)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc18)}</div>`;
+
+      case 'ipc19':
+        return `<div class="text-sm"><strong>Cobertura de ahorros</strong><br/><em>total_ahorros / saldo_capital</em><br/><br/>• Total ahorros: S/ ${formatNum(registro.total_ahorros)}<br/>• Saldo capital: S/ ${formatNum(registro.saldo_capital)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc19)}</div>`;
+
+      case 'ipc20':
+        return `<div class="text-sm"><strong>Presión sobre capacidad de pago</strong><br/><em>deuda_total / capacidad_pago</em><br/><br/>• Deuda total: S/ ${formatNum(registro.deuda_total)}<br/>• Capacidad pago: S/ ${formatNum(registro.capacidad_pago)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc20)}</div>`;
+
+      case 'ipc21':
+        return `<div class="text-sm"><strong>Disciplina de ahorro</strong><br/><em>ahorro_programado / ahorro_voluntario</em><br/><br/>• Ahorro programado: S/ ${formatNum(registro.ahorro_programado)}<br/>• Ahorro voluntario: S/ ${formatNum(registro.ahorro_voluntario)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc21)}</div>`;
+
+      case 'ipc22':
+        return `<div class="text-sm"><strong>IPC22</strong><br/>Sin fórmula definida</div>`;
+
+      case 'ipc23':
+        return `<div class="text-sm"><strong>Sostenibilidad financiera</strong><br/><em>int_devengado / interés_percibido</em><br/><br/>• Interés devengado: S/ ${formatNum(registro.int_devengado)}<br/>• Interés percibido: S/ ${formatNum(registro.interes_percibido)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc23)}</div>`;
+
+      case 'ipc24':
+        return `<div class="text-sm"><strong>Variación de ahorro</strong><br/><em>saldo_ahorro_mes_anterior - total_ahorro</em><br/><br/>• Saldo mes anterior: S/ ${formatNum(registro.saldo_ahorro_mes_anterior)}<br/>• Total ahorro: S/ ${formatNum(registro.total_ahorro)}<br/><br/><strong>Resultado:</strong> S/ ${formatNum(registro.ipc24)}</div>`;
+
+      default:
+        return 'Fórmula no disponible';
+    }
+  }
+
   private escaparCSV(valor: string | undefined | null): string {
     if (!valor) return '';
 
@@ -1441,6 +1556,7 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
           latitud: latitud,
           longitud: longitud,
           tieneUbicacion: tieneUbicacion,
+          registroCompleto: row, // Incluir registro completo para tooltip
         };
       });
 

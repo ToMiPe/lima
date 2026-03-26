@@ -722,6 +722,84 @@
   transition: all 0.3s ease !important;
 }
 
+:host ::ng-deep .custom-marker:hover {
+  transform: scale(1.12);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35) !important;
+}
+
+:host ::ng-deep .maplibregl-popup.marker-tooltip-popup .maplibregl-popup-content {
+  padding: 0;
+  min-width: 250px;
+  max-width: 320px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.22);
+  overflow: hidden;
+}
+
+:host ::ng-deep .maplibregl-popup.marker-tooltip-popup .maplibregl-popup-tip {
+  border-top-color: #d1d5db;
+}
+
+:host ::ng-deep .marker-tooltip {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+}
+
+:host ::ng-deep .marker-tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  background: #e6f4ec;
+  border-bottom: 1px solid #cde7d8;
+}
+
+:host ::ng-deep .marker-tooltip-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #14532d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .marker-tooltip-code {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.72rem;
+  color: #065f46;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .marker-tooltip-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.55rem 0.75rem 0.65rem;
+}
+
+:host ::ng-deep .marker-tooltip-badge,
+:host ::ng-deep .marker-tooltip-status {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #374151;
+  background: #e5e7eb;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+}
+
+:host ::ng-deep .marker-tooltip-amount {
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #065f46;
+}
+
 /* Ocultar completamente el marcador celeste/azul de Teritorio */
 :host ::ng-deep .maplibregl-marker.teritorio-selected,
 :host ::ng-deep .mapboxgl-marker.teritorio-selected,

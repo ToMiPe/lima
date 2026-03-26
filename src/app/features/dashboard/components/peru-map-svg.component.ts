@@ -455,7 +455,7 @@ export class PeruMapSvgComponent implements AfterViewInit {
    * Formatea un porcentaje con 1 decimal y coma
    */
   formatPercentage(value: number): string {
-    return new Intl.NumberFormat('es-ES', {
+    return new Intl.NumberFormat('es-PE', {
       minimumFractionDigits: 1,
       maximumFractionDigits: 1,
     }).format(value);
@@ -465,7 +465,7 @@ export class PeruMapSvgComponent implements AfterViewInit {
    * Formatea un monto como moneda (S/ con punto como miles y coma como decimales)
    */
   formatCurrency(value: number): string {
-    return new Intl.NumberFormat('es-ES', {
+    return new Intl.NumberFormat('es-PE', {
       style: 'currency',
       currency: 'PEN',
       minimumFractionDigits: 2,

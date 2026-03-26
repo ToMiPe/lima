@@ -853,7 +853,15 @@
                       </span>
                     </td>
                     <td class="text-right">
-                      <span class="font-bold" [style.color]="row.colorHex">
+                      <span
+                        class="font-bold cursor-help"
+                        [style.color]="row.colorHex"
+                        [pTooltip]="generarTooltipFormulaIPC(row)"
+                        [escape]="false"
+                        tooltipPosition="left"
+                        tooltipStyleClass="tooltip-formula-ipc"
+                        [showDelay]="300"
+                      >
                         {{ formatearValorIPC(row.valorIPC) }}
                       </span>
                     </td>
