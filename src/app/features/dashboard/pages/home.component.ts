@@ -33,13 +33,11 @@ export class HomeComponent implements OnInit {
   }
 
   onDepartmentClick(event: MapClickEvent): void {
-    console.log('Departamento seleccionado:', event);
     // Navegar al reporte de mapa por departamento
     this.router.navigate(['/reports/map', event.departmentName]);
   }
 
   onReportSelect(report: ReportType): void {
-    console.log(' Reporte seleccionado:', report);
     this.router.navigate([report.route]);
   }
 

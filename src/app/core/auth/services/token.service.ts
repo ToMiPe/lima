@@ -133,18 +133,6 @@ export class TokenService {
 
   // Debug info
   debugTokenInfo(): void {
-    const accessToken = this.getAccessToken();
-    const refreshToken = this.getRefreshToken();
-
-    console.group('Token Debug Info');
-    console.log('Access Token:', accessToken ? 'Present' : 'Missing');
-    console.log('Refresh Token:', refreshToken ? 'Present' : 'Missing');
-
-    if (accessToken) {
-      console.log('Access Token Expired:', this.isTokenExpired(accessToken));
-      console.log('Token Expires:', this.getTokenExpirationDate(accessToken));
-      console.log('Token Payload:', this.decodeToken(accessToken));
-    }
-    console.groupEnd();
+    // Logs removed intentionally.
   }
 }

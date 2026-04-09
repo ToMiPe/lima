@@ -22,9 +22,6 @@ export const tokenRefreshInterceptor: HttpInterceptorFn = (req, next) => {
         if (req.url.includes('/auth/login') || req.url.includes('/auth/register')) {
           return throwError(() => error);
         }
-
-        console.log('� Token expirado, redirigiendo a login...');
-
         // Limpiar tokens
         tokenService.clearAllTokens();
 

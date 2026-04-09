@@ -78,7 +78,6 @@ export class AuthState {
         // Cargar perfil en background (EPSAs y permisos)
         // Se ejecuta de forma asíncrona sin bloquear la UI
         this.loadUserProfile().subscribe({
-          next: () => console.log(' Perfil cargado en inicialización'),
           error: (err) => console.error(' Error cargando perfil en inicialización:', err),
         });
       } catch (error) {
@@ -111,7 +110,6 @@ export class AuthState {
         this.setAuthData(response);
         // Cargar perfil en background después del login (EPSAs y permisos)
         this.loadUserProfile().subscribe({
-          next: () => console.log(' Perfil cargado después de login'),
           error: (err) => console.error(' Error cargando perfil después de login:', err),
         });
       }),

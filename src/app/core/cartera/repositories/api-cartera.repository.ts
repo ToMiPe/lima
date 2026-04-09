@@ -30,7 +30,6 @@ export class ApiCarteraRepository implements CarteraRepository {
       // Para API, la inicialización podría verificar conectividad
       await this.checkApiHealth();
       this._lastUpdate.set(new Date());
-      console.log(' API conectada exitosamente');
     } catch (error) {
       console.error(' Error conectando con API:', error);
       throw error;
@@ -175,7 +174,6 @@ export class ApiCarteraRepository implements CarteraRepository {
 
   async clearData(): Promise<void> {
     // Para API, esto podría hacer un DELETE o limpiar caché local
-    console.log('Limpiando caché local...');
     // Implementación específica de caché si fuera necesario
   }
 
@@ -185,7 +183,6 @@ export class ApiCarteraRepository implements CarteraRepository {
       // Para API, esto podría invalidar caché o recargar datos
       await this.clearData();
       this._lastUpdate.set(new Date());
-      console.log(' Datos actualizados desde API');
     } finally {
       this._isLoading.set(false);
     }

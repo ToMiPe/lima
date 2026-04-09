@@ -1,4 +1,13 @@
-import { Component, OnInit, OnDestroy, signal, computed, effect, inject, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  signal,
+  computed,
+  effect,
+  inject,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -252,7 +261,6 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
 
   distribucionGeneros = computed(() => {
     const datosFiltrados = this._datosParaDistribucion();
-    console.log('Calculando distribución géneros, registros:', datosFiltrados.length);
     if (datosFiltrados.length === 0) return [];
 
     const distribucion = new Map<string, number>();
@@ -268,8 +276,6 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
         porcentaje: (cantidad / datosFiltrados.length) * 100,
       }))
       .sort((a, b) => b.cantidad - a.cantidad);
-
-    console.log('Distribución géneros calculada:', resultado);
     return resultado;
   });
 
@@ -725,12 +731,10 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
       const mostrarModal = this.mostrarDialogDistribucion();
 
       if (mostrarModal) {
-        console.log('Cargando datos para distribución...');
         this.cargandoDistribucion.set(true);
         this.dataService
           .getTodosDatosFiltrados()
           .then((datos) => {
-            console.log('Datos cargados para distribución:', datos.length, 'registros');
             this._datosParaDistribucion.set(datos);
             this.cargandoDistribucion.set(false);
           })
@@ -750,7 +754,6 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
       const config = this.indicadorSeleccionado();
 
       if (tabActiva === 'datos' && config) {
-        console.log('🔄 Cargando datos para tabla...');
         this.cargarDatosTabla();
       }
     });
@@ -772,7 +775,6 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
 
       // Si la tabla está activa, recargar
       if (tabActiva === 'datos' && config) {
-        console.log('🔄 Filtros cambiaron, recargando tabla...');
         this.cargarDatosTabla();
       }
     });
@@ -1014,11 +1016,6 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
             cliente: props['nombre'] as string,
             documento: props['documento'] as string,
           });
-
-          // Si la tabla está visible, hacer scroll a la fila
-          if (this.tabGraficosActiva() === 'datos') {
-            console.log('📍 Punto seleccionado en mapa:', props['nombre']);
-          }
         });
       }
 
@@ -1267,7 +1264,9 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
    */
   esFilaSeleccionada(cliente: string, documento: string): boolean {
     const seleccionada = this.filaSeleccionada();
-    return !!seleccionada && seleccionada.cliente === cliente && seleccionada.documento === documento;
+    return (
+      !!seleccionada && seleccionada.cliente === cliente && seleccionada.documento === documento
+    );
   }
 
   obtenerLabelRangoMonto(rangoId: string): string {
@@ -1282,7 +1281,6 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
 
   async descargarDatosFiltrados(): Promise<void> {
     try {
-      console.log('Descargando datos filtrados...');
       const datos = await this.dataService.getTodosDatosFiltrados();
 
       if (datos.length === 0) {
@@ -1310,8 +1308,6 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
-      console.log(` ${datos.length} registros descargados exitosamente`);
     } catch (error) {
       console.error(' Error al descargar datos:', error);
       alert('Error al descargar los datos. Por favor intente nuevamente.');
@@ -1409,7 +1405,12 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
     const formatNum = (n: number | string | undefined, decimales = 2) => {
       if (n === undefined || n === null) return 'N/A';
       const num = typeof n === 'string' ? parseFloat(n) : n;
-      return isNaN(num) ? 'N/A' : num.toLocaleString('es-PE', { minimumFractionDigits: decimales, maximumFractionDigits: decimales });
+      return isNaN(num)
+        ? 'N/A'
+        : num.toLocaleString('es-PE', {
+          minimumFractionDigits: decimales,
+          maximumFractionDigits: decimales,
+        });
     };
 
     // Mapear cada IPC a su fórmula y datos
@@ -1442,7 +1443,7 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
         return `<div class="text-sm"><strong>Capital en mora</strong><br/>Valor directo del saldo de capital<br/><br/><strong>Saldo capital:</strong> S/ ${formatNum(registro.saldo_capital)}</div>`;
 
       case 'ipc5':
-        return `<div class="text-sm"><strong>Deuda vs Ahorros</strong><br/><em>(efectivo_caja + total_ahorros) / deuda_total</em><br/><br/>• Efectivo caja: S/ ${formatNum(registro.efectivo_caja)}<br/>• Total ahorros: S/ ${formatNum(registro.total_ahorros)}<br/>• Deuda total: S/ ${formatNum(registro.deuda_total)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc5)}</div>`;
+        return `<div class="text-sm"><strong>Deuda vs Garantia</strong><br/><em>(efectivo_caja + tot_garantia) / deuda_total</em><br/><br/>• Efectivo caja: S/ ${formatNum(registro.efectivo_caja)}<br/>• Total garantia: S/ ${formatNum(registro.tot_garantia)}<br/>• Deuda total: S/ ${formatNum(registro.deuda_total)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc5)}</div>`;
 
       case 'ipc6':
         return `<div class="text-sm"><strong>Recurrencia de mora</strong><br/>Sin fórmula (valor fijo)</div>`;
@@ -1451,10 +1452,11 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
         return `<div class="text-sm"><strong>Capacidad de pago directa</strong><br/><em>ingreso_principal / capacidad_pago</em><br/><br/>• Ingreso principal: S/ ${formatNum(registro.ingreso_principal)}<br/>• Capacidad pago: S/ ${formatNum(registro.capacidad_pago)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc7)}</div>`;
 
       case 'ipc8':
-        return `<div class="text-sm"><strong>Jerarquía de fuente de pago</strong><br/><em>ingreso_principal + ingreso_fijo_anterior + total_ahorros</em><br/><br/>• Ingreso principal: S/ ${formatNum(registro.ingreso_principal)}<br/>• Ingreso fijo anterior: S/ ${formatNum(registro.ingreso_fijo_anterior)}<br/>• Total ahorros: S/ ${formatNum(registro.total_ahorros)}<br/><br/><strong>Resultado:</strong> S/ ${formatNum(registro.ipc8)}</div>`;
+        return `<div class="text-sm"><strong>Jerarquía de fuente de pago</strong><br/><em>ingreso_principal + ingreso_fijo_anterior + tot_garantia</em><br/><br/>• Ingreso principal: S/ ${formatNum(registro.ingreso_principal)}<br/>• Ingreso fijo anterior: S/ ${formatNum(registro.ingreso_fijo_anterior)}<br/>• Total garantia: S/ ${formatNum(registro.tot_garantia)}<br/><br/><strong>Resultado:</strong> S/ ${formatNum(registro.ipc8)}</div>`;
 
       case 'ipc9':
-        const totalPasivos = (registro.pasivo_total_pasivo || 0) + (registro.pasivo_total_riesgos || 0);
+        const totalPasivos =
+          (registro.pasivo_total_pasivo || 0) + (registro.pasivo_total_riesgos || 0);
         return `<div class="text-sm"><strong>Apalancamiento crédito</strong><br/><em>monto_colocado / (pasivo_total_pasivo + pasivo_total_riesgos)</em><br/><br/>• Monto colocado: S/ ${formatNum(registro.monto_colocado)}<br/>• Pasivo total pasivo: S/ ${formatNum(registro.pasivo_total_pasivo)}<br/>• Pasivo total riesgos: S/ ${formatNum(registro.pasivo_total_riesgos)}<br/>• <strong>Total pasivos:</strong> S/ ${formatNum(totalPasivos)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc9)}</div>`;
 
       case 'ipc10':
@@ -1467,7 +1469,7 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
         return `<div class="text-sm"><strong>IPC12</strong><br/>Sin fórmula definida</div>`;
 
       case 'ipc13':
-        return `<div class="text-sm"><strong>Liquidez respaldada</strong><br/><em>(efectivo_caja + total_ahorros) / activo_total</em><br/><br/>• Efectivo caja: S/ ${formatNum(registro.efectivo_caja)}<br/>• Total ahorros: S/ ${formatNum(registro.total_ahorros)}<br/>• Activo total: S/ ${formatNum(registro.activo_total)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc13)}</div>`;
+        return `<div class="text-sm"><strong>Liquidez respaldada</strong><br/><em>(efectivo_caja + tot_garantia) / activo_total</em><br/><br/>• Efectivo caja: S/ ${formatNum(registro.efectivo_caja)}<br/>• Total garantia: S/ ${formatNum(registro.tot_garantia)}<br/>• Activo total: S/ ${formatNum(registro.activo_total)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc13)}</div>`;
 
       case 'ipc14':
         return `<div class="text-sm"><strong>Estabilidad de ingresos</strong><br/><em>ingreso_fijo_anterior / ingreso_principal</em><br/><br/>• Ingreso fijo anterior: S/ ${formatNum(registro.ingreso_fijo_anterior)}<br/>• Ingreso principal: S/ ${formatNum(registro.ingreso_principal)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc14)}</div>`;
@@ -1482,12 +1484,17 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
         return `<div class="text-sm"><strong>Cobertura de provisión directa</strong><br/><em>provisión / saldo_capital</em><br/><br/>• Provisión: S/ ${formatNum(registro.provision)}<br/>• Saldo capital: S/ ${formatNum(registro.saldo_capital)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc17)}</div>`;
 
       case 'ipc18':
-        const sumaMoras = (registro.mora_1_8 || 0) + (registro.mora_9_30 || 0) + (registro.mora_31_60 || 0) +
-          (registro.mora_61_90 || 0) + (registro.mora_91_120 || 0) + (registro.mora_120_mas || 0);
+        const sumaMoras =
+          (registro.mora_1_8 || 0) +
+          (registro.mora_9_30 || 0) +
+          (registro.mora_31_60 || 0) +
+          (registro.mora_61_90 || 0) +
+          (registro.mora_91_120 || 0) +
+          (registro.mora_120_mas || 0);
         return `<div class="text-sm"><strong>Cobertura de provisión indirecta</strong><br/><em>provisión / suma_moras</em><br/><br/>• Provisión: S/ ${formatNum(registro.provision)}<br/>• Suma moras: S/ ${formatNum(sumaMoras)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc18)}</div>`;
 
       case 'ipc19':
-        return `<div class="text-sm"><strong>Cobertura de ahorros</strong><br/><em>total_ahorros / saldo_capital</em><br/><br/>• Total ahorros: S/ ${formatNum(registro.total_ahorros)}<br/>• Saldo capital: S/ ${formatNum(registro.saldo_capital)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc19)}</div>`;
+        return `<div class="text-sm"><strong>Cobertura de garantia</strong><br/><em>tot_garantia / saldo_capital</em><br/><br/>• Total garantia: S/ ${formatNum(registro.tot_garantia)}<br/>• Saldo capital: S/ ${formatNum(registro.saldo_capital)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc19)}</div>`;
 
       case 'ipc20':
         return `<div class="text-sm"><strong>Presión sobre capacidad de pago</strong><br/><em>deuda_total / capacidad_pago</em><br/><br/>• Deuda total: S/ ${formatNum(registro.deuda_total)}<br/>• Capacidad pago: S/ ${formatNum(registro.capacidad_pago)}<br/><br/><strong>Resultado:</strong> ${formatNum(registro.ipc20)}</div>`;
@@ -1529,8 +1536,6 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
       if (!config) return;
 
       const datos = await this.dataService.getDatosFiltrados();
-      console.log(`📊 Transformando ${datos.length} registros para tabla...`);
-
       const rangos = config.rangosCustom || HHI_CONCENTRATION_RANGES;
 
       const datosTransformados: TablaDataRow[] = datos.map((row) => {
@@ -1540,7 +1545,8 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
         // Verificar si tiene ubicación válida
         const latitud = row.latitud || 0;
         const longitud = row.longitud || 0;
-        const tieneUbicacion = latitud !== 0 && longitud !== 0 && !isNaN(latitud) && !isNaN(longitud);
+        const tieneUbicacion =
+          latitud !== 0 && longitud !== 0 && !isNaN(latitud) && !isNaN(longitud);
 
         return {
           cliente: row.cliente || 'N/A',
@@ -1563,7 +1569,6 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
       });
 
       this.datosTablaCache.set(datosTransformados);
-      console.log(`✅ ${datosTransformados.length} filas cargadas en tabla`);
     } catch (error) {
       console.error('❌ Error cargando datos para tabla:', error);
       this.datosTablaCache.set([]);
@@ -1576,8 +1581,6 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
   onChartClick(event: any): void {
     try {
       const rangoLabel = event.name; // e.g., "0.01 - 100 S/"
-      console.log('📊 Click en gráfico:', rangoLabel);
-
       // Obtener configuración actual y rangos
       const config = this.indicadorSeleccionado();
       if (!config) return;
@@ -1593,7 +1596,6 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
 
       // Cargar datos de tabla si no están disponibles
       if (this.datosTablaCache().length === 0) {
-        console.log('📥 Cargando datos de tabla para drill-down...');
         this.cargarDatosTabla().then(() => {
           // Configurar rango seleccionado y abrir modal
           this.rangoSeleccionadoDetalle.set({
@@ -1622,21 +1624,21 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
    */
   navegarARegistro(registro: TablaDataRow): void {
     try {
-      console.log('🗺️ Navegando a registro:', registro.cliente);
-
       if (!this.map) {
         console.warn('⚠️ Mapa no inicializado');
         return;
       }
 
       // Verificar si el registro tiene coordenadas
-      if (!registro.latitud || !registro.longitud || registro.latitud === 0 || registro.longitud === 0) {
+      if (
+        !registro.latitud ||
+        !registro.longitud ||
+        registro.latitud === 0 ||
+        registro.longitud === 0
+      ) {
         console.warn('⚠️ Registro sin coordenadas válidas');
         return;
       }
-
-      console.log(`📍 Coordenadas: [${registro.longitud}, ${registro.latitud}]`);
-
       // Marcar como seleccionado
       this.filaSeleccionada.set({
         cliente: registro.cliente,
@@ -1710,8 +1712,6 @@ export class IPCUnifiedComponent implements OnInit, OnDestroy {
           this.marcadorTemporal = undefined;
         }
       }, 10000);
-
-      console.log('✅ Marcador temporal agregado');
     } catch (error) {
       console.error('❌ Error agregando marcador temporal:', error);
     }

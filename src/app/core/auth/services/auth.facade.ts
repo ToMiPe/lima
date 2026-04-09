@@ -119,9 +119,6 @@ export class AuthFacade {
 
   debugAuth(): void {
     this.tokenService.debugTokenInfo();
-    console.log('User:', this.user());
-    console.log('Roles:', this.userRoles());
-    console.log('EPSAs:', this.userEpsas());
   }
 
   /**

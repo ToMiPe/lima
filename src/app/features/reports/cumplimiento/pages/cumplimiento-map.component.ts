@@ -187,8 +187,6 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
       // Cargar opciones de filtros
       const opciones = await this.cumplimientoService.getOpcionesFiltros();
       this.opcionesFiltros.set(opciones);
-
-      console.log(` Cargados ${puntos.length} puntos de cumplimiento`);
     } catch (error) {
       console.error(' Error al cargar datos:', error);
     }
@@ -220,7 +218,6 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
 
       // Evento cuando el mapa está listo
       this.map.on('load', () => {
-        console.log(' Mapa cargado');
         this.renderizarPuntos();
       });
     } catch (error) {
@@ -400,8 +397,6 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
       const marker = this.crearMarcador(punto);
       this.markers.set(punto.id, marker);
     });
-
-    console.log(`Renderizados ${this.markers.size} marcadores`);
   }
 
   /**
@@ -592,6 +587,5 @@ export class CumplimientoMapComponent implements OnInit, OnDestroy {
    * Exporta los datos filtrados
    */
   exportarDatos(): void {
-    console.log('Exportar', this.filteredPuntos().length, 'registros');
   }
 }

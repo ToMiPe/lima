@@ -2,7 +2,7 @@
  * Interfaz para el modelo de Reporte de Cartera
  * Representa los datos del archivo CSV de reporte de cartera
  */
-export interface ReporteCartera {
+export interface ReporteCarteraBase {
   cod_agencia: string;
   agencia: string;
   cod_asesor: string;
@@ -96,24 +96,43 @@ export interface ReporteCartera {
   entidad_financiera: string;
   nombre_colegio: string;
   nro_alumno: string;
+  credito: string;
+  condicion: string;
+  motivo: string;
+  tipo_empresa: string;
   latitud: number;
   longitud: number;
+  tipo_tenencia: string;
+  estado_civil: string;
+  grado_instruccion: string;
+  filiacion_religiosa: string;
+  mms_vigente: string;
+  generacion: string;
   dias_credito: number;
-  total_ahorros: number;
+  tot_garantia: number;
+  dias_mora_acumulados_pagos_anteriores: number;
+  num_dias_promedio_entre_pago_28_30: number;
   efectivo_caja: number;
   ingreso_principal: number;
   ingreso_fijo_anterior: number;
+  ingreso_secundario_variables: number;
   pasivo_total_pasivo: number;
   pasivo_total_riesgos: number;
+  num_creditos_sin_adra: number;
+  num_creditos_con_adra: number;
   activo_total: number;
   activo_anterior_balance: number;
+  activo_mes_actual: number;
   fecha_creacion_cliente: string;
+  fecha_primer_desemb_banca: string;
   años_experiencia_actividad: number;
   ahorro_programado: number;
   ahorro_voluntario: number;
   total_ahorro: number;
   saldo_ahorro_mes_anterior: number;
+}
 
+export interface ReporteCarteraIPC {
   // Indicadores de Control Interno (IPC) - 18 indicadores según documento oficial
   // Dimensión INGRESO (9 IPCs)
   ipc1_1?: number; // Mora 1-8 días
@@ -122,33 +141,35 @@ export interface ReporteCartera {
   ipc1_4?: number; // Mora 61-90 días
   ipc1_5?: number; // Mora 91-120 días
   ipc1_6?: number; // Mora 120+ días
-  ipc2?: number;   // Suma de mora 31+ días (mora_31_60 + mora_61_90 + mora_91_120 + mora_120_mas)
-  ipc3?: number;   // Mora proporcional (dias_atraso / dias_credito)
-  ipc4?: number;   // Capital en mora (saldo_capital)
-  ipc7?: number;   // Ingreso principal / Capacidad de pago
-  ipc8?: number;   // Suma de ingresos y ahorros (ingreso_principal + ingreso_fijo_anterior + total_ahorros)
-  ipc9?: number;   // Monto colocado / Total pasivos (pasivo_total_pasivo + pasivo_total_riesgos)
-  ipc10?: number;  // Sin fórmula
-  ipc11?: number;  // (ciclo_cliente-1) / ciclo_banca
-  ipc12?: number;  // Sin fórmula
-  ipc13?: number;  // (efectivo_caja + total_ahorros) / activo_total
+  ipc2?: number; // Suma de mora 31+ días (mora_31_60 + mora_61_90 + mora_91_120 + mora_120_mas)
+  ipc3?: number; // Mora proporcional (dias_atraso / dias_credito)
+  ipc4?: number; // Capital en mora (saldo_capital)
+  ipc7?: number; // Ingreso principal / Capacidad de pago
+  ipc8?: number; // Suma de ingresos y garantia (ingreso_principal + ingreso_fijo_anterior + tot_garantia)
+  ipc9?: number; // Monto colocado / Total pasivos (pasivo_total_pasivo + pasivo_total_riesgos)
+  ipc10?: number; // Sin fórmula
+  ipc11?: number; // (ciclo_cliente-1) / ciclo_banca
+  ipc12?: number; // Sin fórmula
+  ipc13?: number; // (efectivo_caja + tot_garantia) / activo_total
 
   // Dimensión VOLUNTAD (5 IPCs)
   ipc3_voluntad?: number; // Mora proporcional (%) - compartido
   ipc4_voluntad?: number; // Capital en mora - compartido
-  ipc6?: number;  // Sin fórmula (valor fijo: 0)
+  ipc6?: number; // Sin fórmula (valor fijo: 0)
 
   // Dimensión GARANTÍA PSICOLÓGICA (7 IPCs)
-  ipc5?: number;   // Deuda vs Garantía (ratio)
-  ipc14?: number;  // ingreso_fijo_anterior / ingreso_principal
-  ipc15?: number;  // años_experiencia_actividad
-  ipc16?: number;  // activo_anterior_balance / activo_total
-  ipc17?: number;  // provision / saldo_capital
-  ipc18?: number;  // provision / suma_moras
-  ipc19?: number;  // total_ahorros / saldo_capital
-  ipc20?: number;  // deuda_total / capacidad_pago
-  ipc21?: number;  // ahorro_programado / ahorro_voluntario
-  ipc22?: number;  // Sin fórmula
-  ipc23?: number;  // int_devengado / interes_percibido
-  ipc24?: number;  // saldo_ahorro_mes_anterior - total_ahorro
+  ipc5?: number; // Deuda vs Garantía (ratio)
+  ipc14?: number; // ingreso_fijo_anterior / ingreso_principal
+  ipc15?: number; // años_experiencia_actividad
+  ipc16?: number; // activo_anterior_balance / activo_total
+  ipc17?: number; // provision / saldo_capital
+  ipc18?: number; // provision / suma_moras
+  ipc19?: number; // tot_garantia / saldo_capital
+  ipc20?: number; // deuda_total / capacidad_pago
+  ipc21?: number; // ahorro_programado / ahorro_voluntario
+  ipc22?: number; // Sin fórmula
+  ipc23?: number; // int_devengado / interes_percibido
+  ipc24?: number; // saldo_ahorro_mes_anterior - total_ahorro
 }
+
+export interface ReporteCartera extends ReporteCarteraBase, ReporteCarteraIPC {}

@@ -32,7 +32,6 @@ export class DashboardService {
    */
   async initialize(): Promise<void> {
     if (this.isInitialized()) {
-      console.log(' Dashboard ya inicializado');
       return;
     }
 
@@ -58,11 +57,9 @@ export class DashboardService {
   async refreshData(): Promise<void> {
     this.isLoading.set(true);
     try {
-      console.log(' Refrescando datos...');
       await this.repository.refreshData();
       await this.loadStatistics();
       this.lastUpdate.set(this.repository.getLastUpdate());
-      console.log(' Datos actualizados');
     } catch (error) {
       console.error(' Error actualizando datos:', error);
       throw error;
@@ -135,13 +132,6 @@ export class DashboardService {
   private updateDepartmentStats(stats: EstadisticasCartera): void {
     const porDept = stats.porDepartamento || {};
     const maxCount = Math.max(...Object.values(porDept).map((v) => v || 0));
-
-    console.log(' updateDepartmentStats:', {
-      total: stats.total,
-      departamentos: Object.keys(porDept).length,
-      porDept,
-    });
-
     const deptStats: DepartmentStats[] = Object.entries(porDept).map(([name, count]) => {
       const numCount = Number(count) || 0;
       const percentage = stats.total > 0 ? (numCount / stats.total) * 100 : 0;
@@ -156,8 +146,6 @@ export class DashboardService {
         value: numCount, // Valor numérico para el mapa
       };
     });
-
-    console.log('Departamentos procesados:', deptStats.length);
     this.departmentStats.set(deptStats);
   }
 

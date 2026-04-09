@@ -224,7 +224,6 @@ export class PeruMapSvgComponent implements AfterViewInit {
     effect(() => {
       const data = this.departmentData();
       if (this.svgLoaded && data.length > 0) {
-        console.log('Actualizando colores del mapa con', data.length, 'departamentos');
         this.applyDepartmentColors();
       }
     });
@@ -249,7 +248,6 @@ export class PeruMapSvgComponent implements AfterViewInit {
           this.attachEventListeners();
           this.applyDepartmentColors();
           this.svgLoaded = true;
-          console.log('SVG del mapa cargado y listo');
         }, 100);
       }
     } catch (error) {
@@ -338,13 +336,6 @@ export class PeruMapSvgComponent implements AfterViewInit {
       .filter((v) => v > 0);
     const maxValue = dataValues.length > 0 ? Math.max(...dataValues) : 1;
     const hasData = dataValues.length > 0;
-
-    console.log('Aplicando colores:', {
-      departamentos: this.departmentData().length,
-      maxValue,
-      hasData,
-    });
-
     paths.forEach((path) => {
       const element = path as SVGPathElement;
 

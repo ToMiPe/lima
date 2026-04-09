@@ -18,6 +18,5 @@ mkdir('./src/environments', { recursive: true, override: true }, (err) => {
     console.error(err);
   } else {
     writeFileSync(targetPath, envFileContent);
-    console.log('Environment variables set!');
   }
 });

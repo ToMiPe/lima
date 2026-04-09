@@ -87,7 +87,6 @@ export class HHISectorEconomicoComponent implements OnInit {
     this.isLoading.set(true);
     try {
       await this.carteraRepository.clearData();
-      console.log(' Base de datos limpiada');
       await this.cargarDatos();
     } catch (error) {
       console.error(' Error limpiando cache:', error);

@@ -12,7 +12,6 @@ export const loggingInterceptor: HttpInterceptorFn = (req, next) => {
         if (response.type === 4) {
           // HttpEventType.Response
           // Only log when the response is complete
-          console.log(` ${req.method} ${req.url} - ${(response as any).status} (${elapsed}ms)`);
         }
       },
       error: (error) => {

@@ -52,13 +52,10 @@ export class CsvCarteraRepository implements CarteraRepository {
 
       if (count === 0 || forceReload) {
         if (forceReload && count > 0) {
-          console.log(' Forzando recarga para incluir columnas IPC...');
           await this.db.cartera.clear();
         }
-        console.log(' Cargando CSV desde assets...');
         await this.loadCsvToDatabase();
       } else {
-        console.log(` Datos encontrados: ${count} registros`);
       }
 
       this._lastUpdate.set(new Date());
@@ -178,8 +175,6 @@ export class CsvCarteraRepository implements CarteraRepository {
         const batch = records.slice(i, i + batchSize);
         await this.db.cartera.bulkAdd(batch);
       }
-
-      console.log(` ${records.length} registros cargados exitosamente`);
     } catch (error) {
       console.error(' Error cargando CSV a BD:', error);
       throw error;
@@ -205,28 +200,11 @@ export class CsvCarteraRepository implements CarteraRepository {
       return Number.isNaN(parsed) ? 0 : parsed;
     };
 
-    console.log(' Parseando CSV - Total líneas:', lines.length);
-    let registrosParseados = 0;
-    let agenciasVacias = 0;
-
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
 
       const values = line.split(';');
-
-      // Debug primeras líneas
-      if (i <= 3) {
-        console.log(`Línea ${i} - Agencia (values[1]):`, values[1]);
-      }
-
-      // Contar agencias vacías
-      if (!values[1] || values[1].trim() === '') {
-        agenciasVacias++;
-        if (agenciasVacias <= 3) {
-          console.log(` Agencia vacía en línea ${i}:`, values.slice(0, 10));
-        }
-      }
 
       try {
         // Parse de valores numéricos base (una sola vez)
@@ -240,7 +218,7 @@ export class CsvCarteraRepository implements CarteraRepository {
         const mora_91_120 = parseLatinNumber(values[57]);
         const mora_120_mas = parseLatinNumber(values[58]);
         const dias_credito = parseLatinInteger(values[105]);
-        const total_ahorros = parseLatinNumber(values[106]);
+        const tot_garantia = parseLatinNumber(values[106]);
         const ingreso_principal = parseLatinNumber(values[109]);
         const ingreso_fijo_anterior = parseLatinNumber(values[110]);
         const pasivo_total_pasivo = parseLatinNumber(values[112]);
@@ -272,7 +250,7 @@ export class CsvCarteraRepository implements CarteraRepository {
         const ipc4 = saldo_capital;
 
         // IPC5: Garantía vs Deuda (evita división por 0)
-        const ipc5 = deuda_total > 0 ? (efectivo_caja + total_ahorros) / deuda_total : 0;
+        const ipc5 = deuda_total > 0 ? (efectivo_caja + tot_garantia) / deuda_total : 0;
 
         // IPC6: Sin fórmula (valor fijo)
         const ipc6 = 0;
@@ -281,7 +259,7 @@ export class CsvCarteraRepository implements CarteraRepository {
         const ipc7 = capacidad_pago > 0 ? ingreso_principal / capacidad_pago : 0;
 
         // IPC8: Suma de ingresos y garantía
-        const ipc8 = ingreso_principal + ingreso_fijo_anterior + total_ahorros;
+        const ipc8 = ingreso_principal + ingreso_fijo_anterior + tot_garantia;
 
         // IPC9: Monto colocado / Total pasivos (evita división por 0)
         const ipc9 = (pasivo_total_pasivo + pasivo_total_riesgos) > 0
@@ -297,8 +275,8 @@ export class CsvCarteraRepository implements CarteraRepository {
         // IPC12: Sin fórmula
         const ipc12 = undefined;
 
-        // IPC13: (efectivo_caja + total_ahorros) / activo_total (evita división por 0)
-        const ipc13 = activo_total > 0 ? (efectivo_caja + total_ahorros) / activo_total : 0;
+        // IPC13: (efectivo_caja + tot_garantia) / activo_total (evita división por 0)
+        const ipc13 = activo_total > 0 ? (efectivo_caja + tot_garantia) / activo_total : 0;
 
         // IPC14: ingreso_fijo_anterior / ingreso_principal (evita división por 0)
         const ipc14 = ingreso_principal > 0 ? ingreso_fijo_anterior / ingreso_principal : 0;
@@ -316,8 +294,8 @@ export class CsvCarteraRepository implements CarteraRepository {
         const suma_moras = mora_1_8 + mora_9_30 + mora_31_60 + mora_61_90 + mora_91_120 + mora_120_mas;
         const ipc18 = suma_moras > 0 ? provision / suma_moras : 0;
 
-        // IPC19: total_ahorros / saldo_capital (evita división por 0)
-        const ipc19 = saldo_capital > 0 ? total_ahorros / saldo_capital : 0;
+        // IPC19: tot_garantia / saldo_capital (evita división por 0)
+        const ipc19 = saldo_capital > 0 ? tot_garantia / saldo_capital : 0;
 
         // IPC20: deuda_total / capacidad_pago (evita división por 0)
         const ipc20 = capacidad_pago > 0 ? deuda_total / capacidad_pago : 0;
@@ -428,18 +406,35 @@ export class CsvCarteraRepository implements CarteraRepository {
           entidad_financiera: values[90] || '',
           nombre_colegio: values[91] || '',
           nro_alumno: values[92] || '',
+          credito: values[93] || '',
+          condicion: values[94] || '',
+          motivo: values[95] || '',
+          tipo_empresa: values[96] || '',
           latitud: parseFloat(values[97]) || 0,
           longitud: parseFloat(values[98]) || 0,
+          tipo_tenencia: values[99] || '',
+          estado_civil: values[100] || '',
+          grado_instruccion: values[101] || '',
+          filiacion_religiosa: values[102] || '',
+          mms_vigente: values[103] || '',
+          generacion: values[104] || '',
           dias_credito: dias_credito,
-          total_ahorros: total_ahorros,
+          tot_garantia: tot_garantia,
+          dias_mora_acumulados_pagos_anteriores: parseLatinInteger(values[107]),
+          num_dias_promedio_entre_pago_28_30: parseLatinNumber(values[108]),
           efectivo_caja: efectivo_caja,
           ingreso_principal: ingreso_principal,
           ingreso_fijo_anterior: ingreso_fijo_anterior,
+          ingreso_secundario_variables: parseLatinNumber(values[111]),
           pasivo_total_pasivo: pasivo_total_pasivo,
           pasivo_total_riesgos: pasivo_total_riesgos,
+          num_creditos_sin_adra: parseLatinInteger(values[114]),
+          num_creditos_con_adra: parseLatinInteger(values[115]),
           activo_total: activo_total,
           activo_anterior_balance: activo_anterior_balance,
+          activo_mes_actual: parseLatinNumber(values[119]),
           fecha_creacion_cliente: values[120] || '',
+          fecha_primer_desemb_banca: values[121] || '',
           años_experiencia_actividad: años_experiencia_actividad,
           ahorro_programado: ahorro_programado,
           ahorro_voluntario: ahorro_voluntario,
@@ -472,7 +467,7 @@ export class CsvCarteraRepository implements CarteraRepository {
           ipc11: ipc11,
           // IPC12: Sin fórmula
           ipc12: ipc12,
-          // IPC13: (efectivo_caja + total_ahorros) / activo_total (pre-calculado con protección /0)
+          // IPC13: (efectivo_caja + tot_garantia) / activo_total (pre-calculado con protección /0)
           ipc13: ipc13,
 
           // DIMENSIÓN VOLUNTAD
@@ -494,7 +489,7 @@ export class CsvCarteraRepository implements CarteraRepository {
           ipc17: ipc17,
           // IPC18: provision / suma_moras (pre-calculado con protección /0)
           ipc18: ipc18,
-          // IPC19: total_ahorros / saldo_capital (pre-calculado con protección /0)
+          // IPC19: tot_garantia / saldo_capital (pre-calculado con protección /0)
           ipc19: ipc19,
           // IPC20: deuda_total / capacidad_pago (pre-calculado con protección /0)
           ipc20: ipc20,
@@ -509,31 +504,11 @@ export class CsvCarteraRepository implements CarteraRepository {
         };
 
         records.push(record);
-        registrosParseados++;
       } catch (error) {
         console.warn(` Error parseando línea ${i}:`, error);
         continue;
       }
     }
-
-    console.log(` Parseados: ${registrosParseados} registros`);
-    console.log(` Agencias vacías detectadas: ${agenciasVacias}`);
-
-    // Debug: Verificar que las columnas IPC se cargaron correctamente
-    const registrosConIPC = records.filter(
-      (r) => r.ipc1_1 !== undefined || r.ipc2 !== undefined || r.ipc3 !== undefined,
-    );
-    const registrosConCoordenadas = records.filter((r) => r.latitud !== 0 && r.longitud !== 0);
-    console.log(` Registros con valores IPC: ${registrosConIPC.length}`);
-    console.log(`Registros con coordenadas: ${registrosConCoordenadas.length}`);
-
-    // Mostrar muestra de los primeros 3 registros con IPC
-    console.log('Muestra de registros con IPC:');
-    registrosConIPC.slice(0, 3).forEach((r, i) => {
-      console.log(
-        `  ${i + 1}. Cliente: ${r.cliente}, IPC1_1: ${r.ipc1_1}, IPC2: ${r.ipc2}, Coords: [${r.latitud}, ${r.longitud}]`,
-      );
-    });
 
     return records;
   }
